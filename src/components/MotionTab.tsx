@@ -1,64 +1,89 @@
-import { Scene, TransitionType, TextEffect } from '@/types/scene';
+import { Scene, TransitionType, AnimationType, OverlayType, TextPosition } from '@/types/scene';
 
 interface MotionTabProps {
   scene: Scene;
   onUpdate: (updates: Partial<Scene>) => void;
 }
 
-const transitions: { value: TransitionType; label: string; icon: string }[] = [
-  { value: 'default', label: 'Default', icon: '⚡' },
-  { value: 'crossfade', label: 'Crossfade', icon: '🌫' },
-  { value: 'slide', label: 'Slide', icon: '➡' },
-  { value: 'zoom-in', label: 'Zoom', icon: '🔍' },
+const transitions: { value: TransitionType; label: string }[] = [
+  { value: 'default', label: 'Default' },
+  { value: 'crossfade', label: 'Crossfade' },
+  { value: 'zoom-in', label: 'Zoom In' },
+  { value: 'flash', label: 'Flash' },
+  { value: 'slide', label: 'Slide' },
 ];
 
-const textEffects: { value: TextEffect; label: string; icon: string }[] = [
-  { value: 'fade-in', label: 'Fade In', icon: '✨' },
-  { value: 'typewriter', label: 'Typewriter', icon: '⌨' },
-  { value: 'scale-up', label: 'Scale Up', icon: '📐' },
+const animations: { value: AnimationType; label: string }[] = [
+  { value: 'none', label: 'None' },
+  { value: 'ken-burns', label: 'Ken Burns' },
+  { value: 'drift', label: 'Drift' },
+  { value: 'pulse', label: 'Pulse' },
+];
+
+const overlays: { value: OverlayType; label: string }[] = [
+  { value: 'vignette', label: 'Vignette' },
+  { value: 'film-grain', label: 'Film Grain' },
+  { value: 'rgb-split', label: 'RGB Split' },
 ];
 
 export default function MotionTab({ scene, onUpdate }: MotionTabProps) {
   return (
-    <div className="space-y-5 p-4">
-      <div>
-        <span className="text-xs text-muted-foreground mb-2 block font-medium uppercase tracking-wider">Scene Transition</span>
-        <div className="grid grid-cols-4 gap-2">
-          {transitions.map(t => (
-            <button
-              key={t.value}
-              onClick={() => onUpdate({ transition: t.value })}
-              className={`flex flex-col items-center gap-1 py-2.5 rounded-lg text-xs transition-all ${
-                scene.transition === t.value
-                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                  : 'bg-secondary text-secondary-foreground hover:bg-muted'
-              }`}
-            >
-              <span className="text-base">{t.icon}</span>
-              <span className="font-medium">{t.label}</span>
-            </button>
-          ))}
-        </div>
+    <div className="space-y-4 p-4">
+      {/* Transition */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">Transition</span>
+        <select
+          value={scene.transition}
+          onChange={(e) => onUpdate({ transition: e.target.value as TransitionType })}
+          className="bg-secondary border border-border rounded-md px-2.5 py-1.5 text-xs text-foreground"
+        >
+          {transitions.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+        </select>
       </div>
-      <div>
-        <span className="text-xs text-muted-foreground mb-2 block font-medium uppercase tracking-wider">Text Effect</span>
-        <div className="grid grid-cols-3 gap-2">
-          {textEffects.map(e => (
-            <button
-              key={e.value}
-              onClick={() => onUpdate({ textEffect: e.value })}
-              className={`flex flex-col items-center gap-1 py-2.5 rounded-lg text-xs transition-all ${
-                scene.textEffect === e.value
-                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                  : 'bg-secondary text-secondary-foreground hover:bg-muted'
-              }`}
-            >
-              <span className="text-base">{e.icon}</span>
-              <span className="font-medium">{e.label}</span>
-            </button>
-          ))}
-        </div>
+
+      {/* Animation */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">Animation</span>
+        <select
+          value={scene.animation}
+          onChange={(e) => onUpdate({ animation: e.target.value as AnimationType })}
+          className="bg-secondary border border-border rounded-md px-2.5 py-1.5 text-xs text-foreground"
+        >
+          {animations.map(a => <option key={a.value} value={a.value}>{a.label}</option>)}
+        </select>
       </div>
+
+      {/* Overlays */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">Overlays</span>
+        <select
+          value={scene.overlays.length > 0 ? scene.overlays[0] : 'none'}
+          onChange={(e) => {
+            const val = e.target.value;
+            onUpdate({ overlays: val === 'none' ? [] : [val as OverlayType] });
+          }}
+          className="bg-secondary border border-border rounded-md px-2.5 py-1.5 text-xs text-foreground"
+        >
+          <option value="none">None</option>
+          {overlays.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+      </div>
+
+      {/* Text position — only for text overlay scenes */}
+      {scene.assetType !== 'counter' && (
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">Text position</span>
+          <select
+            value={scene.textPosition}
+            onChange={(e) => onUpdate({ textPosition: e.target.value as TextPosition })}
+            className="bg-secondary border border-border rounded-md px-2.5 py-1.5 text-xs text-foreground"
+          >
+            <option value="top">Top</option>
+            <option value="center">Center</option>
+            <option value="bottom">Bottom</option>
+          </select>
+        </div>
+      )}
     </div>
   );
 }
