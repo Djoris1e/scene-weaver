@@ -140,7 +140,7 @@ export default function V6() {
       </div>
 
       {/* Scene list with inline editable text */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-2 scrollbar-none">
+      <div className="shrink-0 max-h-[30vh] overflow-y-auto px-4 pb-2 scrollbar-none">
         <div className="flex flex-col gap-2">
           {scenes.map((scene, idx) => {
             const gStyle = GRADIENT_STYLES.find(g => g.id === scene.gradient.style) || GRADIENT_STYLES[0];
