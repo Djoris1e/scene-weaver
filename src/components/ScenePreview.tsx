@@ -5,6 +5,7 @@ import { Play, Pause, RotateCcw } from 'lucide-react';
 interface ScenePreviewProps {
   scene: Scene;
   totalDuration: number;
+  compact?: boolean;
 }
 
 export default function ScenePreview({ scene, totalDuration }: ScenePreviewProps) {
