@@ -1,121 +1,116 @@
 import { useState, useCallback } from 'react';
-import { Scene } from '@/types/scene';
+import { Scene, GRADIENT_STYLES } from '@/types/scene';
 import { Input } from '@/components/ui/input';
-import { Search, Upload, Loader2 } from 'lucide-react';
+import { Search, Upload, Loader2, Palette, Code } from 'lucide-react';
 
 interface MediaTabProps {
   scene: Scene;
   onUpdate: (updates: Partial<Scene>) => void;
+  onOpenSearch: () => void;
 }
 
-interface UnsplashImage {
-  id: string;
-  urls: { small: string; regular: string };
-  alt_description: string | null;
-}
-
-export default function MediaTab({ scene, onUpdate }: MediaTabProps) {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<UnsplashImage[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const searchUnsplash = useCallback(async () => {
-    if (!query.trim()) return;
-    setLoading(true);
-    try {
-      // Using Unsplash demo/public access
-      const res = await fetch(
-        `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=12&orientation=portrait`,
-        { headers: { Authorization: 'Client-ID demo' } }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setResults(data.results || []);
-      } else {
-        // Fallback: generate placeholder images for demo
-        setResults(
-          Array.from({ length: 8 }, (_, i) => ({
-            id: `placeholder-${i}`,
-            urls: {
-              small: `https://picsum.photos/seed/${query}-${i}/200/350`,
-              regular: `https://picsum.photos/seed/${query}-${i}/1080/1920`,
-            },
-            alt_description: `${query} ${i + 1}`,
-          }))
-        );
-      }
-    } catch {
-      // Fallback to picsum
-      setResults(
-        Array.from({ length: 8 }, (_, i) => ({
-          id: `placeholder-${i}`,
-          urls: {
-            small: `https://picsum.photos/seed/${query}-${i}/200/350`,
-            regular: `https://picsum.photos/seed/${query}-${i}/1080/1920`,
-          },
-          alt_description: `${query} ${i + 1}`,
-        }))
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [query]);
-
+export default function MediaTab({ scene, onUpdate, onOpenSearch }: MediaTabProps) {
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
-    onUpdate({ backgroundUrl: url });
+    onUpdate({ backgroundUrl: url, assetType: 'media' });
   };
 
   return (
-    <div className="space-y-3 p-4">
-      {/* Search */}
-      <form onSubmit={(e) => { e.preventDefault(); searchUnsplash(); }} className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search images..."
-            className="pl-8 h-9 bg-secondary border-border text-sm"
-          />
-        </div>
+    <div className="space-y-4 p-4">
+      {/* Asset type switcher */}
+      <div className="flex gap-2">
         <button
-          type="submit"
-          disabled={loading}
-          className="h-9 px-3 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+          onClick={onOpenSearch}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
         >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Go'}
+          <Search className="w-3.5 h-3.5" />
+          Search
         </button>
-      </form>
+        <label className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium bg-secondary text-secondary-foreground hover:bg-muted transition-colors cursor-pointer">
+          <Upload className="w-3.5 h-3.5" />
+          Upload
+          <input type="file" accept="image/*,video/*" className="hidden" onChange={handleUpload} />
+        </label>
+        <button
+          onClick={() => onUpdate({ assetType: 'gradient', backgroundUrl: null })}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-colors ${
+            scene.assetType === 'gradient' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'
+          }`}
+        >
+          <Palette className="w-3.5 h-3.5" />
+          Gradient
+        </button>
+        <button
+          onClick={() => onUpdate({ assetType: 'counter' })}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-colors ${
+            scene.assetType === 'counter' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'
+          }`}
+        >
+          <Code className="w-3.5 h-3.5" />
+          Counter
+        </button>
+      </div>
 
-      {/* Upload */}
-      <label className="flex items-center gap-2 px-3 py-2 rounded-md bg-secondary text-secondary-foreground text-sm cursor-pointer hover:bg-muted transition-colors">
-        <Upload className="w-4 h-4" />
-        Upload image
-        <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
-      </label>
-
-      {/* Results grid */}
-      {results.length > 0 && (
-        <div className="grid grid-cols-3 gap-1.5 max-h-40 overflow-y-auto">
-          {results.map(img => (
-            <button
-              key={img.id}
-              onClick={() => onUpdate({ backgroundUrl: img.urls.regular })}
-              className={`relative aspect-[9/16] rounded overflow-hidden border-2 transition-all ${
-                scene.backgroundUrl === img.urls.regular ? 'border-primary' : 'border-transparent'
-              }`}
-            >
-              <img
-                src={img.urls.small}
-                alt={img.alt_description || 'Image'}
-                className="w-full h-full object-cover"
-                loading="lazy"
+      {/* Gradient picker */}
+      {scene.assetType === 'gradient' && (
+        <div>
+          <span className="text-xs text-muted-foreground mb-2 block">Pattern</span>
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-1">
+            {GRADIENT_STYLES.map(g => (
+              <button
+                key={g.id}
+                onClick={() => onUpdate({ gradient: { ...scene.gradient, style: g.id } })}
+                className={`flex-shrink-0 w-14 h-14 rounded-lg border-2 transition-all ${
+                  scene.gradient.style === g.id ? 'border-primary scale-105' : 'border-transparent hover:border-muted-foreground/30'
+                }`}
+                style={{ background: g.preview }}
+                title={g.label}
               />
-            </button>
-          ))}
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Counter inputs */}
+      {scene.assetType === 'counter' && (
+        <div className="space-y-2">
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">Number</label>
+            <Input
+              type="number"
+              value={scene.counter.number}
+              onChange={(e) => onUpdate({ counter: { ...scene.counter, number: Number(e.target.value) } })}
+              className="bg-secondary border-border h-9"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">Label</label>
+            <Input
+              value={scene.counter.label}
+              onChange={(e) => onUpdate({ counter: { ...scene.counter, label: e.target.value } })}
+              className="bg-secondary border-border h-9"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">Unit (%, s, k, days)</label>
+            <Input
+              value={scene.counter.unit}
+              onChange={(e) => onUpdate({ counter: { ...scene.counter, unit: e.target.value } })}
+              className="bg-secondary border-border h-9"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Current background */}
+      {scene.assetType === 'media' && scene.backgroundUrl && (
+        <div>
+          <span className="text-xs text-muted-foreground mb-1 block">Current</span>
+          <div className="w-16 h-24 rounded-lg overflow-hidden border border-border">
+            <img src={scene.backgroundUrl} alt="" className="w-full h-full object-cover" />
+          </div>
         </div>
       )}
     </div>
