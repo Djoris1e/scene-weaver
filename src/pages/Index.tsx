@@ -1,123 +1,46 @@
-import { useState, useCallback } from 'react';
-import { useSceneStore } from '@/hooks/useSceneStore';
-import ScenePreview from '@/components/ScenePreview';
-import SceneStrip from '@/components/SceneStrip';
-import EditorPanel from '@/components/EditorPanel';
-import PromptInput from '@/components/PromptInput';
-import SearchDialog from '@/components/SearchDialog';
-import { Progress } from '@/components/ui/progress';
-import { Download, Sparkles } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+import { Layout, Layers } from 'lucide-react';
 
 const Index = () => {
-  const {
-    scenes, activeIndex, activeScene, totalDuration,
-    setActiveIndex, addScene, deleteScene, updateScene,
-    brandKit, setBrandKit, endScreen, setEndScreen,
-  } = useSceneStore();
+  const navigate = useNavigate();
 
-  const [exporting, setExporting] = useState(false);
-  const [exportProgress, setExportProgress] = useState(0);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [showPrompt, setShowPrompt] = useState(false);
-
-  const handleExport = () => {
-    setExporting(true);
-    setExportProgress(0);
-    const interval = setInterval(() => {
-      setExportProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setExporting(false);
-          toast({ title: '✅ Video ready!', description: 'Your video has been exported.' });
-          return 0;
-        }
-        return prev + 4;
-      });
-    }, 80);
-  };
-
-  const handleGenerate = (prompt: string) => {
-    toast({ title: '🎬 Generating…', description: `Creating scenes for: "${prompt}"` });
-    setShowPrompt(false);
-  };
-
-  const handleOpenSearch = useCallback(() => setSearchOpen(true), []);
-  const handleSearchSelect = (url: string) => {
-    updateScene(activeIndex, { backgroundUrl: url, assetType: 'media' });
-  };
+  const versions = [
+    {
+      id: 'v1',
+      title: 'V1 — Tabbed Drawer',
+      description: 'Bottom tab bar with separate Text, Media, Motion, Style, and Settings panels.',
+      icon: <Layout className="w-5 h-5" />,
+    },
+    {
+      id: 'v2',
+      title: 'V2 — Single Scroll',
+      description: 'Unified scrollable editor with collapsible sections and floating playback controls.',
+      icon: <Layers className="w-5 h-5" />,
+    },
+  ];
 
   return (
-    <div className="flex flex-col h-screen bg-background overflow-hidden">
-      {exporting && (
-        <div className="absolute top-0 left-0 right-0 z-50">
-          <Progress value={exportProgress} className="h-1 rounded-none bg-secondary [&>div]:bg-primary" />
-        </div>
-      )}
-
-      {/* Header */}
-      <header className="flex items-center justify-between px-4 h-11 border-b border-border flex-shrink-0">
-        <h1 className="text-sm font-bold tracking-tight text-primary">Sequence</h1>
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setShowPrompt(!showPrompt)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-accent/15 text-accent hover:bg-accent/25 transition-colors"
-          >
-            <Sparkles className="w-3 h-3" />
-            AI
-          </button>
-          <button
-            onClick={handleExport}
-            disabled={exporting}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-[11px] font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
-          >
-            <Download className="w-3 h-3" />
-            Export
-          </button>
-        </div>
-      </header>
-
-      {/* AI Prompt (collapsible) */}
-      {showPrompt && (
-        <div className="px-3 py-2.5 border-b border-border flex-shrink-0 bg-card">
-          <PromptInput onGenerate={handleGenerate} />
-        </div>
-      )}
-
-      {/* Preview */}
-      <div className="flex-shrink-0">
-        <ScenePreview scene={activeScene} totalDuration={totalDuration} />
+    <div className="flex flex-col items-center justify-center h-screen bg-background px-6 gap-6">
+      <div className="text-center">
+        <h1 className="text-xl font-bold text-foreground tracking-tight">Sequence</h1>
+        <p className="text-sm text-muted-foreground mt-1">Choose a version to explore</p>
       </div>
 
-      {/* Scene strip */}
-      <SceneStrip
-        scenes={scenes}
-        activeIndex={activeIndex}
-        onSelect={setActiveIndex}
-        onAdd={addScene}
-        onDelete={deleteScene}
-      />
-
-      {/* Editor panel — single scrollable view */}
-      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none">
-        <EditorPanel
-          scene={activeScene}
-          sceneIndex={activeIndex}
-          onUpdate={(updates) => updateScene(activeIndex, updates)}
-          onOpenSearch={handleOpenSearch}
-          brandKit={brandKit}
-          onBrandKitUpdate={(updates) => setBrandKit(prev => ({ ...prev, ...updates }))}
-          endScreen={endScreen}
-          onEndScreenUpdate={(updates) => setEndScreen(prev => ({ ...prev, ...updates }))}
-        />
+      <div className="flex flex-col gap-3 w-full max-w-sm">
+        {versions.map(v => (
+          <button
+            key={v.id}
+            onClick={() => navigate(`/${v.id}`)}
+            className="flex items-start gap-3 p-4 rounded-xl border border-border bg-card hover:bg-muted transition-colors text-left"
+          >
+            <div className="mt-0.5 text-primary">{v.icon}</div>
+            <div>
+              <h2 className="text-sm font-semibold text-foreground">{v.title}</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">{v.description}</p>
+            </div>
+          </button>
+        ))}
       </div>
-
-      {/* Search dialog */}
-      <SearchDialog
-        open={searchOpen}
-        onClose={() => setSearchOpen(false)}
-        onSelect={handleSearchSelect}
-      />
     </div>
   );
 };
