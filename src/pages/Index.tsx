@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Layout, Layers, GalleryHorizontalEnd, List } from 'lucide-react';
+import { Layout, Layers, GalleryHorizontalEnd, List, Smartphone } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -28,6 +28,12 @@ const Index = () => {
       title: 'V4 — Vertical Timeline',
       description: 'All scenes in a scrollable timeline. Tap any scene to expand its inline editor.',
       icon: <List className="w-5 h-5" />,
+    },
+    {
+      id: 'v5',
+      title: 'V5 — iOS Clip List',
+      description: 'Full-screen preview with scrubber, scrollable clip list, and bottom-sheet scene editor.',
+      icon: <Smartphone className="w-5 h-5" />,
     },
   ];
 
