@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useSceneStore } from '@/hooks/useSceneStore';
-import { Scene, GRADIENT_STYLES, TextEffect, TransitionType, AnimationType, OverlayType } from '@/types/scene';
+import { Scene, GRADIENT_STYLES, TextEffect, TransitionType, AnimationType, OverlayType, TEXT_COLOR_PAIRINGS, FONT_OPTIONS } from '@/types/scene';
+import ScenePreview from '@/components/ScenePreview';
 import SearchDialog from '@/components/SearchDialog';
 import PromptInput from '@/components/PromptInput';
 import BrandKitSection from '@/components/BrandKit';
