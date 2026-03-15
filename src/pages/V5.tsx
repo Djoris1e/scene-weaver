@@ -153,7 +153,7 @@ export default function V5() {
       {/* Preview — takes up flexible space */}
       <div className="flex-1 min-h-0 relative bg-stage">
         <div className="absolute inset-0 flex items-center justify-center p-4">
-          <div className="relative w-full h-full max-w-[340px] rounded-lg overflow-hidden" style={{ aspectRatio: '9/16', maxHeight: '100%' }}>
+          <div className="relative rounded-lg overflow-hidden" style={{ aspectRatio: '9/16', height: '100%', maxHeight: '100%', width: 'auto' }}>
             {renderPreviewBg()}
 
             {/* Text overlay */}
