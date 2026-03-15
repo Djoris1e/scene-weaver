@@ -8,6 +8,7 @@ import V1 from "./pages/V1.tsx";
 import V2 from "./pages/V2.tsx";
 import V3 from "./pages/V3.tsx";
 import V4 from "./pages/V4.tsx";
+import V5 from "./pages/V5.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
