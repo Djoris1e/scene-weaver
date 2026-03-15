@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Layout, Layers, GalleryHorizontalEnd, List, Smartphone } from 'lucide-react';
+import { Layout, Layers, GalleryHorizontalEnd, List, Smartphone, TextCursorInput } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -34,6 +34,12 @@ const Index = () => {
       title: 'V5 — iOS Clip List',
       description: 'Full-screen preview with scrubber, scrollable clip list, and bottom-sheet scene editor.',
       icon: <Smartphone className="w-5 h-5" />,
+    },
+    {
+      id: 'v6',
+      title: 'V6 — Inline Edit Cards',
+      description: 'Like V5 but with text directly editable in each card. Expand for more settings.',
+      icon: <TextCursorInput className="w-5 h-5" />,
     },
   ];
 
