@@ -50,7 +50,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-background px-6 gap-6">
+    <div className="flex flex-col items-center min-h-screen bg-background px-6 py-8 gap-6">
       <div className="text-center">
         <h1 className="text-xl font-bold text-foreground tracking-tight">Sequence</h1>
         <p className="text-sm text-muted-foreground mt-1">Choose a version to explore</p>
