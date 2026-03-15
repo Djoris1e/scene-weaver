@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useSceneStore } from '@/hooks/useSceneStore';
-import { Scene, GRADIENT_STYLES, TextEffect, TransitionType, AnimationType, OverlayType } from '@/types/scene';
+import { Scene, GRADIENT_STYLES, TextEffect, TransitionType, AnimationType, OverlayType, TEXT_COLOR_PAIRINGS, FONT_OPTIONS } from '@/types/scene';
+import ScenePreview from '@/components/ScenePreview';
 import SearchDialog from '@/components/SearchDialog';
 import PromptInput from '@/components/PromptInput';
 import BrandKitSection from '@/components/BrandKit';
@@ -276,12 +277,17 @@ const V4 = () => {
         </div>
       )}
 
+      {/* Preview */}
+      <div className="flex-shrink-0 flex" style={{ height: '35vh' }}>
+        <ScenePreview scene={activeScene} totalDuration={totalDuration} compact />
+      </div>
+
       {/* Compact playback bar */}
       <div className="flex-shrink-0 border-b border-border bg-card">
         <div className="h-0.5 bg-secondary">
           <div className="h-full bg-primary transition-all duration-100" style={{ width: `${progress}%` }} />
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5">
+        <div className="flex items-center gap-2 px-3 py-1">
           <button onClick={() => setPlaying(!playing)} className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center hover:bg-primary/25 transition-colors">
             {playing ? <Pause className="w-3 h-3 text-primary" /> : <Play className="w-3 h-3 text-primary ml-0.5" />}
           </button>

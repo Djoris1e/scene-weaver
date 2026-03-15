@@ -92,12 +92,11 @@ const V3 = () => {
 
       {/* Carousel area */}
       <div
-        className="flex-shrink-0 relative"
+        className="flex-1 min-h-0 flex relative"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Scene preview */}
         <ScenePreview scene={activeScene} totalDuration={totalDuration} />
 
         {/* Left/Right arrows */}

@@ -5,9 +5,10 @@ import { Play, Pause, RotateCcw } from 'lucide-react';
 interface ScenePreviewProps {
   scene: Scene;
   totalDuration: number;
+  compact?: boolean;
 }
 
-export default function ScenePreview({ scene, totalDuration }: ScenePreviewProps) {
+export default function ScenePreview({ scene, totalDuration, compact = false }: ScenePreviewProps) {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const intervalRef = useRef<number | null>(null);
@@ -58,8 +59,8 @@ export default function ScenePreview({ scene, totalDuration }: ScenePreviewProps
   };
 
   return (
-    <div className="relative w-full flex justify-center bg-stage px-4 py-3">
-      <div className="relative rounded-2xl overflow-hidden shadow-2xl" style={{ aspectRatio: '9/16', height: '240px' }}>
+    <div className={`relative w-full flex justify-center bg-stage ${compact ? 'px-4 py-2' : 'px-4 py-3 flex-1 min-h-0'}`}>
+      <div className="relative rounded-2xl overflow-hidden shadow-2xl h-full" style={{ aspectRatio: '9/16', maxHeight: compact ? '220px' : '100%' }}>
         {renderBackground()}
 
         {/* Text overlay */}
