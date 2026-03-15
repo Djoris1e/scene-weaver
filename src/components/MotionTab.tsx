@@ -6,10 +6,10 @@ interface MotionTabProps {
 }
 
 const transitions: { value: TransitionType; label: string; icon: string }[] = [
-  { value: 'cut', label: 'Cut', icon: '⚡' },
-  { value: 'fade', label: 'Fade', icon: '🌫' },
+  { value: 'default', label: 'Default', icon: '⚡' },
+  { value: 'crossfade', label: 'Crossfade', icon: '🌫' },
   { value: 'slide', label: 'Slide', icon: '➡' },
-  { value: 'zoom', label: 'Zoom', icon: '🔍' },
+  { value: 'zoom-in', label: 'Zoom', icon: '🔍' },
 ];
 
 const textEffects: { value: TextEffect; label: string; icon: string }[] = [
@@ -21,11 +21,8 @@ const textEffects: { value: TextEffect; label: string; icon: string }[] = [
 export default function MotionTab({ scene, onUpdate }: MotionTabProps) {
   return (
     <div className="space-y-5 p-4">
-      {/* Transitions */}
       <div>
-        <span className="text-xs text-muted-foreground mb-2 block font-medium uppercase tracking-wider">
-          Scene Transition
-        </span>
+        <span className="text-xs text-muted-foreground mb-2 block font-medium uppercase tracking-wider">Scene Transition</span>
         <div className="grid grid-cols-4 gap-2">
           {transitions.map(t => (
             <button
@@ -43,12 +40,8 @@ export default function MotionTab({ scene, onUpdate }: MotionTabProps) {
           ))}
         </div>
       </div>
-
-      {/* Text Effects */}
       <div>
-        <span className="text-xs text-muted-foreground mb-2 block font-medium uppercase tracking-wider">
-          Text Effect
-        </span>
+        <span className="text-xs text-muted-foreground mb-2 block font-medium uppercase tracking-wider">Text Effect</span>
         <div className="grid grid-cols-3 gap-2">
           {textEffects.map(e => (
             <button
