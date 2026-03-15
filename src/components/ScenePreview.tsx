@@ -8,7 +8,7 @@ interface ScenePreviewProps {
   compact?: boolean;
 }
 
-export default function ScenePreview({ scene, totalDuration }: ScenePreviewProps) {
+export default function ScenePreview({ scene, totalDuration, compact = false }: ScenePreviewProps) {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const intervalRef = useRef<number | null>(null);
