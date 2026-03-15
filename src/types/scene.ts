@@ -1,6 +1,26 @@
 export type TextPosition = 'top' | 'center' | 'bottom';
-export type TransitionType = 'fade' | 'slide' | 'zoom' | 'cut';
-export type TextEffect = 'fade-in' | 'typewriter' | 'scale-up';
+export type TransitionType = 'default' | 'crossfade' | 'zoom-in' | 'flash' | 'slide';
+export type TextEffect = 'default' | 'fade-in' | 'typewriter' | 'scale-up';
+export type AnimationType = 'none' | 'ken-burns' | 'drift' | 'pulse';
+export type OverlayType = 'vignette' | 'film-grain' | 'rgb-split';
+export type AssetType = 'media' | 'gradient' | 'counter';
+
+export interface GradientConfig {
+  style: string;
+  bgColor: string;
+  fillColor: string;
+  complexity: number;
+  contrast: number;
+  size: number;
+  speed: number;
+  variant: 'solid' | 'outline';
+}
+
+export interface CounterConfig {
+  number: number;
+  label: string;
+  unit: string;
+}
 
 export interface TextColorPairing {
   id: string;
@@ -27,6 +47,21 @@ export const FONT_OPTIONS = [
   { id: 'mono', label: 'Code', family: "'JetBrains Mono', monospace" },
 ];
 
+export const GRADIENT_STYLES = [
+  { id: 'blob', label: 'Blob', preview: 'radial-gradient(circle at 30% 50%, #E8724A 0%, #E91E8C 100%)' },
+  { id: 'wave', label: 'Wave', preview: 'linear-gradient(135deg, #E8724A 0%, #E91E8C 50%, #E8724A 100%)' },
+  { id: 'blur-gradient', label: 'Blur Gradient', preview: 'radial-gradient(ellipse at 70% 30%, #E91E8C 0%, #E8724A 100%)' },
+  { id: 'circle-scatter', label: 'Circle Scatter', preview: 'radial-gradient(circle at 20% 80%, #E8724A 0%, transparent 50%), radial-gradient(circle at 80% 20%, #E91E8C 0%, transparent 50%), #2a1a1a' },
+  { id: 'blob-scene', label: 'Blob Scene', preview: 'radial-gradient(circle at 60% 60%, #E91E8C 0%, #E8724A 60%, #2a1a1a 100%)' },
+  { id: 'layered', label: 'Layered', preview: 'linear-gradient(180deg, #E8724A 0%, #E91E8C 50%, #2a1a1a 100%)' },
+  { id: 'stacked-waves', label: 'Stacked Waves', preview: 'linear-gradient(160deg, #E91E8C 0%, #E8724A 100%)' },
+  { id: 'blob-scatter', label: 'Blob Scatter', preview: 'radial-gradient(circle at 40% 40%, #E8724A 0%, transparent 40%), radial-gradient(circle at 70% 70%, #E91E8C 0%, transparent 40%), #1a1018' },
+  { id: 'polygon-scatter', label: 'Polygon Scatter', preview: 'conic-gradient(from 45deg, #E8724A, #E91E8C, #E8724A)' },
+  { id: 'symbol-scatter', label: 'Symbol Scatter', preview: 'linear-gradient(45deg, #E91E8C 0%, #E8724A 100%)' },
+  { id: 'radial-gradient', label: 'Radial Gradient', preview: 'radial-gradient(circle, #E91E8C 0%, #E8724A 50%, #1a1018 100%)' },
+  { id: 'mesh-gradient', label: 'Mesh Gradient', preview: 'linear-gradient(135deg, #E8724A 0%, #E91E8C 33%, #E8724A 66%, #E91E8C 100%)' },
+];
+
 export interface Scene {
   id: string;
   text: string;
@@ -36,6 +71,13 @@ export interface Scene {
   backgroundUrl: string | null;
   transition: TransitionType;
   textEffect: TextEffect;
+  animation: AnimationType;
+  overlays: OverlayType[];
+  assetType: AssetType;
+  gradient: GradientConfig;
+  counter: CounterConfig;
+  startTime: number;
+  endTime: number;
 }
 
 export const createDefaultScene = (): Scene => ({
@@ -45,6 +87,26 @@ export const createDefaultScene = (): Scene => ({
   textColorId: 'white',
   fontId: 'sans',
   backgroundUrl: null,
-  transition: 'fade',
-  textEffect: 'fade-in',
+  transition: 'default',
+  textEffect: 'default',
+  animation: 'none',
+  overlays: [],
+  assetType: 'gradient',
+  gradient: {
+    style: 'blob',
+    bgColor: '#E8724A',
+    fillColor: '#E91E8C',
+    complexity: 50,
+    contrast: 50,
+    size: 50,
+    speed: 25,
+    variant: 'solid',
+  },
+  counter: {
+    number: 0,
+    label: 'Label',
+    unit: '',
+  },
+  startTime: 0,
+  endTime: 3,
 });
