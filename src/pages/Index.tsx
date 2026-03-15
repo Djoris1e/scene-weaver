@@ -41,6 +41,12 @@ const Index = () => {
       description: 'Like V5 but with text directly editable in each card. Expand for more settings.',
       icon: <TextCursorInput className="w-5 h-5" />,
     },
+    {
+      id: 'v7',
+      title: 'V7 — Polished Final',
+      description: 'Best of V5+V6: inline editing, select mode, segmented scrubber, and refined design.',
+      icon: <Star className="w-5 h-5" />,
+    },
   ];
 
   return (
