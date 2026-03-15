@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Layout, Layers } from 'lucide-react';
+import { Layout, Layers, Swatches, List } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -16,6 +16,18 @@ const Index = () => {
       title: 'V2 — Single Scroll',
       description: 'Unified scrollable editor with collapsible sections and floating playback controls.',
       icon: <Layers className="w-5 h-5" />,
+    },
+    {
+      id: 'v3',
+      title: 'V3 — Swipeable Carousel',
+      description: 'Swipe left/right through scenes with dot indicators and arrow navigation.',
+      icon: <Swatches className="w-5 h-5" />,
+    },
+    {
+      id: 'v4',
+      title: 'V4 — Vertical Timeline',
+      description: 'All scenes in a scrollable timeline. Tap any scene to expand its inline editor.',
+      icon: <List className="w-5 h-5" />,
     },
   ];
 
