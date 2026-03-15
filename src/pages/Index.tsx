@@ -35,6 +35,12 @@ const Index = () => {
       description: 'Full-screen preview with scrubber, scrollable clip list, and bottom-sheet scene editor.',
       icon: <Smartphone className="w-5 h-5" />,
     },
+    {
+      id: 'v6',
+      title: 'V6 — Inline Edit Cards',
+      description: 'Like V5 but with text directly editable in each card. Expand for more settings.',
+      icon: <TextCursorInput className="w-5 h-5" />,
+    },
   ];
 
   return (
