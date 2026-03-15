@@ -21,7 +21,7 @@ const Index = () => {
       id: 'v3',
       title: 'V3 — Swipeable Carousel',
       description: 'Swipe left/right through scenes with dot indicators and arrow navigation.',
-      icon: <Swatches className="w-5 h-5" />,
+      icon: <GalleryHorizontalEnd className="w-5 h-5" />,
     },
     {
       id: 'v4',
