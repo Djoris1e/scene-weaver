@@ -1,6 +1,5 @@
 import { Scene, GRADIENT_STYLES } from '@/types/scene';
 import { Plus, X } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 interface SceneStripProps {
   scenes: Scene[];
@@ -12,55 +11,58 @@ interface SceneStripProps {
 
 export default function SceneStrip({ scenes, activeIndex, onSelect, onAdd, onDelete }: SceneStripProps) {
   return (
-    <div className="flex items-center gap-2 px-3 py-2 bg-scene-strip overflow-x-auto scrollbar-none flex-shrink-0">
-      {scenes.map((scene, i) => {
-        const gradientStyle = GRADIENT_STYLES.find(g => g.id === scene.gradient.style) || GRADIENT_STYLES[0];
-        return (
-          <motion.button
-            key={scene.id}
-            layout
-            onClick={() => onSelect(i)}
-            className={`relative flex-shrink-0 w-12 h-[68px] rounded-lg overflow-hidden border-2 transition-colors ${
-              i === activeIndex ? 'border-primary' : 'border-transparent hover:border-muted-foreground/30'
-            }`}
-          >
-            {scene.assetType === 'media' && scene.backgroundUrl ? (
-              <img src={scene.backgroundUrl} alt="" className="w-full h-full object-cover" />
-            ) : scene.assetType === 'counter' ? (
-              <div className="w-full h-full flex items-center justify-center" style={{ background: gradientStyle.preview }}>
-                <span className="text-xs font-bold text-primary">{scene.counter.number}</span>
-              </div>
-            ) : (
-              <div className="w-full h-full" style={{ background: gradientStyle.preview }}>
-                {scene.text && (
-                  <div className="absolute inset-0 flex items-center justify-center px-1">
-                    <span className="text-[6px] text-foreground/80 text-center leading-tight line-clamp-3">{scene.text}</span>
-                  </div>
-                )}
-              </div>
-            )}
-            <div className="absolute bottom-0 left-0 right-0 bg-background/60 text-[7px] text-center text-muted-foreground py-0.5">
-              #{i + 1}
-            </div>
-            {scenes.length > 1 && i === activeIndex && (
+    <div className="flex-shrink-0 border-y border-border bg-scene-strip">
+      <div className="flex items-center gap-1 px-3 py-1.5">
+        <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground mr-1.5 flex-shrink-0">
+          {scenes.length}
+        </span>
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none flex-1">
+          {scenes.map((scene, i) => {
+            const grad = GRADIENT_STYLES.find(g => g.id === scene.gradient.style) || GRADIENT_STYLES[0];
+            const isActive = i === activeIndex;
+            return (
               <button
-                onClick={(e) => { e.stopPropagation(); onDelete(i); }}
-                className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive rounded-full flex items-center justify-center"
+                key={scene.id}
+                onClick={() => onSelect(i)}
+                className={`relative flex-shrink-0 w-10 h-14 rounded-lg overflow-hidden transition-all ${
+                  isActive
+                    ? 'ring-2 ring-primary ring-offset-1 ring-offset-background scale-105'
+                    : 'opacity-60 hover:opacity-90'
+                }`}
               >
-                <X className="w-2.5 h-2.5 text-destructive-foreground" />
+                {scene.assetType === 'media' && scene.backgroundUrl ? (
+                  <img src={scene.backgroundUrl} alt="" className="w-full h-full object-cover" />
+                ) : scene.assetType === 'counter' ? (
+                  <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-primary" style={{ background: grad.preview }}>
+                    {scene.counter.number}
+                  </div>
+                ) : (
+                  <div className="w-full h-full" style={{ background: grad.preview }} />
+                )}
+                <span className="absolute bottom-0 inset-x-0 text-[7px] text-center bg-background/70 text-muted-foreground py-px">
+                  {i + 1}
+                </span>
+                {scenes.length > 1 && isActive && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDelete(i); }}
+                    className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-destructive rounded-full flex items-center justify-center"
+                  >
+                    <X className="w-2 h-2 text-destructive-foreground" />
+                  </button>
+                )}
               </button>
-            )}
-          </motion.button>
-        );
-      })}
-      {scenes.length < 10 && (
-        <button
-          onClick={onAdd}
-          className="flex-shrink-0 w-12 h-[68px] rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center hover:border-primary/50 transition-colors"
-        >
-          <Plus className="w-4 h-4 text-muted-foreground" />
-        </button>
-      )}
+            );
+          })}
+          {scenes.length < 10 && (
+            <button
+              onClick={onAdd}
+              className="flex-shrink-0 w-10 h-14 rounded-lg border border-dashed border-muted-foreground/25 flex items-center justify-center hover:border-primary/40 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
