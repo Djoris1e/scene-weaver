@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Layout, Layers, GalleryHorizontalEnd, List, Smartphone, TextCursorInput } from 'lucide-react';
+import { Layout, Layers, GalleryHorizontalEnd, List, Smartphone, TextCursorInput, Star } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -41,10 +41,16 @@ const Index = () => {
       description: 'Like V5 but with text directly editable in each card. Expand for more settings.',
       icon: <TextCursorInput className="w-5 h-5" />,
     },
+    {
+      id: 'v7',
+      title: 'V7 — Polished Final',
+      description: 'Best of V5+V6: inline editing, select mode, segmented scrubber, and refined design.',
+      icon: <Star className="w-5 h-5" />,
+    },
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-background px-6 gap-6">
+    <div className="flex flex-col items-center min-h-screen bg-background px-6 py-8 gap-6">
       <div className="text-center">
         <h1 className="text-xl font-bold text-foreground tracking-tight">Sequence</h1>
         <p className="text-sm text-muted-foreground mt-1">Choose a version to explore</p>
