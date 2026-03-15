@@ -85,7 +85,7 @@ const Index = () => {
       )}
 
       {/* Preview */}
-      <div className="flex-shrink-0">
+      <div className="flex-1 min-h-0 flex">
         <ScenePreview scene={activeScene} totalDuration={totalDuration} />
       </div>
 
