@@ -322,8 +322,13 @@ const SETTINGS_TABS = [
   { id: 'endscreen', label: 'End Screen', icon: <Settings className="w-5 h-5" /> },
 ];
 
-function SettingsPanel({ onClose }: { onClose: () => void }) {
-  const { brandKit, setBrandKit, endScreen, setEndScreen } = useSceneStore();
+function SettingsPanel({ onClose, brandKit, setBrandKit, endScreen, setEndScreen }: {
+  onClose: () => void;
+  brandKit: { bgColor: string; accentColor: string; logoUrl: string | null; slogan: string };
+  setBrandKit: (v: typeof brandKit) => void;
+  endScreen: { enabled: boolean; duration: number };
+  setEndScreen: (v: typeof endScreen) => void;
+}) {
   const [tab, setTab] = useState('brand');
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
