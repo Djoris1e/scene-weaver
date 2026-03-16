@@ -6,28 +6,32 @@ import { TEXT_COLOR_PAIRINGS, FONT_OPTIONS, GRADIENT_STYLES, Scene } from '@/typ
 import {
   Play, Pause, Plus, Share2, X, Settings,
   AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd,
-  ChevronDown, ChevronRight, Sparkles, Send, Loader2, Check, Upload, Trash2,
+  Sparkles, Send, Loader2, Check, Upload, Trash2,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const SCALE = 80;
 
-/* ─── Collapsible Section ─────────────────────────────────────── */
+/* ─── Pill Tab Bar ────────────────────────────────────────────── */
 
-function Section({ title, defaultOpen = true, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) {
-  const [open, setOpen] = useState(defaultOpen);
+function TabBar({ tabs, active, onChange }: { tabs: { id: string; label: string }[]; active: string; onChange: (id: string) => void }) {
   return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger className="flex items-center gap-1.5 w-full py-1.5 group">
-        {open ? <ChevronDown className="w-3 h-3 text-muted-foreground" /> : <ChevronRight className="w-3 h-3 text-muted-foreground" />}
-        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">{title}</span>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="space-y-2.5 pb-2">
-        {children}
-      </CollapsibleContent>
-    </Collapsible>
+    <div className="flex gap-1 p-1 bg-secondary/50 rounded-xl">
+      {tabs.map(t => (
+        <button
+          key={t.id}
+          onClick={() => onChange(t.id)}
+          className={`flex-1 px-3 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all
+            ${active === t.id
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+            }`}
+        >
+          {t.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -40,7 +44,14 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
-/* ─── Scene Editor (dynamic height, collapsible sections) ───── */
+/* ─── Scene Editor (tabbed, no max-height) ────────────────────── */
+
+const EDITOR_TABS = [
+  { id: 'text', label: 'Text' },
+  { id: 'background', label: 'Background' },
+  { id: 'motion', label: 'Motion' },
+  { id: 'timing', label: 'Timing' },
+];
 
 function SceneEditor({
   scene, index, onUpdate, onDelete, onClose, totalScenes,
@@ -49,110 +60,122 @@ function SceneEditor({
   onUpdate: (u: Partial<Scene>) => void;
   onDelete: () => void; onClose: () => void; totalScenes: number;
 }) {
+  const [tab, setTab] = useState('text');
   const dur = +(scene.endTime - scene.startTime).toFixed(1);
 
   return (
-    <div className="bg-card border-t border-border rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
+    <div className="bg-card border-t border-border">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Scene {index + 1}</span>
         <button onClick={onClose} className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors">
           <X className="w-3.5 h-3.5 text-muted-foreground" />
         </button>
       </div>
-      <div className="px-4 pb-4 space-y-1 max-h-[60vh] overflow-y-auto scrollbar-none">
-        {/* Text section */}
-        <Section title="Text" defaultOpen={true}>
-          <input
-            type="text" value={scene.text} onChange={e => onUpdate({ text: e.target.value })}
-            placeholder="Scene text..." className="w-full bg-secondary rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
-          />
-          <Row label="Position">
-            <div className="flex gap-1">
-              {([
-                { val: 'top' as const, icon: <AlignVerticalJustifyStart className="w-3.5 h-3.5" /> },
-                { val: 'center' as const, icon: <AlignVerticalJustifyCenter className="w-3.5 h-3.5" /> },
-                { val: 'bottom' as const, icon: <AlignVerticalJustifyEnd className="w-3.5 h-3.5" /> },
-              ]).map(p => (
-                <button key={p.val} onClick={() => onUpdate({ textPosition: p.val })}
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all
-                    ${scene.textPosition === p.val ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'}`}>
-                  {p.icon}
-                </button>
-              ))}
-            </div>
-          </Row>
-          <Row label="Color">
-            <div className="flex gap-1.5 flex-wrap">
-              {TEXT_COLOR_PAIRINGS.map(c => (
-                <button key={c.id} onClick={() => onUpdate({ textColorId: c.id })}
-                  className={`w-7 h-7 rounded-full shadow-sm transition-all
-                    ${scene.textColorId === c.id ? 'ring-2 ring-primary ring-offset-2 ring-offset-card scale-110' : 'hover:scale-105'}`}
-                  style={{ background: c.text }} title={c.label} />
-              ))}
-            </div>
-          </Row>
-          <Row label="Font">
-            <div className="flex gap-1 flex-wrap">
-              {FONT_OPTIONS.map(f => (
-                <button key={f.id} onClick={() => onUpdate({ fontId: f.id })}
-                  className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all
-                    ${scene.fontId === f.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'}`}
-                  style={{ fontFamily: f.family }}>
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          </Row>
-        </Section>
 
-        {/* Background section */}
-        <Section title="Background" defaultOpen={false}>
-          <Row label="Type">
-            <div className="flex gap-1">
-              {(['media', 'gradient', 'counter'] as const).map(t => (
-                <button key={t} onClick={() => onUpdate({ assetType: t })}
-                  className={`px-3 py-1.5 rounded-lg text-[11px] font-medium capitalize transition-all
-                    ${scene.assetType === t ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'}`}>
-                  {t}
-                </button>
-              ))}
-            </div>
-          </Row>
-          {scene.assetType === 'gradient' && (
-            <div className="grid grid-cols-6 gap-1.5 pl-16">
-              {GRADIENT_STYLES.map(g => (
-                <button key={g.id} onClick={() => onUpdate({ gradient: { ...scene.gradient, style: g.id } })}
-                  className={`aspect-square rounded-lg border-2 transition-all
-                    ${scene.gradient.style === g.id ? 'border-primary scale-105' : 'border-transparent hover:border-border'}`}
-                  style={{ background: g.preview }} title={g.label} />
-              ))}
-            </div>
-          )}
-        </Section>
+      <div className="px-4 pb-4 space-y-3">
+        <TabBar tabs={EDITOR_TABS} active={tab} onChange={setTab} />
 
-        {/* Motion section */}
-        <Section title="Motion" defaultOpen={false}>
-          <Row label="Transition">
-            <div className="flex gap-1 flex-wrap">
-              {(['default', 'crossfade', 'zoom-in', 'flash', 'slide'] as const).map(tr => (
-                <button key={tr} onClick={() => onUpdate({ transition: tr })}
-                  className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium capitalize transition-all
-                    ${scene.transition === tr ? 'bg-accent text-accent-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'}`}>
-                  {tr === 'default' ? 'None' : tr.replace('-', ' ')}
-                </button>
-              ))}
-            </div>
-          </Row>
-        </Section>
+        {/* Text tab */}
+        {tab === 'text' && (
+          <div className="space-y-3 animate-in fade-in-0 duration-200">
+            <input
+              type="text" value={scene.text} onChange={e => onUpdate({ text: e.target.value })}
+              placeholder="Scene text..." className="w-full bg-secondary rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
+            />
+            <Row label="Position">
+              <div className="flex gap-1">
+                {([
+                  { val: 'top' as const, icon: <AlignVerticalJustifyStart className="w-3.5 h-3.5" /> },
+                  { val: 'center' as const, icon: <AlignVerticalJustifyCenter className="w-3.5 h-3.5" /> },
+                  { val: 'bottom' as const, icon: <AlignVerticalJustifyEnd className="w-3.5 h-3.5" /> },
+                ]).map(p => (
+                  <button key={p.val} onClick={() => onUpdate({ textPosition: p.val })}
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all
+                      ${scene.textPosition === p.val ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'}`}>
+                    {p.icon}
+                  </button>
+                ))}
+              </div>
+            </Row>
+            <Row label="Color">
+              <div className="flex gap-1.5 flex-wrap">
+                {TEXT_COLOR_PAIRINGS.map(c => (
+                  <button key={c.id} onClick={() => onUpdate({ textColorId: c.id })}
+                    className={`w-7 h-7 rounded-full shadow-sm transition-all
+                      ${scene.textColorId === c.id ? 'ring-2 ring-primary ring-offset-2 ring-offset-card scale-110' : 'hover:scale-105'}`}
+                    style={{ background: c.text }} title={c.label} />
+                ))}
+              </div>
+            </Row>
+            <Row label="Font">
+              <div className="flex gap-1 flex-wrap">
+                {FONT_OPTIONS.map(f => (
+                  <button key={f.id} onClick={() => onUpdate({ fontId: f.id })}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all
+                      ${scene.fontId === f.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'}`}
+                    style={{ fontFamily: f.family }}>
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </Row>
+          </div>
+        )}
 
-        {/* Timing section */}
-        <Section title="Timing" defaultOpen={false}>
-          <Row label={`${dur}s`}>
-            <input type="range" min={0.5} max={10} step={0.1} value={dur}
-              onChange={e => onUpdate({ endTime: scene.startTime + parseFloat(e.target.value) })}
-              className="flex-1 accent-primary h-1.5 cursor-pointer" />
-          </Row>
-        </Section>
+        {/* Background tab */}
+        {tab === 'background' && (
+          <div className="space-y-3 animate-in fade-in-0 duration-200">
+            <Row label="Type">
+              <div className="flex gap-1">
+                {(['media', 'gradient', 'counter'] as const).map(t => (
+                  <button key={t} onClick={() => onUpdate({ assetType: t })}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-medium capitalize transition-all
+                      ${scene.assetType === t ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'}`}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </Row>
+            {scene.assetType === 'gradient' && (
+              <div className="grid grid-cols-6 gap-1.5 pl-16">
+                {GRADIENT_STYLES.map(g => (
+                  <button key={g.id} onClick={() => onUpdate({ gradient: { ...scene.gradient, style: g.id } })}
+                    className={`aspect-square rounded-lg border-2 transition-all
+                      ${scene.gradient.style === g.id ? 'border-primary scale-105' : 'border-transparent hover:border-border'}`}
+                    style={{ background: g.preview }} title={g.label} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Motion tab */}
+        {tab === 'motion' && (
+          <div className="space-y-3 animate-in fade-in-0 duration-200">
+            <Row label="Transition">
+              <div className="flex gap-1 flex-wrap">
+                {(['default', 'crossfade', 'zoom-in', 'flash', 'slide'] as const).map(tr => (
+                  <button key={tr} onClick={() => onUpdate({ transition: tr })}
+                    className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium capitalize transition-all
+                      ${scene.transition === tr ? 'bg-accent text-accent-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'}`}>
+                    {tr === 'default' ? 'None' : tr.replace('-', ' ')}
+                  </button>
+                ))}
+              </div>
+            </Row>
+          </div>
+        )}
+
+        {/* Timing tab */}
+        {tab === 'timing' && (
+          <div className="space-y-3 animate-in fade-in-0 duration-200">
+            <Row label={`${dur}s`}>
+              <input type="range" min={0.5} max={10} step={0.1} value={dur}
+                onChange={e => onUpdate({ endTime: scene.startTime + parseFloat(e.target.value) })}
+                className="flex-1 accent-primary h-1.5 cursor-pointer" />
+            </Row>
+          </div>
+        )}
 
         {/* Delete */}
         {totalScenes > 1 && (
@@ -168,10 +191,16 @@ function SceneEditor({
   );
 }
 
-/* ─── Brand Kit + End Screen Panel ────────────────────────────── */
+/* ─── Settings Panel (tabbed, inline) ─────────────────────────── */
+
+const SETTINGS_TABS = [
+  { id: 'brand', label: 'Brand Kit' },
+  { id: 'endscreen', label: 'End Screen' },
+];
 
 function SettingsPanel({ onClose }: { onClose: () => void }) {
   const { brandKit, setBrandKit, endScreen, setEndScreen } = useSceneStore();
+  const [tab, setTab] = useState('brand');
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -180,80 +209,86 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="bg-card border-t border-border rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
+    <div className="bg-card border-t border-border">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Settings</span>
         <button onClick={onClose} className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors">
           <X className="w-3.5 h-3.5 text-muted-foreground" />
         </button>
       </div>
-      <div className="px-4 pb-4 space-y-1 max-h-[60vh] overflow-y-auto scrollbar-none">
+      <div className="px-4 pb-4 space-y-3">
+        <TabBar tabs={SETTINGS_TABS} active={tab} onChange={setTab} />
+
         {/* Brand Kit */}
-        <Section title="Brand Kit" defaultOpen={true}>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Background</span>
-              <input type="color" value={brandKit.bgColor}
-                onChange={e => setBrandKit({ ...brandKit, bgColor: e.target.value })}
-                className="w-7 h-7 rounded border-0 cursor-pointer bg-transparent" />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Accent</span>
-              <input type="color" value={brandKit.accentColor}
-                onChange={e => setBrandKit({ ...brandKit, accentColor: e.target.value })}
-                className="w-7 h-7 rounded border-0 cursor-pointer bg-transparent" />
-            </div>
-          </div>
-
-          <div>
-            <span className="text-xs text-muted-foreground block mb-2">Logo</span>
-            {brandKit.logoUrl ? (
+        {tab === 'brand' && (
+          <div className="space-y-3 animate-in fade-in-0 duration-200">
+            <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <img src={brandKit.logoUrl} alt="Logo" className="h-8 object-contain" />
-                <button onClick={() => setBrandKit({ ...brandKit, logoUrl: null })} className="p-1 rounded hover:bg-muted">
-                  <X className="w-3.5 h-3.5 text-muted-foreground" />
-                </button>
+                <span className="text-xs text-muted-foreground">Background</span>
+                <input type="color" value={brandKit.bgColor}
+                  onChange={e => setBrandKit({ ...brandKit, bgColor: e.target.value })}
+                  className="w-7 h-7 rounded border-0 cursor-pointer bg-transparent" />
               </div>
-            ) : (
-              <label className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-secondary text-xs text-secondary-foreground cursor-pointer hover:bg-muted transition-colors">
-                <Upload className="w-3.5 h-3.5" />
-                Upload logo
-                <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-              </label>
-            )}
-          </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Accent</span>
+                <input type="color" value={brandKit.accentColor}
+                  onChange={e => setBrandKit({ ...brandKit, accentColor: e.target.value })}
+                  className="w-7 h-7 rounded border-0 cursor-pointer bg-transparent" />
+              </div>
+            </div>
 
-          <div>
-            <span className="text-xs text-muted-foreground block mb-1.5">Slogan</span>
-            <input type="text" value={brandKit.slogan}
-              onChange={e => setBrandKit({ ...brandKit, slogan: e.target.value })}
-              placeholder="e.g. Your tagline or website"
-              className="w-full bg-secondary border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground" />
+            <div>
+              <span className="text-xs text-muted-foreground block mb-2">Logo</span>
+              {brandKit.logoUrl ? (
+                <div className="flex items-center gap-2">
+                  <img src={brandKit.logoUrl} alt="Logo" className="h-8 object-contain" />
+                  <button onClick={() => setBrandKit({ ...brandKit, logoUrl: null })} className="p-1 rounded hover:bg-muted">
+                    <X className="w-3.5 h-3.5 text-muted-foreground" />
+                  </button>
+                </div>
+              ) : (
+                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-secondary text-xs text-secondary-foreground cursor-pointer hover:bg-muted transition-colors">
+                  <Upload className="w-3.5 h-3.5" />
+                  Upload logo
+                  <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                </label>
+              )}
+            </div>
+
+            <div>
+              <span className="text-xs text-muted-foreground block mb-1.5">Slogan</span>
+              <input type="text" value={brandKit.slogan}
+                onChange={e => setBrandKit({ ...brandKit, slogan: e.target.value })}
+                placeholder="e.g. Your tagline or website"
+                className="w-full bg-secondary border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground" />
+            </div>
           </div>
-        </Section>
+        )}
 
         {/* End Screen */}
-        <Section title="End Screen" defaultOpen={true}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-foreground font-medium">Closing card</p>
-              <p className="text-[10px] text-muted-foreground">Show logo & slogan at the end</p>
+        {tab === 'endscreen' && (
+          <div className="space-y-3 animate-in fade-in-0 duration-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-foreground font-medium">Closing card</p>
+                <p className="text-[10px] text-muted-foreground">Show logo & slogan at the end</p>
+              </div>
+              <Switch checked={endScreen.enabled} onCheckedChange={val => setEndScreen({ ...endScreen, enabled: val })} />
             </div>
-            <Switch checked={endScreen.enabled} onCheckedChange={val => setEndScreen({ ...endScreen, enabled: val })} />
+            {endScreen.enabled && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Duration</span>
+                <select value={endScreen.duration}
+                  onChange={e => setEndScreen({ ...endScreen, duration: Number(e.target.value) })}
+                  className="bg-secondary border border-border rounded-md px-2 py-1 text-xs text-foreground">
+                  <option value={2}>2s</option>
+                  <option value={3}>3s</option>
+                  <option value={5}>5s</option>
+                </select>
+              </div>
+            )}
           </div>
-          {endScreen.enabled && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Duration</span>
-              <select value={endScreen.duration}
-                onChange={e => setEndScreen({ ...endScreen, duration: Number(e.target.value) })}
-                className="bg-secondary border border-border rounded-md px-2 py-1 text-xs text-foreground">
-                <option value={2}>2s</option>
-                <option value={3}>3s</option>
-                <option value={5}>5s</option>
-              </select>
-            </div>
-          )}
-        </Section>
+        )}
       </div>
     </div>
   );
@@ -327,7 +362,7 @@ function AIPromptBar() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="shrink-0 px-3 py-2 border-t border-border/50">
+    <form onSubmit={handleSubmit} className="px-3 py-2 border-t border-border/50">
       <div className="flex items-center gap-2 bg-secondary rounded-xl px-3 py-2">
         <Sparkles className="w-4 h-4 text-accent shrink-0" />
         <input
@@ -449,12 +484,10 @@ export default function V12() {
     return <div className="absolute inset-0" style={{ background: gradientStyle.preview }} />;
   };
 
-  const panelOpen = editingScene !== null || showSettings;
-
   return (
-    <div className="flex flex-col h-screen bg-background">
-      {/* ─── Header ─── */}
-      <div className="flex items-center justify-between px-4 h-12 shrink-0">
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* ─── Header (sticky) ─── */}
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm flex items-center justify-between px-4 h-12 shrink-0 border-b border-border/30">
         <img src={logo} alt="Logo" className="h-5" />
         <div className="flex items-center gap-2">
           <button onClick={() => { setShowSettings(!showSettings); setEditingScene(null); }}
@@ -466,8 +499,8 @@ export default function V12() {
         </div>
       </div>
 
-      {/* ─── 9:16 Preview ─── */}
-      <div className="flex-1 min-h-0 relative" style={{ background: 'hsl(var(--stage))' }}>
+      {/* ─── 9:16 Preview (fixed height) ─── */}
+      <div className="h-[55vh] shrink-0 relative" style={{ background: 'hsl(var(--stage))' }}>
         <div className="absolute inset-0 flex items-center justify-center px-6 py-3">
           <div className="relative rounded-2xl overflow-hidden shadow-2xl" style={{ aspectRatio: '9/16', height: '100%', width: 'auto' }}>
             {renderPreviewBg()}
@@ -513,7 +546,6 @@ export default function V12() {
 
         {/* Filmstrip segments */}
         <div className="relative h-[72px]">
-          {/* Playhead */}
           <div
             ref={filmstripRef}
             className="h-full overflow-x-auto scrollbar-none flex items-center px-[50%]"
@@ -573,13 +605,13 @@ export default function V12() {
         </div>
       </div>
 
-      {/* ─── AI Prompt Bar (when no panel is open) ─── */}
-      {!panelOpen && <AIPromptBar />}
+      {/* ─── AI Prompt Bar ─── */}
+      <AIPromptBar />
 
-      {/* ─── Settings Panel ─── */}
+      {/* ─── Settings Panel (inline) ─── */}
       {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
 
-      {/* ─── Scene Editor ─── */}
+      {/* ─── Scene Editor (inline, scrollable) ─── */}
       {editingScene !== null && scenes[editingScene] && (
         <SceneEditor
           scene={scenes[editingScene]}
@@ -591,8 +623,8 @@ export default function V12() {
         />
       )}
 
-      {/* ─── Bottom info bar (when no panel) ─── */}
-      {!panelOpen && (
+      {/* ─── Bottom info bar ─── */}
+      {editingScene === null && !showSettings && (
         <div className="shrink-0 flex items-center justify-between px-4 py-2.5 border-t border-border/50">
           <span className="text-[11px] text-muted-foreground">{scenes.length} scene{scenes.length !== 1 ? 's' : ''} · {totalDuration.toFixed(1)}s</span>
           <span className="text-[10px] text-muted-foreground/50">Tap a clip to edit</span>
