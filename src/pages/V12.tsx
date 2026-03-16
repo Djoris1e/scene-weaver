@@ -14,44 +14,59 @@ import { Switch } from '@/components/ui/switch';
 
 const SCALE = 80;
 
-/* ─── Pill Tab Bar ────────────────────────────────────────────── */
+/* ─── Icon Tab Bar ────────────────────────────────────────────── */
 
-function TabBar({ tabs, active, onChange }: { tabs: { id: string; label: string }[]; active: string; onChange: (id: string) => void }) {
+function IconTabBar({ tabs, active, onChange }: { tabs: { id: string; label: string; icon: React.ReactNode }[]; active: string; onChange: (id: string) => void }) {
   return (
-    <div className="flex gap-1 p-1 bg-secondary/50 rounded-xl">
+    <div className="flex items-end justify-center gap-6 pt-2 pb-1 border-b border-border/50">
       {tabs.map(t => (
         <button
           key={t.id}
           onClick={() => onChange(t.id)}
-          className={`flex-1 px-3 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all
-            ${active === t.id
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-            }`}
+          className={`flex flex-col items-center gap-1 pb-2 px-2 relative transition-colors
+            ${active === t.id ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          {t.label}
+          {t.icon}
+          <span className="text-[11px] font-medium">{t.label}</span>
+          {active === t.id && (
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full" />
+          )}
         </button>
       ))}
     </div>
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+/* ─── Dropdown Select ─────────────────────────────────────────── */
+
+function DropdownSelect<T extends string>({ label, value, options, onChange }: {
+  label: string; value: T; options: { value: T; label: string }[]; onChange: (v: T) => void;
+}) {
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-[10px] text-muted-foreground/70 uppercase tracking-wider font-semibold w-16 shrink-0 text-right">{label}</span>
-      {children}
+    <div className="space-y-1.5">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={e => onChange(e.target.value as T)}
+          className="w-full appearance-none bg-secondary border border-border rounded-xl px-4 py-3 text-sm font-medium text-foreground cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/30"
+        >
+          {options.map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+      </div>
     </div>
   );
 }
 
-/* ─── Scene Editor (tabbed, no max-height) ────────────────────── */
+/* ─── Scene Editor (3 icon tabs matching reference) ───────────── */
 
 const EDITOR_TABS = [
-  { id: 'text', label: 'Text' },
-  { id: 'background', label: 'Background' },
-  { id: 'motion', label: 'Motion' },
-  { id: 'timing', label: 'Timing' },
+  { id: 'text', label: 'Text', icon: <Type className="w-5 h-5" /> },
+  { id: 'media', label: 'Media', icon: <Image className="w-5 h-5" /> },
+  { id: 'motion', label: 'Motion', icon: <MotionIcon className="w-5 h-5" /> },
 ];
 
 function SceneEditor({
@@ -62,119 +77,145 @@ function SceneEditor({
   onDelete: () => void; onClose: () => void; totalScenes: number;
 }) {
   const [tab, setTab] = useState('text');
-  const dur = +(scene.endTime - scene.startTime).toFixed(1);
 
   return (
     <div className="bg-card border-t border-border">
-      <div className="flex items-center justify-between px-4 pt-3 pb-2">
+      <div className="flex items-center justify-between px-4 pt-3 pb-0">
         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Scene {index + 1}</span>
         <button onClick={onClose} className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors">
           <X className="w-3.5 h-3.5 text-muted-foreground" />
         </button>
       </div>
 
-      <div className="px-4 pb-4 space-y-3">
-        <TabBar tabs={EDITOR_TABS} active={tab} onChange={setTab} />
+      <IconTabBar tabs={EDITOR_TABS} active={tab} onChange={setTab} />
 
-        {/* Text tab */}
+      <div className="px-4 py-4 space-y-4">
+        {/* ── Text tab ── */}
         {tab === 'text' && (
-          <div className="space-y-3 animate-in fade-in-0 duration-200">
-            <input
-              type="text" value={scene.text} onChange={e => onUpdate({ text: e.target.value })}
-              placeholder="Scene text..." className="w-full bg-secondary rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
+          <div className="space-y-4 animate-in fade-in-0 duration-200">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Scene copy</span>
+                <span className="text-[11px] text-muted-foreground tabular-nums">{scene.text.length}/120</span>
+              </div>
+              <textarea
+                value={scene.text}
+                onChange={e => onUpdate({ text: e.target.value.slice(0, 120) })}
+                placeholder="Your story begins."
+                maxLength={120}
+                rows={2}
+                className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none"
+              />
+            </div>
+            <DropdownSelect
+              label="Text effect"
+              value={scene.textEffect}
+              options={[
+                { value: 'default', label: 'Default' },
+                { value: 'fade-in', label: 'Fade In' },
+                { value: 'typewriter', label: 'Typewriter' },
+                { value: 'scale-up', label: 'Scale Up' },
+              ]}
+              onChange={v => onUpdate({ textEffect: v })}
             />
-            <Row label="Position">
-              <div className="flex gap-1">
-                {([
-                  { val: 'top' as const, icon: <AlignVerticalJustifyStart className="w-3.5 h-3.5" /> },
-                  { val: 'center' as const, icon: <AlignVerticalJustifyCenter className="w-3.5 h-3.5" /> },
-                  { val: 'bottom' as const, icon: <AlignVerticalJustifyEnd className="w-3.5 h-3.5" /> },
-                ]).map(p => (
-                  <button key={p.val} onClick={() => onUpdate({ textPosition: p.val })}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all
-                      ${scene.textPosition === p.val ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'}`}>
-                    {p.icon}
-                  </button>
-                ))}
-              </div>
-            </Row>
-            <Row label="Color">
-              <div className="flex gap-1.5 flex-wrap">
-                {TEXT_COLOR_PAIRINGS.map(c => (
-                  <button key={c.id} onClick={() => onUpdate({ textColorId: c.id })}
-                    className={`w-7 h-7 rounded-full shadow-sm transition-all
-                      ${scene.textColorId === c.id ? 'ring-2 ring-primary ring-offset-2 ring-offset-card scale-110' : 'hover:scale-105'}`}
-                    style={{ background: c.text }} title={c.label} />
-                ))}
-              </div>
-            </Row>
-            <Row label="Font">
-              <div className="flex gap-1 flex-wrap">
-                {FONT_OPTIONS.map(f => (
-                  <button key={f.id} onClick={() => onUpdate({ fontId: f.id })}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all
-                      ${scene.fontId === f.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'}`}
-                    style={{ fontFamily: f.family }}>
-                    {f.label}
-                  </button>
-                ))}
-              </div>
-            </Row>
           </div>
         )}
 
-        {/* Background tab */}
-        {tab === 'background' && (
-          <div className="space-y-3 animate-in fade-in-0 duration-200">
-            <Row label="Type">
-              <div className="flex gap-1">
-                {(['media', 'gradient', 'counter'] as const).map(t => (
-                  <button key={t} onClick={() => onUpdate({ assetType: t })}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-medium capitalize transition-all
-                      ${scene.assetType === t ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'}`}>
-                    {t}
+        {/* ── Media tab ── */}
+        {tab === 'media' && (
+          <div className="space-y-4 animate-in fade-in-0 duration-200">
+            <div className="grid grid-cols-4 gap-2">
+              {([
+                { type: 'search' as const, icon: <Search className="w-5 h-5" />, label: 'Search' },
+                { type: 'upload' as const, icon: <Upload className="w-5 h-5" />, label: 'Upload' },
+                { type: 'gradient' as const, icon: <Palette className="w-5 h-5" />, label: 'Gradient' },
+                { type: 'counter' as const, icon: <Code className="w-5 h-5" />, label: 'Counter' },
+              ] as const).map(item => {
+                const isActive = (item.type === 'gradient' && scene.assetType === 'gradient') ||
+                                 (item.type === 'counter' && scene.assetType === 'counter');
+                return (
+                  <button
+                    key={item.type}
+                    onClick={() => {
+                      if (item.type === 'gradient') onUpdate({ assetType: 'gradient', backgroundUrl: null });
+                      else if (item.type === 'counter') onUpdate({ assetType: 'counter' });
+                    }}
+                    className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition-all
+                      ${isActive ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-secondary text-muted-foreground hover:text-foreground hover:border-muted-foreground/30'}`}
+                  >
+                    {item.icon}
+                    <span className="text-[11px] font-medium">{item.label}</span>
                   </button>
-                ))}
-              </div>
-            </Row>
+                );
+              })}
+            </div>
+
+            {/* Gradient swatches */}
             {scene.assetType === 'gradient' && (
-              <div className="grid grid-cols-6 gap-1.5 pl-16">
+              <div className="flex gap-2 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
                 {GRADIENT_STYLES.map(g => (
-                  <button key={g.id} onClick={() => onUpdate({ gradient: { ...scene.gradient, style: g.id } })}
-                    className={`aspect-square rounded-lg border-2 transition-all
-                      ${scene.gradient.style === g.id ? 'border-primary scale-105' : 'border-transparent hover:border-border'}`}
-                    style={{ background: g.preview }} title={g.label} />
+                  <div key={g.id} className="flex flex-col items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => onUpdate({ gradient: { ...scene.gradient, style: g.id } })}
+                      className={`w-16 h-24 rounded-xl border-2 transition-all
+                        ${scene.gradient.style === g.id ? 'border-primary scale-105' : 'border-transparent hover:border-border'}`}
+                      style={{ background: g.preview }}
+                    />
+                    <span className="text-[9px] text-muted-foreground font-medium">{g.label}</span>
+                  </div>
                 ))}
               </div>
             )}
           </div>
         )}
 
-        {/* Motion tab */}
+        {/* ── Motion tab ── */}
         {tab === 'motion' && (
-          <div className="space-y-3 animate-in fade-in-0 duration-200">
-            <Row label="Transition">
-              <div className="flex gap-1 flex-wrap">
-                {(['default', 'crossfade', 'zoom-in', 'flash', 'slide'] as const).map(tr => (
-                  <button key={tr} onClick={() => onUpdate({ transition: tr })}
-                    className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium capitalize transition-all
-                      ${scene.transition === tr ? 'bg-accent text-accent-foreground' : 'bg-secondary text-secondary-foreground hover:bg-muted'}`}>
-                    {tr === 'default' ? 'None' : tr.replace('-', ' ')}
-                  </button>
-                ))}
-              </div>
-            </Row>
-          </div>
-        )}
-
-        {/* Timing tab */}
-        {tab === 'timing' && (
-          <div className="space-y-3 animate-in fade-in-0 duration-200">
-            <Row label={`${dur}s`}>
-              <input type="range" min={0.5} max={10} step={0.1} value={dur}
-                onChange={e => onUpdate({ endTime: scene.startTime + parseFloat(e.target.value) })}
-                className="flex-1 accent-primary h-1.5 cursor-pointer" />
-            </Row>
+          <div className="space-y-4 animate-in fade-in-0 duration-200">
+            <DropdownSelect
+              label="Transition"
+              value={scene.transition}
+              options={[
+                { value: 'default', label: 'Default' },
+                { value: 'crossfade', label: 'Crossfade' },
+                { value: 'zoom-in', label: 'Zoom In' },
+                { value: 'flash', label: 'Flash' },
+                { value: 'slide', label: 'Slide' },
+              ]}
+              onChange={v => onUpdate({ transition: v })}
+            />
+            <DropdownSelect
+              label="Animation"
+              value={scene.animation}
+              options={[
+                { value: 'none', label: 'None' },
+                { value: 'ken-burns', label: 'Ken Burns' },
+                { value: 'drift', label: 'Drift' },
+                { value: 'pulse', label: 'Pulse' },
+              ]}
+              onChange={v => onUpdate({ animation: v })}
+            />
+            <DropdownSelect
+              label="Overlays"
+              value={scene.overlays.length > 0 ? scene.overlays[0] : 'none'}
+              options={[
+                { value: 'none', label: 'None' },
+                { value: 'vignette', label: 'Vignette' },
+                { value: 'film-grain', label: 'Film Grain' },
+                { value: 'rgb-split', label: 'RGB Split' },
+              ]}
+              onChange={v => onUpdate({ overlays: v === 'none' ? [] : [v] })}
+            />
+            <DropdownSelect
+              label="Text position"
+              value={scene.textPosition}
+              options={[
+                { value: 'top', label: 'Top' },
+                { value: 'center', label: 'Center' },
+                { value: 'bottom', label: 'Bottom' },
+              ]}
+              onChange={v => onUpdate({ textPosition: v })}
+            />
           </div>
         )}
 
