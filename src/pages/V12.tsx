@@ -236,8 +236,8 @@ function SceneEditor({
 /* ─── Settings Panel (tabbed, inline) ─────────────────────────── */
 
 const SETTINGS_TABS = [
-  { id: 'brand', label: 'Brand Kit' },
-  { id: 'endscreen', label: 'End Screen' },
+  { id: 'brand', label: 'Brand Kit', icon: <Palette className="w-5 h-5" /> },
+  { id: 'endscreen', label: 'End Screen', icon: <Settings className="w-5 h-5" /> },
 ];
 
 function SettingsPanel({ onClose }: { onClose: () => void }) {
@@ -252,14 +252,15 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="bg-card border-t border-border">
-      <div className="flex items-center justify-between px-4 pt-3 pb-2">
+      <div className="flex items-center justify-between px-4 pt-3 pb-0">
         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Settings</span>
         <button onClick={onClose} className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors">
           <X className="w-3.5 h-3.5 text-muted-foreground" />
         </button>
       </div>
-      <div className="px-4 pb-4 space-y-3">
-        <TabBar tabs={SETTINGS_TABS} active={tab} onChange={setTab} />
+      <IconTabBar tabs={SETTINGS_TABS} active={tab} onChange={setTab} />
+      <div className="px-4 py-4 space-y-4">
+        <IconTabBar tabs={SETTINGS_TABS} active={tab} onChange={setTab} />
 
         {/* Brand Kit */}
         {tab === 'brand' && (
