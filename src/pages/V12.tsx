@@ -640,7 +640,7 @@ export default function V12() {
           <div className="relative rounded-2xl overflow-hidden shadow-2xl" style={{ aspectRatio: '9/16', height: '100%', width: 'auto' }}>
             {renderPreviewBg()}
             {activeScene.text && activeScene.assetType !== 'counter' && (
-              <div className={`absolute inset-0 flex flex-col ${positionClass} justify-center px-5 z-10`}>
+              <div className={`absolute inset-0 flex flex-col ${positionClass} px-5 z-10`}>
                 <p className="text-lg leading-snug text-center max-w-full break-words font-semibold"
                   style={{ color: color.text, textShadow: color.shadow, fontFamily: fontOpt.family }}>
                   {activeScene.text}
