@@ -283,12 +283,6 @@ function AssetLibrary() {
   );
 }
 /* ───────── Data ───────── */
-const steps = [
-  { icon: Sparkles, title: 'Brief the agent', desc: 'Describe what you need. Paste a URL, set your brand colors. The agent takes it from here.', num: 1 },
-  { icon: Film, title: 'It builds your video', desc: 'Selects a soundtrack, searches stock libraries, writes scene copy, creates animations, and syncs every cut to the beat.', num: 2 },
-  { icon: SlidersHorizontal, title: 'You review & refine', desc: 'Get a complete video draft in your timeline. Swap any scene, change any word, adjust timing. Ship when ready.', num: 3 },
-];
-
 const features = [
   { icon: Bot, title: 'An agent, not a template', desc: "It doesn't fill in a template. It makes creative decisions — which music fits, what footage works, how to pace the story." },
   { icon: Film, title: 'Real assets, real quality', desc: 'Stock footage, curated music, professional animations. No AI-generated pixels, no uncanny valley.' },
