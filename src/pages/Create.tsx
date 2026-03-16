@@ -48,10 +48,14 @@ export default function Create() {
               <Sparkles className="w-5 h-5 text-primary mt-0.5 shrink-0" />
               <textarea
                 value={prompt}
-                onChange={e => setPrompt(e.target.value)}
+                onChange={e => {
+                  setPrompt(e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
                 placeholder="Describe your video…"
-                rows={3}
-                className="flex-1 bg-transparent text-foreground text-base placeholder:text-muted-foreground/40 focus:outline-none font-sans resize-none leading-relaxed"
+                rows={2}
+                className="flex-1 bg-transparent text-foreground text-base placeholder:text-muted-foreground/40 focus:outline-none font-sans resize-none leading-relaxed min-h-[3.25rem] max-h-48 overflow-y-auto"
                 disabled={loading}
               />
             </div>
