@@ -4,7 +4,7 @@ import { useSceneStore } from '@/hooks/useSceneStore';
 import logo from '@/assets/logo.svg';
 import { TEXT_COLOR_PAIRINGS, FONT_OPTIONS, GRADIENT_STYLES, Scene } from '@/types/scene';
 import {
-  Play, Pause, Plus, Share2, X, Settings,
+  Play, Pause, Plus, Share2, X, Globe,
   Type, Image, Sparkles as MotionIcon,
   Search, Upload, Palette, Code,
   Sparkles, Send, Loader2, Check, Trash2, ChevronDown,
@@ -67,14 +67,20 @@ const EDITOR_TABS = [
   { id: 'text', label: 'Text', icon: <Type className="w-5 h-5" /> },
   { id: 'media', label: 'Media', icon: <Image className="w-5 h-5" /> },
   { id: 'motion', label: 'Motion', icon: <MotionIcon className="w-5 h-5" /> },
+  { id: 'brand', label: 'Brand', icon: <Globe className="w-5 h-5" /> },
 ];
 
 function SceneEditor({
   scene, index, onUpdate, onDelete, onClose, totalScenes,
+  brandKit, setBrandKit, endScreen, setEndScreen,
 }: {
   scene: Scene; index: number;
   onUpdate: (u: Partial<Scene>) => void;
   onDelete: () => void; onClose: () => void; totalScenes: number;
+  brandKit: { bgColor: string; accentColor: string; logoUrl: string | null; slogan: string };
+  setBrandKit: (v: typeof brandKit) => void;
+  endScreen: { enabled: boolean; duration: number };
+  setEndScreen: (v: typeof endScreen) => void;
 }) {
   const [tab, setTab] = useState('text');
 
@@ -301,56 +307,15 @@ function SceneEditor({
           </div>
         )}
 
-        {/* Delete */}
-        {totalScenes > 1 && (
-          <div className="flex justify-end pt-1">
-            <button onClick={onDelete}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium text-destructive/70 hover:text-destructive bg-destructive/5 hover:bg-destructive/10 transition-all">
-              <Trash2 className="w-3 h-3" /> Remove
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ─── Settings Panel (tabbed, inline) ─────────────────────────── */
-
-const SETTINGS_TABS = [
-  { id: 'brand', label: 'Brand Kit', icon: <Palette className="w-5 h-5" /> },
-  { id: 'endscreen', label: 'End Screen', icon: <Settings className="w-5 h-5" /> },
-];
-
-function SettingsPanel({ onClose, brandKit, setBrandKit, endScreen, setEndScreen }: {
-  onClose: () => void;
-  brandKit: { bgColor: string; accentColor: string; logoUrl: string | null; slogan: string };
-  setBrandKit: (v: typeof brandKit) => void;
-  endScreen: { enabled: boolean; duration: number };
-  setEndScreen: (v: typeof endScreen) => void;
-}) {
-  const [tab, setTab] = useState('brand');
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setBrandKit({ ...brandKit, logoUrl: URL.createObjectURL(file) });
-  };
-
-  return (
-    <div className="bg-card border-t border-border">
-      <div className="flex items-center justify-between px-4 pt-3 pb-0">
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Settings</span>
-        <button onClick={onClose} className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors">
-          <X className="w-3.5 h-3.5 text-muted-foreground" />
-        </button>
-      </div>
-      <IconTabBar tabs={SETTINGS_TABS} active={tab} onChange={setTab} />
-      <div className="px-4 py-4 space-y-4">
-
-        {/* Brand Kit */}
+        {/* ── Brand tab (global) ── */}
         {tab === 'brand' && (
-          <div className="space-y-3 animate-in fade-in-0 duration-200">
+          <div className="space-y-4 animate-in fade-in-0 duration-200">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-accent/10 border border-accent/20">
+              <Globe className="w-3.5 h-3.5 text-accent shrink-0" />
+              <span className="text-[11px] text-accent font-medium">These settings apply to all scenes in this video</span>
+            </div>
+
+            {/* Colors */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Background</span>
@@ -366,6 +331,7 @@ function SettingsPanel({ onClose, brandKit, setBrandKit, endScreen, setEndScreen
               </div>
             </div>
 
+            {/* Logo */}
             <div>
               <span className="text-xs text-muted-foreground block mb-2">Logo</span>
               {brandKit.logoUrl ? (
@@ -376,52 +342,67 @@ function SettingsPanel({ onClose, brandKit, setBrandKit, endScreen, setEndScreen
                   </button>
                 </div>
               ) : (
-                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-secondary text-xs text-secondary-foreground cursor-pointer hover:bg-muted transition-colors">
+                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-secondary text-xs text-secondary-foreground cursor-pointer hover:bg-muted transition-colors">
                   <Upload className="w-3.5 h-3.5" />
                   Upload logo
-                  <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                  <input type="file" accept="image/*" className="hidden" onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) setBrandKit({ ...brandKit, logoUrl: URL.createObjectURL(file) });
+                  }} />
                 </label>
               )}
             </div>
 
-            <div>
-              <span className="text-xs text-muted-foreground block mb-1.5">Slogan</span>
+            {/* Slogan */}
+            <div className="space-y-1.5">
+              <span className="text-xs text-muted-foreground">Slogan</span>
               <input type="text" value={brandKit.slogan}
                 onChange={e => setBrandKit({ ...brandKit, slogan: e.target.value })}
                 placeholder="e.g. Your tagline or website"
-                className="w-full bg-secondary border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground" />
+                className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30" />
+            </div>
+
+            {/* End Screen */}
+            <div className="pt-2 border-t border-border/50 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-foreground font-medium">End screen</p>
+                  <p className="text-[10px] text-muted-foreground">Show logo & slogan at the end</p>
+                </div>
+                <Switch checked={endScreen.enabled} onCheckedChange={val => setEndScreen({ ...endScreen, enabled: val })} />
+              </div>
+              {endScreen.enabled && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Duration</span>
+                  <select value={endScreen.duration}
+                    onChange={e => setEndScreen({ ...endScreen, duration: Number(e.target.value) })}
+                    className="bg-secondary border border-border rounded-lg px-2 py-1 text-xs text-foreground">
+                    <option value={2}>2s</option>
+                    <option value={3}>3s</option>
+                    <option value={5}>5s</option>
+                  </select>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* End Screen */}
-        {tab === 'endscreen' && (
-          <div className="space-y-3 animate-in fade-in-0 duration-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-foreground font-medium">Closing card</p>
-                <p className="text-[10px] text-muted-foreground">Show logo & slogan at the end</p>
-              </div>
-              <Switch checked={endScreen.enabled} onCheckedChange={val => setEndScreen({ ...endScreen, enabled: val })} />
-            </div>
-            {endScreen.enabled && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Duration</span>
-                <select value={endScreen.duration}
-                  onChange={e => setEndScreen({ ...endScreen, duration: Number(e.target.value) })}
-                  className="bg-secondary border border-border rounded-md px-2 py-1 text-xs text-foreground">
-                  <option value={2}>2s</option>
-                  <option value={3}>3s</option>
-                  <option value={5}>5s</option>
-                </select>
-              </div>
-            )}
+        {/* Delete */}
+        {totalScenes > 1 && (
+          <div className="flex justify-end pt-1">
+            <button onClick={onDelete}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium text-destructive/70 hover:text-destructive bg-destructive/5 hover:bg-destructive/10 transition-all">
+              <Trash2 className="w-3 h-3" /> Remove
+            </button>
           </div>
         )}
       </div>
     </div>
   );
 }
+
+
+
 
 /* ─── Export Button ────────────────────────────────────────────── */
 
@@ -522,7 +503,7 @@ export default function V12() {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [editingScene, setEditingScene] = useState<number | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
+  
   const filmstripRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const dragStartX = useRef(0);
@@ -590,7 +571,7 @@ export default function V12() {
     if (!didDrag.current) {
       setActiveIndex(index);
       setEditingScene(index);
-      setShowSettings(false);
+      
       let t = 0;
       for (let i = 0; i < index; i++) t += scenes[i].endTime - scenes[i].startTime;
       setCurrentTime(t);
@@ -624,14 +605,7 @@ export default function V12() {
       {/* ─── Header (sticky) ─── */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm flex items-center justify-between px-4 h-12 shrink-0 border-b border-border/30">
         <img src={logo} alt="Logo" className="h-5" />
-        <div className="flex items-center gap-2">
-          <button onClick={() => { setShowSettings(!showSettings); setEditingScene(null); }}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-medium transition-colors ${showSettings ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}>
-            <Settings className="w-3.5 h-3.5" />
-            <span className="hidden min-[380px]:inline">Brand</span>
-          </button>
-          <ExportButton />
-        </div>
+        <ExportButton />
       </div>
 
       {/* ─── 9:16 Preview (fixed height) ─── */}
@@ -745,9 +719,6 @@ export default function V12() {
         <AIPromptBar />
       </div>
 
-      {/* ─── Settings Panel (inline) ─── */}
-      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} brandKit={brandKit} setBrandKit={setBrandKit} endScreen={endScreen} setEndScreen={setEndScreen} />}
-
       {/* ─── Scene Editor (inline, scrollable) ─── */}
       {editingScene !== null && scenes[editingScene] && (
         <SceneEditor
@@ -757,11 +728,15 @@ export default function V12() {
           onDelete={() => { deleteScene(editingScene); setEditingScene(null); }}
           onClose={() => setEditingScene(null)}
           totalScenes={scenes.length}
+          brandKit={brandKit}
+          setBrandKit={setBrandKit}
+          endScreen={endScreen}
+          setEndScreen={setEndScreen}
         />
       )}
 
       {/* ─── Bottom info bar ─── */}
-      {editingScene === null && !showSettings && (
+      {editingScene === null && (
         <div className="shrink-0 flex items-center justify-between px-4 py-2.5 border-t border-border/50">
           <span className="text-[11px] text-muted-foreground">{scenes.length} scene{scenes.length !== 1 ? 's' : ''} · {totalDuration.toFixed(1)}s</span>
           <span className="text-[10px] text-muted-foreground/50">Tap a clip to edit</span>
