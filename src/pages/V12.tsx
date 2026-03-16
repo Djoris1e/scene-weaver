@@ -4,7 +4,7 @@ import { useSceneStore } from '@/hooks/useSceneStore';
 import logo from '@/assets/logo.svg';
 import { TEXT_COLOR_PAIRINGS, FONT_OPTIONS, GRADIENT_STYLES, Scene } from '@/types/scene';
 import {
-  Play, Pause, Plus, Share2, X, Settings,
+  Play, Pause, Plus, Share2, X, Settings, Globe,
   Type, Image, Sparkles as MotionIcon,
   Search, Upload, Palette, Code,
   Sparkles, Send, Loader2, Check, Trash2, ChevronDown,
