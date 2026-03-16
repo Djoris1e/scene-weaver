@@ -294,7 +294,7 @@ function ExportButton() {
 
   if (state === 'done') {
     return (
-      <button disabled className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-green-500/20 text-green-400 text-xs font-bold min-w-[100px] justify-center">
+      <button disabled className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-primary/20 text-primary text-xs font-bold min-w-[100px] justify-center">
         <Check className="w-3.5 h-3.5" /> Done
       </button>
     );
@@ -458,8 +458,9 @@ export default function V12() {
         <span className="text-xs font-semibold text-foreground tracking-wide">V12</span>
         <div className="flex items-center gap-2">
           <button onClick={() => { setShowSettings(!showSettings); setEditingScene(null); }}
-            className={`w-9 h-9 flex items-center justify-center rounded-xl transition-colors ${showSettings ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-            <Settings className="w-[18px] h-[18px]" />
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-medium transition-colors ${showSettings ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}>
+            <Settings className="w-3.5 h-3.5" />
+            <span className="hidden min-[380px]:inline">Brand</span>
           </button>
           <ExportButton />
         </div>
@@ -486,80 +487,88 @@ export default function V12() {
         </div>
       </div>
 
-      {/* ─── Playback Controls ─── */}
-      <div className="shrink-0 flex items-center justify-center gap-4 py-2">
-        <span className="text-[11px] text-muted-foreground tabular-nums w-8">{formatTime(currentTime)}</span>
-        <button
-          onClick={() => { if (currentTime >= totalDuration) setCurrentTime(0); setPlaying(!playing); }}
-          className="w-11 h-11 rounded-2xl bg-card border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all shadow-sm"
-        >
-          {playing ? <Pause className="w-5 h-5 text-foreground" /> : <Play className="w-5 h-5 text-foreground ml-0.5" />}
-        </button>
-        <span className="text-[11px] text-muted-foreground tabular-nums w-8 text-right">{formatTime(totalDuration)}</span>
-      </div>
-
-      {/* ─── Horizontal Filmstrip ─── */}
-      <div className="shrink-0 relative h-[88px] bg-card border-t border-border">
-        {/* Playhead */}
-        <div className="absolute top-0 bottom-0 left-1/2 -translate-x-px w-0.5 bg-primary z-20 pointer-events-none">
-          <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-primary shadow-md shadow-primary/40" />
+      {/* ─── Filmstrip with integrated playback ─── */}
+      <div className="shrink-0 bg-card border-t border-border">
+        {/* Compact playback row */}
+        <div className="flex items-center gap-2 px-3 py-1.5">
+          <button
+            onClick={() => { if (currentTime >= totalDuration) setCurrentTime(0); setPlaying(!playing); }}
+            className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center hover:bg-muted active:scale-95 transition-all shrink-0"
+          >
+            {playing ? <Pause className="w-3.5 h-3.5 text-foreground" /> : <Play className="w-3.5 h-3.5 text-foreground ml-0.5" />}
+          </button>
+          {/* Scrub bar */}
+          <div className="flex-1 relative h-1.5 bg-secondary rounded-full cursor-pointer"
+            onClick={e => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+              const time = +(ratio * totalDuration).toFixed(1);
+              setCurrentTime(time);
+              setActiveIndex(getSceneAtTime(time));
+            }}>
+            <div className="absolute inset-y-0 left-0 bg-primary rounded-full transition-all duration-100" style={{ width: `${totalDuration > 0 ? (currentTime / totalDuration) * 100 : 0}%` }} />
+          </div>
+          <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">{formatTime(currentTime)} / {formatTime(totalDuration)}</span>
         </div>
 
-        <div
-          ref={filmstripRef}
-          className="h-full overflow-x-auto scrollbar-none flex items-center px-[50%]"
-          onMouseDown={e => handleDragStart(e.clientX)}
-          onMouseMove={e => handleDragMove(e.clientX)}
-          onMouseUp={handleDragEnd}
-          onMouseLeave={handleDragEnd}
-          onTouchStart={e => handleDragStart(e.touches[0].clientX)}
-          onTouchMove={e => handleDragMove(e.touches[0].clientX)}
-          onTouchEnd={handleDragEnd}
-        >
-          <div className="flex items-center gap-1 h-[72px]">
-            {scenes.map((scene, idx) => {
-              const dur = scene.endTime - scene.startTime;
-              const w = Math.max(dur * SCALE, 48);
-              const gStyle = GRADIENT_STYLES.find(g => g.id === scene.gradient.style) || GRADIENT_STYLES[0];
-              const isActive = idx === activeIndex;
+        {/* Filmstrip segments */}
+        <div className="relative h-[72px]">
+          {/* Playhead */}
+          <div
+            ref={filmstripRef}
+            className="h-full overflow-x-auto scrollbar-none flex items-center px-[50%]"
+            onMouseDown={e => handleDragStart(e.clientX)}
+            onMouseMove={e => handleDragMove(e.clientX)}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={handleDragEnd}
+            onTouchStart={e => handleDragStart(e.touches[0].clientX)}
+            onTouchMove={e => handleDragMove(e.touches[0].clientX)}
+            onTouchEnd={handleDragEnd}
+          >
+            <div className="flex items-center gap-1 h-[72px]">
+              {scenes.map((scene, idx) => {
+                const dur = scene.endTime - scene.startTime;
+                const w = Math.max(dur * SCALE, 48);
+                const gStyle = GRADIENT_STYLES.find(g => g.id === scene.gradient.style) || GRADIENT_STYLES[0];
+                const isActive = idx === activeIndex;
 
-              return (
-                <button
-                  key={scene.id}
-                  onClick={() => handleSegmentTap(idx)}
-                  className={`h-full rounded-xl overflow-hidden shrink-0 relative transition-all border-2
-                    ${isActive ? 'border-primary shadow-lg shadow-primary/20' : 'border-transparent hover:border-border'}`}
-                  style={{ width: `${w}px` }}
-                >
-                  {scene.assetType === 'media' && scene.backgroundUrl ? (
-                    <img src={scene.backgroundUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                  ) : (
-                    <div className="absolute inset-0" style={{ background: gStyle.preview }} />
-                  )}
-                  {/* Dark overlay for text contrast */}
-                  <div className="absolute inset-0 bg-background/30" />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                    {scene.text && (
-                      <span className="text-[9px] font-semibold text-foreground px-1.5 truncate max-w-full drop-shadow-md">
-                        {scene.text.slice(0, 20)}
-                      </span>
+                return (
+                  <button
+                    key={scene.id}
+                    onClick={() => handleSegmentTap(idx)}
+                    className={`h-full rounded-xl overflow-hidden shrink-0 relative transition-all border-2
+                      ${isActive ? 'border-primary shadow-lg shadow-primary/20' : 'border-transparent hover:border-border'}`}
+                    style={{ width: `${w}px` }}
+                  >
+                    {scene.assetType === 'media' && scene.backgroundUrl ? (
+                      <img src={scene.backgroundUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                    ) : (
+                      <div className="absolute inset-0" style={{ background: gStyle.preview }} />
                     )}
-                  </div>
-                  <div className="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-background/60 backdrop-blur-sm">
-                    <span className="text-[8px] font-semibold text-foreground tabular-nums">{dur.toFixed(1)}s</span>
-                  </div>
-                  <div className="absolute top-1 left-1 w-4 h-4 rounded bg-background/50 flex items-center justify-center">
-                    <span className="text-[8px] font-bold text-foreground">{idx + 1}</span>
-                  </div>
-                </button>
-              );
-            })}
-            <button
-              onClick={() => { addScene(); toast({ title: 'Scene added' }); }}
-              className="h-[72px] w-12 rounded-xl border-2 border-dashed border-border flex items-center justify-center shrink-0 hover:border-primary/50 hover:bg-primary/5 transition-all"
-            >
-              <Plus className="w-4 h-4 text-muted-foreground" />
-            </button>
+                    <div className="absolute inset-0 bg-background/30" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+                      {scene.text && (
+                        <span className="text-[9px] font-semibold text-foreground px-1.5 truncate max-w-full drop-shadow-md">
+                          {scene.text.slice(0, 20)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-background/60 backdrop-blur-sm">
+                      <span className="text-[8px] font-semibold text-foreground tabular-nums">{dur.toFixed(1)}s</span>
+                    </div>
+                    <div className="absolute top-1 left-1 w-4 h-4 rounded bg-background/50 flex items-center justify-center">
+                      <span className="text-[8px] font-bold text-foreground">{idx + 1}</span>
+                    </div>
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => { addScene(); toast({ title: 'Scene added' }); }}
+                className="h-[72px] w-12 rounded-xl border-2 border-dashed border-border flex items-center justify-center shrink-0 hover:border-primary/50 hover:bg-primary/5 transition-all"
+              >
+                <Plus className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
