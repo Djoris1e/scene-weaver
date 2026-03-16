@@ -4,7 +4,7 @@ import {
   Send, Link, X, Palette, Sparkles, Loader2,
   Rocket, Monitor, CalendarDays, Video, Megaphone, Briefcase,
   Bot, Film, SlidersHorizontal, Eye, Terminal, ArrowRight,
-  Check, Star,
+  Check, Star, Music, Zap, Layers, Image,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -160,74 +160,150 @@ function SocialProofBar() {
   );
 }
 
-/* ───────── Product Mockup ───────── */
-function ProductMockup() {
-  const sceneColors = [
-    'from-primary/40 to-primary/10',
-    'from-accent/40 to-accent/10',
-    'from-highlight/40 to-highlight/10',
-    'from-primary/30 to-accent/20',
-    'from-accent/30 to-highlight/20',
-    'from-highlight/30 to-primary/20',
-  ];
+/* ───────── Video Showcase ───────── */
+const showcaseVideos = [
+  { label: 'Product Launch', src: 'https://videos.pexels.com/video-files/5532767/5532767-sd_506_960_25fps.mp4' },
+  { label: 'App Demo', src: 'https://videos.pexels.com/video-files/6981411/6981411-sd_506_960_25fps.mp4' },
+  { label: 'Event Promo', src: 'https://videos.pexels.com/video-files/4057402/4057402-sd_506_960_25fps.mp4' },
+  { label: 'Brand Story', src: 'https://videos.pexels.com/video-files/5377700/5377700-sd_506_960_25fps.mp4' },
+  { label: 'Social Teaser', src: 'https://videos.pexels.com/video-files/4488162/4488162-sd_506_960_25fps.mp4' },
+];
 
+function VideoShowcase() {
   return (
-    <div className="relative w-full max-w-4xl mx-auto">
-      {/* Browser chrome */}
-      <div className="rounded-2xl border border-border/60 overflow-hidden bg-card shadow-[0_20px_80px_-20px_hsla(338,72%,59%,0.15)]">
-        {/* Title bar */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 bg-secondary/30">
-          <span className="w-3 h-3 rounded-full bg-destructive/50" />
-          <span className="w-3 h-3 rounded-full bg-accent/50" />
-          <span className="w-3 h-3 rounded-full bg-accent/30" />
-          <span className="text-xs text-muted-foreground/50 ml-3 font-mono">vanillasky.ai/editor</span>
-        </div>
-        {/* Editor layout */}
-        <div className="grid grid-cols-[1fr_280px] min-h-[320px]">
-          {/* Preview area */}
-          <div className="relative bg-stage flex items-center justify-center border-r border-border/30">
-            <div className="text-center space-y-3 p-8">
-              <div className="w-16 h-16 rounded-2xl gradient-vs mx-auto flex items-center justify-center">
-                <Film className="w-8 h-8 text-primary-foreground" />
+    <div className="relative max-w-5xl mx-auto">
+      {/* Gradient fades */}
+      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+
+      <div className="flex gap-5 overflow-x-auto scrollbar-none px-8 py-4">
+        {showcaseVideos.map((v, i) => (
+          <motion.div
+            key={v.label}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.1, duration: 0.5 }}
+            className="relative shrink-0 w-[200px] group"
+          >
+            <div className="relative aspect-[9/16] rounded-3xl overflow-hidden border-2 border-border/60 bg-card shadow-[0_8px_40px_-12px_hsla(338,72%,59%,0.15)] group-hover:border-primary/40 group-hover:shadow-[0_12px_50px_-10px_hsla(338,72%,59%,0.25)] transition-all duration-500 group-hover:scale-[1.03]">
+              {/* Phone notch */}
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-1.5 rounded-full bg-border/80 z-10" />
+
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover"
+              >
+                <source src={v.src} type="video/mp4" />
+              </video>
+
+              {/* Label overlay */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent p-4 pt-8">
+                <span className="text-xs font-medium text-foreground">{v.label}</span>
               </div>
-              <p className="text-sm text-muted-foreground">Preview</p>
             </div>
-            {/* Playback bar */}
-            <div className="absolute bottom-0 left-0 right-0 h-10 bg-card/80 backdrop-blur-sm border-t border-border/30 flex items-center px-4 gap-3">
-              <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                <div className="w-0 h-0 border-l-[6px] border-l-primary border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-0.5" />
-              </div>
-              <span className="text-[10px] font-mono text-muted-foreground">0:00</span>
-              <div className="flex-1 h-1 bg-secondary rounded-full overflow-hidden">
-                <div className="w-1/3 h-full gradient-vs rounded-full" />
-              </div>
-              <span className="text-[10px] font-mono text-muted-foreground">0:42</span>
-            </div>
-          </div>
-          {/* Scene panel */}
-          <div className="bg-card/50 p-3 space-y-2">
-            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Scenes</span>
-            {sceneColors.map((gradient, i) => (
-              <div key={i} className={`rounded-lg bg-gradient-to-r ${gradient} h-10 flex items-center px-3 gap-2 ${i === 0 ? 'ring-1 ring-primary/40' : ''}`}>
-                <span className="text-[10px] font-mono text-foreground/70">{i + 1}</span>
-                <div className="flex-1 h-1.5 bg-foreground/10 rounded-full" />
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* Timeline */}
-        <div className="border-t border-border/40 bg-secondary/20 p-3">
-          <div className="flex gap-1.5 items-end h-8">
-            {[40, 65, 30, 80, 55, 45, 70, 35, 60, 50, 75, 40, 55, 65, 30, 80, 45, 60, 50, 70, 35, 55, 40, 65, 75, 30, 50, 60, 45, 80].map((h, i) => (
-              <div key={i} className="flex-1 rounded-sm bg-primary/20" style={{ height: `${h}%` }} />
-            ))}
-          </div>
-        </div>
+          </motion.div>
+        ))}
       </div>
     </div>
   );
 }
 
+/* ───────── Asset Library ───────── */
+const assetCategories = [
+  {
+    icon: Music,
+    title: 'Curated Soundtracks',
+    desc: 'Royalty-free tracks synced to your cuts',
+    preview: 'waveform',
+  },
+  {
+    icon: Zap,
+    title: 'Ready-made Animations',
+    desc: 'Counters, text effects, transitions',
+    preview: 'pulse',
+  },
+  {
+    icon: Layers,
+    title: 'Gradient Backgrounds',
+    desc: '12+ designer gradients, fully customizable',
+    preview: 'gradients',
+  },
+  {
+    icon: Image,
+    title: 'Stock Footage',
+    desc: 'Search millions of clips from Pexels',
+    preview: 'grid',
+  },
+];
+
+function AssetLibrary() {
+  return (
+    <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+      {assetCategories.map((a, i) => (
+        <motion.div
+          key={a.title}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: i * 0.1, duration: 0.5 }}
+          className="glass-card rounded-2xl p-5 space-y-4 hover:border-primary/20 hover:shadow-[0_0_40px_hsla(338,72%,59%,0.1)] transition-all duration-500 group"
+        >
+          {/* Preview element */}
+          <div className="h-12 flex items-end gap-1 overflow-hidden">
+            {a.preview === 'waveform' && (
+              <>
+                {[40, 70, 30, 85, 50, 65, 35, 75, 45, 60, 80, 40].map((h, j) => (
+                  <div
+                    key={j}
+                    className="flex-1 rounded-sm bg-primary/40 group-hover:bg-primary/70 transition-colors"
+                    style={{
+                      height: `${h}%`,
+                      animation: `waveform 1.2s ease-in-out ${j * 0.1}s infinite alternate`,
+                    }}
+                  />
+                ))}
+              </>
+            )}
+            {a.preview === 'pulse' && (
+              <div className="w-full h-full flex items-center justify-center">
+                <Sparkles className="w-8 h-8 text-accent/60 group-hover:text-accent animate-pulse" />
+              </div>
+            )}
+            {a.preview === 'gradients' && (
+              <div className="w-full h-full flex gap-1.5">
+                {[
+                  'from-primary/60 to-accent/60',
+                  'from-accent/60 to-highlight/60',
+                  'from-highlight/60 to-primary/60',
+                  'from-primary/40 to-highlight/40',
+                ].map((g, j) => (
+                  <div key={j} className={`flex-1 rounded-lg bg-gradient-to-b ${g}`} />
+                ))}
+              </div>
+            )}
+            {a.preview === 'grid' && (
+              <div className="w-full h-full grid grid-cols-3 grid-rows-2 gap-1">
+                {['bg-primary/30', 'bg-accent/30', 'bg-highlight/30', 'bg-accent/20', 'bg-primary/20', 'bg-highlight/20'].map((bg, j) => (
+                  <div key={j} className={`${bg} rounded-md`} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="w-10 h-10 rounded-xl bg-secondary/80 flex items-center justify-center group-hover:bg-primary/15 transition-colors duration-300">
+            <a.icon className="w-5 h-5 text-primary" />
+          </div>
+          <h3 className="font-heading text-sm font-semibold">{a.title}</h3>
+          <p className="text-muted-foreground text-xs leading-relaxed">{a.desc}</p>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
 /* ───────── Data ───────── */
 const steps = [
   { icon: Sparkles, title: 'Brief the agent', desc: 'Describe what you need. Paste a URL, set your brand colors. The agent takes it from here.', num: 1 },
@@ -345,12 +421,25 @@ export default function Landing() {
         </div>
       </AnimatedSection>
 
-      {/* ── Product Mockup ── */}
+      {/* ── Video Showcase ── */}
       <AnimatedSection className="py-24 md:py-32 px-6 relative">
         <div className="glow-orb w-[600px] h-[400px] bg-primary/8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-        <div className="relative z-10">
-          <ProductMockup />
+        <div className="relative z-10 space-y-8 text-center">
+          <div className="space-y-4">
+            <h2 className="font-heading text-3xl md:text-4xl font-bold">See what the agent builds</h2>
+            <p className="text-muted-foreground text-base max-w-lg mx-auto">Real output. Real assets. Every video generated from a single prompt.</p>
+          </div>
+          <VideoShowcase />
         </div>
+      </AnimatedSection>
+
+      {/* ── Asset Library ── */}
+      <AnimatedSection className="py-24 md:py-32 px-6 max-w-5xl mx-auto text-center space-y-12">
+        <div className="space-y-4">
+          <h2 className="font-heading text-3xl md:text-4xl font-bold">Everything included. No extra cost.</h2>
+          <p className="text-muted-foreground text-base max-w-lg mx-auto">Royalty-free audio, animations, backgrounds, and stock footage — all built in.</p>
+        </div>
+        <AssetLibrary />
       </AnimatedSection>
 
       {/* ── Features — Glassmorphic Grid ── */}
