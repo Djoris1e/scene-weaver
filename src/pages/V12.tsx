@@ -82,9 +82,27 @@ function SceneEditor({
     <div className="bg-card border-t border-border">
       <div className="flex items-center justify-between px-4 pt-3 pb-0">
         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Scene {index + 1}</span>
-        <button onClick={onClose} className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors">
-          <X className="w-3.5 h-3.5 text-muted-foreground" />
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Duration control */}
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] text-muted-foreground">Duration</span>
+            <select
+              value={(scene.endTime - scene.startTime).toFixed(1)}
+              onChange={e => {
+                const dur = Number(e.target.value);
+                onUpdate({ endTime: scene.startTime + dur });
+              }}
+              className="bg-secondary border border-border rounded-lg px-2 py-1 text-[11px] font-medium text-foreground"
+            >
+              {[1, 1.5, 2, 2.5, 3, 4, 5].map(d => (
+                <option key={d} value={d.toFixed(1)}>{d}s</option>
+              ))}
+            </select>
+          </div>
+          <button onClick={onClose} className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors">
+            <X className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+        </div>
       </div>
 
       <IconTabBar tabs={EDITOR_TABS} active={tab} onChange={setTab} />
@@ -107,6 +125,37 @@ function SceneEditor({
                 className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none"
               />
             </div>
+
+            {/* Font selector */}
+            <DropdownSelect
+              label="Font"
+              value={scene.fontId}
+              options={FONT_OPTIONS.map(f => ({ value: f.id, label: f.label }))}
+              onChange={v => onUpdate({ fontId: v })}
+            />
+
+            {/* Text color swatches */}
+            <div className="space-y-1.5">
+              <span className="text-xs text-muted-foreground">Text color</span>
+              <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+                {TEXT_COLOR_PAIRINGS.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => onUpdate({ textColorId: c.id })}
+                    className={`flex flex-col items-center gap-1 shrink-0`}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                        scene.textColorId === c.id ? 'border-primary scale-110' : 'border-border hover:border-muted-foreground/50'
+                      }`}
+                      style={{ backgroundColor: c.text, boxShadow: scene.textColorId === c.id ? c.shadow : undefined }}
+                    />
+                    <span className="text-[9px] text-muted-foreground">{c.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <DropdownSelect
               label="Text effect"
               value={scene.textEffect}
@@ -176,6 +225,39 @@ function SceneEditor({
                 ))}
               </div>
             )}
+
+            {/* Counter editing */}
+            {scene.assetType === 'counter' && (
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <span className="text-xs text-muted-foreground">Number</span>
+                  <input
+                    type="number"
+                    value={scene.counter.number}
+                    onChange={e => onUpdate({ counter: { ...scene.counter, number: Number(e.target.value) } })}
+                    className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <span className="text-xs text-muted-foreground">Label</span>
+                  <input
+                    type="text"
+                    value={scene.counter.label}
+                    onChange={e => onUpdate({ counter: { ...scene.counter, label: e.target.value } })}
+                    className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <span className="text-xs text-muted-foreground">Unit (%, s, k, days)</span>
+                  <input
+                    type="text"
+                    value={scene.counter.unit}
+                    onChange={e => onUpdate({ counter: { ...scene.counter, unit: e.target.value } })}
+                    className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -240,8 +322,13 @@ const SETTINGS_TABS = [
   { id: 'endscreen', label: 'End Screen', icon: <Settings className="w-5 h-5" /> },
 ];
 
-function SettingsPanel({ onClose }: { onClose: () => void }) {
-  const { brandKit, setBrandKit, endScreen, setEndScreen } = useSceneStore();
+function SettingsPanel({ onClose, brandKit, setBrandKit, endScreen, setEndScreen }: {
+  onClose: () => void;
+  brandKit: { bgColor: string; accentColor: string; logoUrl: string | null; slogan: string };
+  setBrandKit: (v: typeof brandKit) => void;
+  endScreen: { enabled: boolean; duration: number };
+  setEndScreen: (v: typeof endScreen) => void;
+}) {
   const [tab, setTab] = useState('brand');
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -429,6 +516,7 @@ export default function V12() {
   const {
     scenes, activeIndex, activeScene, totalDuration,
     setActiveIndex, addScene, deleteScene, updateScene,
+    brandKit, setBrandKit, endScreen, setEndScreen,
   } = useSceneStore();
 
   const [playing, setPlaying] = useState(false);
@@ -473,28 +561,33 @@ export default function V12() {
     filmstripRef.current.scrollLeft = playheadPos - containerW / 2;
   }, [currentTime, playing, totalDuration]);
 
-  // Drag-to-scrub
+  // Drag-to-scrub with distance threshold
+  const didDrag = useRef(false);
   const handleDragStart = (clientX: number) => {
     dragging.current = true;
+    didDrag.current = false;
     dragStartX.current = clientX;
     scrollStart.current = filmstripRef.current?.scrollLeft ?? 0;
   };
   const handleDragMove = (clientX: number) => {
     if (!dragging.current || !filmstripRef.current) return;
     const dx = dragStartX.current - clientX;
+    if (Math.abs(dx) > 5) didDrag.current = true;
     filmstripRef.current.scrollLeft = scrollStart.current + dx;
-    const containerW = filmstripRef.current.clientWidth;
-    const centerScroll = filmstripRef.current.scrollLeft + containerW / 2;
-    const totalWidth = totalDuration * SCALE;
-    const ratio = Math.max(0, Math.min(1, centerScroll / totalWidth));
-    const time = +(ratio * totalDuration).toFixed(1);
-    setCurrentTime(time);
-    setActiveIndex(getSceneAtTime(time));
+    if (didDrag.current) {
+      const containerW = filmstripRef.current.clientWidth;
+      const centerScroll = filmstripRef.current.scrollLeft + containerW / 2;
+      const totalWidth = totalDuration * SCALE;
+      const ratio = Math.max(0, Math.min(1, centerScroll / totalWidth));
+      const time = +(ratio * totalDuration).toFixed(1);
+      setCurrentTime(time);
+      setActiveIndex(getSceneAtTime(time));
+    }
   };
   const handleDragEnd = () => { dragging.current = false; };
 
   const handleSegmentTap = (index: number) => {
-    if (!dragging.current) {
+    if (!didDrag.current) {
       setActiveIndex(index);
       setEditingScene(index);
       setShowSettings(false);
@@ -507,7 +600,7 @@ export default function V12() {
   const color = TEXT_COLOR_PAIRINGS.find(c => c.id === activeScene.textColorId) || TEXT_COLOR_PAIRINGS[0];
   const fontOpt = FONT_OPTIONS.find(f => f.id === activeScene.fontId) || FONT_OPTIONS[0];
   const gradientStyle = GRADIENT_STYLES.find(g => g.id === activeScene.gradient.style) || GRADIENT_STYLES[0];
-  const positionClass = { top: 'items-start pt-8', center: 'items-center', bottom: 'items-end pb-8' }[activeScene.textPosition];
+  const positionClass = { top: 'justify-start pt-8', center: 'justify-center', bottom: 'justify-end pb-8' }[activeScene.textPosition];
   const formatTime = (t: number) => `${Math.floor(t / 60)}:${Math.floor(t % 60).toString().padStart(2, '0')}`;
 
   const renderPreviewBg = () => {
@@ -547,7 +640,7 @@ export default function V12() {
           <div className="relative rounded-2xl overflow-hidden shadow-2xl" style={{ aspectRatio: '9/16', height: '100%', width: 'auto' }}>
             {renderPreviewBg()}
             {activeScene.text && activeScene.assetType !== 'counter' && (
-              <div className={`absolute inset-0 flex flex-col ${positionClass} justify-center px-5 z-10`}>
+              <div className={`absolute inset-0 flex flex-col ${positionClass} px-5 z-10`}>
                 <p className="text-lg leading-snug text-center max-w-full break-words font-semibold"
                   style={{ color: color.text, textShadow: color.shadow, fontFamily: fontOpt.family }}>
                   {activeScene.text}
@@ -647,11 +740,13 @@ export default function V12() {
         </div>
       </div>
 
-      {/* ─── AI Prompt Bar ─── */}
-      <AIPromptBar />
+      {/* ─── AI Prompt Bar (sticky) ─── */}
+      <div className="sticky bottom-0 z-20 bg-card">
+        <AIPromptBar />
+      </div>
 
       {/* ─── Settings Panel (inline) ─── */}
-      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
+      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} brandKit={brandKit} setBrandKit={setBrandKit} endScreen={endScreen} setEndScreen={setEndScreen} />}
 
       {/* ─── Scene Editor (inline, scrollable) ─── */}
       {editingScene !== null && scenes[editingScene] && (
