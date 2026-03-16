@@ -11,6 +11,10 @@ import V4 from "./pages/V4.tsx";
 import V5 from "./pages/V5.tsx";
 import V6 from "./pages/V6.tsx";
 import V7 from "./pages/V7.tsx";
+import V8 from "./pages/V8.tsx";
+import V9 from "./pages/V9.tsx";
+import V10 from "./pages/V10.tsx";
+import V11 from "./pages/V11.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -30,6 +34,10 @@ const App = () => (
           <Route path="/v5" element={<V5 />} />
           <Route path="/v6" element={<V6 />} />
           <Route path="/v7" element={<V7 />} />
+          <Route path="/v8" element={<V8 />} />
+          <Route path="/v9" element={<V9 />} />
+          <Route path="/v10" element={<V10 />} />
+          <Route path="/v11" element={<V11 />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
