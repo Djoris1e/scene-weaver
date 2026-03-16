@@ -14,10 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Space Grotesk", "sans-serif"],
-        display: ["Playfair Display", "serif"],
+        sans: ["Manrope", "sans-serif"],
+        heading: ["Raleway", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
-        body: ["Inter", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -45,6 +44,7 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+        highlight: "hsl(var(--highlight))",
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",

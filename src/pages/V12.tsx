@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSceneStore } from '@/hooks/useSceneStore';
+import logo from '@/assets/logo.svg';
 import { TEXT_COLOR_PAIRINGS, FONT_OPTIONS, GRADIENT_STYLES, Scene } from '@/types/scene';
 import {
   Play, Pause, Plus, Share2, X, Settings,
@@ -455,7 +456,7 @@ export default function V12() {
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between px-4 h-12 shrink-0">
         <button onClick={() => navigate('/')} className="text-sm font-semibold text-primary">Done</button>
-        <span className="text-xs font-semibold text-foreground tracking-wide">V12</span>
+        <img src={logo} alt="Logo" className="h-5" />
         <div className="flex items-center gap-2">
           <button onClick={() => { setShowSettings(!showSettings); setEditingScene(null); }}
             className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-medium transition-colors ${showSettings ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}>
