@@ -433,24 +433,6 @@ export default function Landing() {
         </div>
       </AnimatedSection>
 
-      {/* ── Terminal ── */}
-      <AnimatedSection className="py-24 md:py-32 px-6 max-w-4xl mx-auto text-center space-y-12">
-        <div className="space-y-2">
-          <p className="text-xs font-medium tracking-widest uppercase text-primary flex items-center justify-center gap-2"><Terminal className="w-4 h-4" /> For Developers</p>
-          <h2 className="font-heading text-3xl md:text-4xl font-bold">Built for the agentic era</h2>
-          <p className="text-muted-foreground text-base max-w-lg mx-auto">VanillaSky runs as a skill inside Claude Code — the first video tool built for AI agents.</p>
-        </div>
-
-        <TerminalBlock />
-
-        <div className="flex items-center justify-center gap-3 flex-wrap">
-          <span className="text-xs text-muted-foreground">Coming soon:</span>
-          {['API access', 'Template marketplace', 'Custom animation SDK'].map(t => (
-            <span key={t} className="text-xs border border-border rounded-full px-3 py-1 text-muted-foreground">{t}</span>
-          ))}
-        </div>
-      </AnimatedSection>
-
       {/* ── Use Cases ── */}
       <AnimatedSection className="py-24 md:py-32 px-6 max-w-5xl mx-auto text-center space-y-16">
         <div className="space-y-4">
