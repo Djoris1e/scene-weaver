@@ -307,6 +307,86 @@ function SceneEditor({
           </div>
         )}
 
+        {/* ── Brand tab (global) ── */}
+        {tab === 'brand' && (
+          <div className="space-y-4 animate-in fade-in-0 duration-200">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-accent/10 border border-accent/20">
+              <Globe className="w-3.5 h-3.5 text-accent shrink-0" />
+              <span className="text-[11px] text-accent font-medium">These settings apply to all scenes in this video</span>
+            </div>
+
+            {/* Colors */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Background</span>
+                <input type="color" value={brandKit.bgColor}
+                  onChange={e => setBrandKit({ ...brandKit, bgColor: e.target.value })}
+                  className="w-7 h-7 rounded border-0 cursor-pointer bg-transparent" />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Accent</span>
+                <input type="color" value={brandKit.accentColor}
+                  onChange={e => setBrandKit({ ...brandKit, accentColor: e.target.value })}
+                  className="w-7 h-7 rounded border-0 cursor-pointer bg-transparent" />
+              </div>
+            </div>
+
+            {/* Logo */}
+            <div>
+              <span className="text-xs text-muted-foreground block mb-2">Logo</span>
+              {brandKit.logoUrl ? (
+                <div className="flex items-center gap-2">
+                  <img src={brandKit.logoUrl} alt="Logo" className="h-8 object-contain" />
+                  <button onClick={() => setBrandKit({ ...brandKit, logoUrl: null })} className="p-1 rounded hover:bg-muted">
+                    <X className="w-3.5 h-3.5 text-muted-foreground" />
+                  </button>
+                </div>
+              ) : (
+                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-secondary text-xs text-secondary-foreground cursor-pointer hover:bg-muted transition-colors">
+                  <Upload className="w-3.5 h-3.5" />
+                  Upload logo
+                  <input type="file" accept="image/*" className="hidden" onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) setBrandKit({ ...brandKit, logoUrl: URL.createObjectURL(file) });
+                  }} />
+                </label>
+              )}
+            </div>
+
+            {/* Slogan */}
+            <div className="space-y-1.5">
+              <span className="text-xs text-muted-foreground">Slogan</span>
+              <input type="text" value={brandKit.slogan}
+                onChange={e => setBrandKit({ ...brandKit, slogan: e.target.value })}
+                placeholder="e.g. Your tagline or website"
+                className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30" />
+            </div>
+
+            {/* End Screen */}
+            <div className="pt-2 border-t border-border/50 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-foreground font-medium">End screen</p>
+                  <p className="text-[10px] text-muted-foreground">Show logo & slogan at the end</p>
+                </div>
+                <Switch checked={endScreen.enabled} onCheckedChange={val => setEndScreen({ ...endScreen, enabled: val })} />
+              </div>
+              {endScreen.enabled && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Duration</span>
+                  <select value={endScreen.duration}
+                    onChange={e => setEndScreen({ ...endScreen, duration: Number(e.target.value) })}
+                    className="bg-secondary border border-border rounded-lg px-2 py-1 text-xs text-foreground">
+                    <option value={2}>2s</option>
+                    <option value={3}>3s</option>
+                    <option value={5}>5s</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Delete */}
         {totalScenes > 1 && (
           <div className="flex justify-end pt-1">
