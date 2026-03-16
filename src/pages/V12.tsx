@@ -260,7 +260,6 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
       </div>
       <IconTabBar tabs={SETTINGS_TABS} active={tab} onChange={setTab} />
       <div className="px-4 py-4 space-y-4">
-        <IconTabBar tabs={SETTINGS_TABS} active={tab} onChange={setTab} />
 
         {/* Brand Kit */}
         {tab === 'brand' && (
