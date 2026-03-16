@@ -16,7 +16,7 @@ export default function Editor() {
 
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [editingScene, setEditingScene] = useState<number | null>(null);
+  const [editingScene, setEditingScene] = useState<number | null>(0);
 
   const getSceneAtTime = useCallback((time: number) => {
     let cumulative = 0;
@@ -43,9 +43,9 @@ export default function Editor() {
   }, [playing, totalDuration, getSceneAtTime, activeIndex, setActiveIndex]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col max-w-[1200px] mx-auto w-full">
+    <div className="min-h-screen bg-background flex flex-col max-w-[1200px] mx-auto w-full gap-1.5 pb-2">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm flex items-center justify-between px-4 h-12 shrink-0 border-b border-border/30">
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm flex items-center justify-between px-4 h-12 shrink-0">
         <img src={logo} alt="Logo" className="h-5" />
         <ExportButton />
       </div>
@@ -54,44 +54,48 @@ export default function Editor() {
       <Preview scene={activeScene} sceneIndex={activeIndex} totalScenes={scenes.length} />
 
       {/* Filmstrip */}
-      <Filmstrip
-        scenes={scenes}
-        activeIndex={activeIndex}
-        currentTime={currentTime}
-        totalDuration={totalDuration}
-        playing={playing}
-        onSetActiveIndex={setActiveIndex}
-        onSetCurrentTime={setCurrentTime}
-        onSetPlaying={setPlaying}
-        onAddScene={addScene}
-        onEditScene={setEditingScene}
-        getSceneAtTime={getSceneAtTime}
-      />
+      <div className="mx-3">
+        <Filmstrip
+          scenes={scenes}
+          activeIndex={activeIndex}
+          currentTime={currentTime}
+          totalDuration={totalDuration}
+          playing={playing}
+          onSetActiveIndex={setActiveIndex}
+          onSetCurrentTime={setCurrentTime}
+          onSetPlaying={setPlaying}
+          onAddScene={addScene}
+          onEditScene={setEditingScene}
+          getSceneAtTime={getSceneAtTime}
+        />
+      </div>
 
       {/* AI Prompt Bar (sticky) */}
-      <div className="sticky bottom-0 z-20 bg-card">
+      <div className="sticky bottom-0 z-20 mx-3">
         <AIPromptBar />
       </div>
 
       {/* Scene Editor */}
       {editingScene !== null && scenes[editingScene] && (
-        <SceneEditor
-          scene={scenes[editingScene]}
-          index={editingScene}
-          onUpdate={u => updateScene(editingScene, u)}
-          onDelete={() => { deleteScene(editingScene); setEditingScene(null); }}
-          onClose={() => setEditingScene(null)}
-          totalScenes={scenes.length}
-          brandKit={brandKit}
-          setBrandKit={setBrandKit}
-          endScreen={endScreen}
-          setEndScreen={setEndScreen}
-        />
+        <div className="mx-3">
+          <SceneEditor
+            scene={scenes[editingScene]}
+            index={editingScene}
+            onUpdate={u => updateScene(editingScene, u)}
+            onDelete={() => { deleteScene(editingScene); setEditingScene(null); }}
+            onClose={() => setEditingScene(null)}
+            totalScenes={scenes.length}
+            brandKit={brandKit}
+            setBrandKit={setBrandKit}
+            endScreen={endScreen}
+            setEndScreen={setEndScreen}
+          />
+        </div>
       )}
 
       {/* Bottom info */}
       {editingScene === null && (
-        <div className="shrink-0 flex items-center justify-between px-4 py-2.5 border-t border-border/50">
+        <div className="shrink-0 flex items-center justify-between px-4 py-2.5">
           <span className="text-[11px] text-muted-foreground">{scenes.length} scene{scenes.length !== 1 ? 's' : ''} · {totalDuration.toFixed(1)}s</span>
           <span className="text-[10px] text-muted-foreground/50">Tap a clip to edit</span>
         </div>

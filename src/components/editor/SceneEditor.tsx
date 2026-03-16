@@ -38,7 +38,7 @@ export default function SceneEditor({
   const [tab, setTab] = useState('text');
 
   return (
-    <div className="bg-card border-t border-border">
+    <div className="bg-card rounded-xl border border-border/40">
       <div className="flex items-center justify-between px-4 pt-3 pb-0">
         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Scene {index + 1}</span>
         <div className="flex items-center gap-2">
