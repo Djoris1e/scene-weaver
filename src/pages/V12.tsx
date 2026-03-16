@@ -455,7 +455,6 @@ export default function V12() {
     <div className="flex flex-col h-screen bg-background">
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between px-4 h-12 shrink-0">
-        <button onClick={() => navigate('/')} className="text-sm font-semibold text-primary">Done</button>
         <img src={logo} alt="Logo" className="h-5" />
         <div className="flex items-center gap-2">
           <button onClick={() => { setShowSettings(!showSettings); setEditingScene(null); }}
