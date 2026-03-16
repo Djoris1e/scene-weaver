@@ -4,7 +4,7 @@ import {
   Send, Link, X, Palette, Sparkles, Loader2,
   Rocket, Monitor, CalendarDays, Video, Megaphone, Briefcase,
   Bot, Film, SlidersHorizontal, Eye, Terminal, ArrowRight,
-  Check, Star, Music, Zap, Layers, Image,
+  Check, Music, Zap, Layers, Image,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -137,28 +137,6 @@ function PromptCard({ glowOnHover = false }: { glowOnHover?: boolean }) {
   );
 }
 
-/* ───────── Social Proof Bar ───────── */
-function SocialProofBar() {
-  return (
-    <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
-      <div className="flex -space-x-2">
-        {[
-          'bg-primary/60', 'bg-accent/60', 'bg-highlight/60', 'bg-primary/40', 'bg-accent/40'
-        ].map((bg, i) => (
-          <div key={i} className={`w-7 h-7 rounded-full ${bg} border-2 border-background flex items-center justify-center text-[10px] font-bold text-foreground/80`}>
-            {['JK', 'AL', 'MR', 'TS', 'NP'][i]}
-          </div>
-        ))}
-      </div>
-      <span>Trusted by <strong className="text-foreground">500+</strong> creators</span>
-      <div className="flex items-center gap-0.5">
-        {[...Array(5)].map((_, i) => (
-          <Star key={i} className="w-3.5 h-3.5 fill-accent text-accent" />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 /* ───────── Video Showcase ───────── */
 const showcaseVideos = [
@@ -382,8 +360,6 @@ export default function Landing() {
           </p>
 
           <PromptCard glowOnHover />
-
-          <SocialProofBar />
         </div>
       </section>
 
