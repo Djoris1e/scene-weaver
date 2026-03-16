@@ -278,15 +278,6 @@ export default function SceneEditor({
           </div>
         )}
 
-        {/* Delete */}
-        {totalScenes > 1 && (
-          <div className="flex justify-end pt-1">
-            <button onClick={onDelete}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium text-destructive/70 hover:text-destructive bg-destructive/5 hover:bg-destructive/10 transition-all">
-              <Trash2 className="w-3 h-3" /> Remove
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
