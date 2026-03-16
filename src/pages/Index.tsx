@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Layout, Layers, GalleryHorizontalEnd, List, Smartphone, TextCursorInput, Star } from 'lucide-react';
+import { Layout, Layers, GalleryHorizontalEnd, List, Smartphone, TextCursorInput, Star, Film, Maximize, Grid2X2, SlidersHorizontal } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
