@@ -40,10 +40,10 @@ export default function AIPromptBar({ expanded, onExpand, onCollapse }: AIPrompt
     return (
       <button
         onClick={onExpand}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent/20 text-accent text-xs font-bold hover:bg-accent/30 active:scale-95 transition-all shrink-0"
+        className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-secondary text-muted-foreground text-xs hover:bg-secondary/80 active:scale-[0.98] transition-all"
       >
-        <Sparkles className="w-3.5 h-3.5" />
-        <span>AI</span>
+        <Sparkles className="w-3.5 h-3.5 text-accent shrink-0" />
+        <span className="truncate">Describe changes with AI…</span>
       </button>
     );
   }
