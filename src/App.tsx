@@ -15,6 +15,7 @@ import V8 from "./pages/V8.tsx";
 import V9 from "./pages/V9.tsx";
 import V10 from "./pages/V10.tsx";
 import V11 from "./pages/V11.tsx";
+import V12 from "./pages/V12.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
