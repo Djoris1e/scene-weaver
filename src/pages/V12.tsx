@@ -587,7 +587,7 @@ export default function V12() {
   const handleDragEnd = () => { dragging.current = false; };
 
   const handleSegmentTap = (index: number) => {
-    if (!dragging.current) {
+    if (!didDrag.current) {
       setActiveIndex(index);
       setEditingScene(index);
       setShowSettings(false);
