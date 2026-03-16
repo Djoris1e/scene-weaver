@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSceneStore } from '@/hooks/useSceneStore';
-import logo from '@/assets/logo.svg';
+import { Home } from 'lucide-react';
 import Preview from '@/components/editor/Preview';
 import Filmstrip from '@/components/editor/Filmstrip';
 import SceneEditor from '@/components/editor/SceneEditor';
@@ -17,6 +17,7 @@ export default function Editor() {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [editingScene, setEditingScene] = useState<number | null>(0);
+  const [aiExpanded, setAiExpanded] = useState(false);
 
   const getSceneAtTime = useCallback((time: number) => {
     let cumulative = 0;
@@ -46,9 +47,18 @@ export default function Editor() {
     <div className="min-h-screen bg-background flex flex-col max-w-[1200px] mx-auto w-full gap-1.5 pb-2">
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm flex items-center gap-3 px-4 h-14 shrink-0">
-        <img src={logo} alt="Logo" className="h-5 shrink-0" />
-        <AIPromptBar />
-        <ExportButton />
+        {aiExpanded ? (
+          <AIPromptBar expanded onExpand={() => setAiExpanded(true)} onCollapse={() => setAiExpanded(false)} />
+        ) : (
+          <>
+            <button className="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0">
+              <Home className="w-4.5 h-4.5" />
+            </button>
+            <div className="flex-1" />
+            <AIPromptBar expanded={false} onExpand={() => setAiExpanded(true)} onCollapse={() => setAiExpanded(false)} />
+            <ExportButton />
+          </>
+        )}
       </div>
 
       {/* Preview */}
