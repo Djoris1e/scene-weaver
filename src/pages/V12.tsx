@@ -458,8 +458,9 @@ export default function V12() {
         <span className="text-xs font-semibold text-foreground tracking-wide">V12</span>
         <div className="flex items-center gap-2">
           <button onClick={() => { setShowSettings(!showSettings); setEditingScene(null); }}
-            className={`w-9 h-9 flex items-center justify-center rounded-xl transition-colors ${showSettings ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-            <Settings className="w-[18px] h-[18px]" />
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-medium transition-colors ${showSettings ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}>
+            <Settings className="w-3.5 h-3.5" />
+            <span className="hidden min-[380px]:inline">Brand</span>
           </button>
           <ExportButton />
         </div>
