@@ -67,7 +67,7 @@ export default function Filmstrip({
   const formatTime = (t: number) => `${Math.floor(t / 60)}:${Math.floor(t % 60).toString().padStart(2, '0')}`;
 
   return (
-    <div className="shrink-0 bg-card border-t border-border">
+    <div className="shrink-0 bg-card rounded-xl border border-border/40">
       {/* Playback row */}
       <div className="flex items-center gap-2 px-3 py-1.5">
         <button
