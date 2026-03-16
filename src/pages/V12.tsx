@@ -118,6 +118,16 @@ function SceneEditor({
               ]}
               onChange={v => onUpdate({ textEffect: v })}
             />
+            <DropdownSelect
+              label="Text position"
+              value={scene.textPosition}
+              options={[
+                { value: 'top', label: 'Top' },
+                { value: 'center', label: 'Center' },
+                { value: 'bottom', label: 'Bottom' },
+              ]}
+              onChange={v => onUpdate({ textPosition: v })}
+            />
           </div>
         )}
 
@@ -205,16 +215,6 @@ function SceneEditor({
                 { value: 'rgb-split', label: 'RGB Split' },
               ]}
               onChange={v => onUpdate({ overlays: v === 'none' ? [] : [v] })}
-            />
-            <DropdownSelect
-              label="Text position"
-              value={scene.textPosition}
-              options={[
-                { value: 'top', label: 'Top' },
-                { value: 'center', label: 'Center' },
-                { value: 'bottom', label: 'Bottom' },
-              ]}
-              onChange={v => onUpdate({ textPosition: v })}
             />
           </div>
         )}
