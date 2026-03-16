@@ -82,9 +82,27 @@ function SceneEditor({
     <div className="bg-card border-t border-border">
       <div className="flex items-center justify-between px-4 pt-3 pb-0">
         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Scene {index + 1}</span>
-        <button onClick={onClose} className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors">
-          <X className="w-3.5 h-3.5 text-muted-foreground" />
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Duration control */}
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] text-muted-foreground">Duration</span>
+            <select
+              value={(scene.endTime - scene.startTime).toFixed(1)}
+              onChange={e => {
+                const dur = Number(e.target.value);
+                onUpdate({ endTime: scene.startTime + dur });
+              }}
+              className="bg-secondary border border-border rounded-lg px-2 py-1 text-[11px] font-medium text-foreground"
+            >
+              {[1, 1.5, 2, 2.5, 3, 4, 5].map(d => (
+                <option key={d} value={d.toFixed(1)}>{d}s</option>
+              ))}
+            </select>
+          </div>
+          <button onClick={onClose} className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors">
+            <X className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+        </div>
       </div>
 
       <IconTabBar tabs={EDITOR_TABS} active={tab} onChange={setTab} />
@@ -107,6 +125,37 @@ function SceneEditor({
                 className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none"
               />
             </div>
+
+            {/* Font selector */}
+            <DropdownSelect
+              label="Font"
+              value={scene.fontId}
+              options={FONT_OPTIONS.map(f => ({ value: f.id, label: f.label }))}
+              onChange={v => onUpdate({ fontId: v })}
+            />
+
+            {/* Text color swatches */}
+            <div className="space-y-1.5">
+              <span className="text-xs text-muted-foreground">Text color</span>
+              <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+                {TEXT_COLOR_PAIRINGS.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => onUpdate({ textColorId: c.id })}
+                    className={`flex flex-col items-center gap-1 shrink-0`}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                        scene.textColorId === c.id ? 'border-primary scale-110' : 'border-border hover:border-muted-foreground/50'
+                      }`}
+                      style={{ backgroundColor: c.text, boxShadow: scene.textColorId === c.id ? c.shadow : undefined }}
+                    />
+                    <span className="text-[9px] text-muted-foreground">{c.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <DropdownSelect
               label="Text effect"
               value={scene.textEffect}
@@ -174,6 +223,39 @@ function SceneEditor({
                     <span className="text-[9px] text-muted-foreground font-medium">{g.label}</span>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Counter editing */}
+            {scene.assetType === 'counter' && (
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <span className="text-xs text-muted-foreground">Number</span>
+                  <input
+                    type="number"
+                    value={scene.counter.number}
+                    onChange={e => onUpdate({ counter: { ...scene.counter, number: Number(e.target.value) } })}
+                    className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <span className="text-xs text-muted-foreground">Label</span>
+                  <input
+                    type="text"
+                    value={scene.counter.label}
+                    onChange={e => onUpdate({ counter: { ...scene.counter, label: e.target.value } })}
+                    className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <span className="text-xs text-muted-foreground">Unit (%, s, k, days)</span>
+                  <input
+                    type="text"
+                    value={scene.counter.unit}
+                    onChange={e => onUpdate({ counter: { ...scene.counter, unit: e.target.value } })}
+                    className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  />
+                </div>
               </div>
             )}
           </div>
