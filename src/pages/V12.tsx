@@ -503,7 +503,7 @@ export default function V12() {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [editingScene, setEditingScene] = useState<number | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
+  
   const filmstripRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const dragStartX = useRef(0);
