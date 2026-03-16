@@ -45,8 +45,9 @@ export default function Editor() {
   return (
     <div className="min-h-screen bg-background flex flex-col max-w-[1200px] mx-auto w-full gap-1.5 pb-2">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm flex items-center justify-between px-4 h-12 shrink-0">
-        <img src={logo} alt="Logo" className="h-5" />
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm flex items-center gap-3 px-4 h-14 shrink-0">
+        <img src={logo} alt="Logo" className="h-5 shrink-0" />
+        <AIPromptBar />
         <ExportButton />
       </div>
 
@@ -68,11 +69,6 @@ export default function Editor() {
           onEditScene={setEditingScene}
           getSceneAtTime={getSceneAtTime}
         />
-      </div>
-
-      {/* AI Prompt Bar (sticky) */}
-      <div className="sticky bottom-0 z-20 mx-3">
-        <AIPromptBar />
       </div>
 
       {/* Scene Editor */}
