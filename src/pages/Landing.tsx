@@ -483,21 +483,6 @@ export default function Landing() {
         </div>
       </AnimatedSection>
 
-      {/* ── Final CTA ── */}
-      <section className="relative py-32 md:py-40 px-6 text-center">
-        <div className="glow-orb w-[600px] h-[600px] bg-primary/12 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-        <div className="glow-orb w-[300px] h-[300px] bg-accent/8 bottom-0 left-1/4" />
-
-        <AnimatedSection className="relative z-10 space-y-8 max-w-3xl mx-auto">
-          <h2 className="font-heading text-4xl md:text-5xl font-bold">
-            Put your video team{' '}
-            <span className="gradient-vs-text italic">to work</span>
-          </h2>
-          <p className="text-muted-foreground text-lg max-w-lg mx-auto">Describe what you need. The agent delivers a draft. No signup required.</p>
-          <PromptCard glowOnHover />
-        </AnimatedSection>
-      </section>
-
       <div className="h-12" />
     </div>
   );
