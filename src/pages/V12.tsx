@@ -513,65 +513,61 @@ export default function V12() {
         {/* Filmstrip segments */}
         <div className="relative h-[72px]">
           {/* Playhead */}
-          <div className="absolute top-0 bottom-0 left-1/2 -translate-x-px w-0.5 bg-primary z-20 pointer-events-none">
-            <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-primary shadow-md shadow-primary/40" />
-          </div>
+          <div
+            ref={filmstripRef}
+            className="h-full overflow-x-auto scrollbar-none flex items-center px-[50%]"
+            onMouseDown={e => handleDragStart(e.clientX)}
+            onMouseMove={e => handleDragMove(e.clientX)}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={handleDragEnd}
+            onTouchStart={e => handleDragStart(e.touches[0].clientX)}
+            onTouchMove={e => handleDragMove(e.touches[0].clientX)}
+            onTouchEnd={handleDragEnd}
+          >
+            <div className="flex items-center gap-1 h-[72px]">
+              {scenes.map((scene, idx) => {
+                const dur = scene.endTime - scene.startTime;
+                const w = Math.max(dur * SCALE, 48);
+                const gStyle = GRADIENT_STYLES.find(g => g.id === scene.gradient.style) || GRADIENT_STYLES[0];
+                const isActive = idx === activeIndex;
 
-        <div
-          ref={filmstripRef}
-          className="h-full overflow-x-auto scrollbar-none flex items-center px-[50%]"
-          onMouseDown={e => handleDragStart(e.clientX)}
-          onMouseMove={e => handleDragMove(e.clientX)}
-          onMouseUp={handleDragEnd}
-          onMouseLeave={handleDragEnd}
-          onTouchStart={e => handleDragStart(e.touches[0].clientX)}
-          onTouchMove={e => handleDragMove(e.touches[0].clientX)}
-          onTouchEnd={handleDragEnd}
-        >
-          <div className="flex items-center gap-1 h-[72px]">
-            {scenes.map((scene, idx) => {
-              const dur = scene.endTime - scene.startTime;
-              const w = Math.max(dur * SCALE, 48);
-              const gStyle = GRADIENT_STYLES.find(g => g.id === scene.gradient.style) || GRADIENT_STYLES[0];
-              const isActive = idx === activeIndex;
-
-              return (
-                <button
-                  key={scene.id}
-                  onClick={() => handleSegmentTap(idx)}
-                  className={`h-full rounded-xl overflow-hidden shrink-0 relative transition-all border-2
-                    ${isActive ? 'border-primary shadow-lg shadow-primary/20' : 'border-transparent hover:border-border'}`}
-                  style={{ width: `${w}px` }}
-                >
-                  {scene.assetType === 'media' && scene.backgroundUrl ? (
-                    <img src={scene.backgroundUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                  ) : (
-                    <div className="absolute inset-0" style={{ background: gStyle.preview }} />
-                  )}
-                  {/* Dark overlay for text contrast */}
-                  <div className="absolute inset-0 bg-background/30" />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                    {scene.text && (
-                      <span className="text-[9px] font-semibold text-foreground px-1.5 truncate max-w-full drop-shadow-md">
-                        {scene.text.slice(0, 20)}
-                      </span>
+                return (
+                  <button
+                    key={scene.id}
+                    onClick={() => handleSegmentTap(idx)}
+                    className={`h-full rounded-xl overflow-hidden shrink-0 relative transition-all border-2
+                      ${isActive ? 'border-primary shadow-lg shadow-primary/20' : 'border-transparent hover:border-border'}`}
+                    style={{ width: `${w}px` }}
+                  >
+                    {scene.assetType === 'media' && scene.backgroundUrl ? (
+                      <img src={scene.backgroundUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                    ) : (
+                      <div className="absolute inset-0" style={{ background: gStyle.preview }} />
                     )}
-                  </div>
-                  <div className="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-background/60 backdrop-blur-sm">
-                    <span className="text-[8px] font-semibold text-foreground tabular-nums">{dur.toFixed(1)}s</span>
-                  </div>
-                  <div className="absolute top-1 left-1 w-4 h-4 rounded bg-background/50 flex items-center justify-center">
-                    <span className="text-[8px] font-bold text-foreground">{idx + 1}</span>
-                  </div>
-                </button>
-              );
-            })}
-            <button
-              onClick={() => { addScene(); toast({ title: 'Scene added' }); }}
-              className="h-[72px] w-12 rounded-xl border-2 border-dashed border-border flex items-center justify-center shrink-0 hover:border-primary/50 hover:bg-primary/5 transition-all"
-            >
-              <Plus className="w-4 h-4 text-muted-foreground" />
-            </button>
+                    <div className="absolute inset-0 bg-background/30" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+                      {scene.text && (
+                        <span className="text-[9px] font-semibold text-foreground px-1.5 truncate max-w-full drop-shadow-md">
+                          {scene.text.slice(0, 20)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-background/60 backdrop-blur-sm">
+                      <span className="text-[8px] font-semibold text-foreground tabular-nums">{dur.toFixed(1)}s</span>
+                    </div>
+                    <div className="absolute top-1 left-1 w-4 h-4 rounded bg-background/50 flex items-center justify-center">
+                      <span className="text-[8px] font-bold text-foreground">{idx + 1}</span>
+                    </div>
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => { addScene(); toast({ title: 'Scene added' }); }}
+                className="h-[72px] w-12 rounded-xl border-2 border-dashed border-border flex items-center justify-center shrink-0 hover:border-primary/50 hover:bg-primary/5 transition-all"
+              >
+                <Plus className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
