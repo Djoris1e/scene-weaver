@@ -571,7 +571,7 @@ export default function V12() {
     if (!didDrag.current) {
       setActiveIndex(index);
       setEditingScene(index);
-      setShowSettings(false);
+      
       let t = 0;
       for (let i = 0; i < index; i++) t += scenes[i].endTime - scenes[i].startTime;
       setCurrentTime(t);
