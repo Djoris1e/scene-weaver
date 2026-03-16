@@ -261,7 +261,7 @@ export default function Landing() {
           <div className="flex items-center gap-2 px-4 py-3 border-b border-border/60">
             <span className="w-3 h-3 rounded-full bg-destructive/60" />
             <span className="w-3 h-3 rounded-full bg-accent/60" />
-            <span className="w-3 h-3 rounded-full bg-green-500/60" />
+            <span className="w-3 h-3 rounded-full bg-accent/40" />
             <span className="text-xs text-muted-foreground ml-2 font-mono">terminal</span>
           </div>
           <div className="p-5 space-y-2 font-mono text-sm">
