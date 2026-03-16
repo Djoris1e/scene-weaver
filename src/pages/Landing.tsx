@@ -421,12 +421,25 @@ export default function Landing() {
         </div>
       </AnimatedSection>
 
-      {/* ── Product Mockup ── */}
+      {/* ── Video Showcase ── */}
       <AnimatedSection className="py-24 md:py-32 px-6 relative">
         <div className="glow-orb w-[600px] h-[400px] bg-primary/8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-        <div className="relative z-10">
-          <ProductMockup />
+        <div className="relative z-10 space-y-8 text-center">
+          <div className="space-y-4">
+            <h2 className="font-heading text-3xl md:text-4xl font-bold">See what the agent builds</h2>
+            <p className="text-muted-foreground text-base max-w-lg mx-auto">Real output. Real assets. Every video generated from a single prompt.</p>
+          </div>
+          <VideoShowcase />
         </div>
+      </AnimatedSection>
+
+      {/* ── Asset Library ── */}
+      <AnimatedSection className="py-24 md:py-32 px-6 max-w-5xl mx-auto text-center space-y-12">
+        <div className="space-y-4">
+          <h2 className="font-heading text-3xl md:text-4xl font-bold">Everything included. No extra cost.</h2>
+          <p className="text-muted-foreground text-base max-w-lg mx-auto">Royalty-free audio, animations, backgrounds, and stock footage — all built in.</p>
+        </div>
+        <AssetLibrary />
       </AnimatedSection>
 
       {/* ── Features — Glassmorphic Grid ── */}
