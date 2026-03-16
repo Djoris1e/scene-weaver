@@ -719,9 +719,6 @@ export default function V12() {
         <AIPromptBar />
       </div>
 
-      {/* ─── Settings Panel (inline) ─── */}
-      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} brandKit={brandKit} setBrandKit={setBrandKit} endScreen={endScreen} setEndScreen={setEndScreen} />}
-
       {/* ─── Scene Editor (inline, scrollable) ─── */}
       {editingScene !== null && scenes[editingScene] && (
         <SceneEditor
@@ -731,11 +728,15 @@ export default function V12() {
           onDelete={() => { deleteScene(editingScene); setEditingScene(null); }}
           onClose={() => setEditingScene(null)}
           totalScenes={scenes.length}
+          brandKit={brandKit}
+          setBrandKit={setBrandKit}
+          endScreen={endScreen}
+          setEndScreen={setEndScreen}
         />
       )}
 
       {/* ─── Bottom info bar ─── */}
-      {editingScene === null && !showSettings && (
+      {editingScene === null && (
         <div className="shrink-0 flex items-center justify-between px-4 py-2.5 border-t border-border/50">
           <span className="text-[11px] text-muted-foreground">{scenes.length} scene{scenes.length !== 1 ? 's' : ''} · {totalDuration.toFixed(1)}s</span>
           <span className="text-[10px] text-muted-foreground/50">Tap a clip to edit</span>
