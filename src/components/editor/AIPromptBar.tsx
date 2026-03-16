@@ -18,7 +18,7 @@ export default function AIPromptBar() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="px-3 py-2 border-t border-border/50">
+    <form onSubmit={handleSubmit} className="px-3 py-2 bg-card rounded-xl border border-border/40">
       <div className="flex items-center gap-2 bg-secondary rounded-xl px-3 py-2">
         <Sparkles className="w-4 h-4 text-accent shrink-0" />
         <input
