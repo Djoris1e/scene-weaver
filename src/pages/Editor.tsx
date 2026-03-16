@@ -71,11 +71,6 @@ export default function Editor() {
         />
       </div>
 
-      {/* AI Prompt Bar (sticky) */}
-      <div className="sticky bottom-0 z-20 mx-3">
-        <AIPromptBar />
-      </div>
-
       {/* Scene Editor */}
       {editingScene !== null && scenes[editingScene] && (
         <div className="mx-3">
