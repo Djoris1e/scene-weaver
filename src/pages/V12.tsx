@@ -561,23 +561,28 @@ export default function V12() {
     filmstripRef.current.scrollLeft = playheadPos - containerW / 2;
   }, [currentTime, playing, totalDuration]);
 
-  // Drag-to-scrub
+  // Drag-to-scrub with distance threshold
+  const didDrag = useRef(false);
   const handleDragStart = (clientX: number) => {
     dragging.current = true;
+    didDrag.current = false;
     dragStartX.current = clientX;
     scrollStart.current = filmstripRef.current?.scrollLeft ?? 0;
   };
   const handleDragMove = (clientX: number) => {
     if (!dragging.current || !filmstripRef.current) return;
     const dx = dragStartX.current - clientX;
+    if (Math.abs(dx) > 5) didDrag.current = true;
     filmstripRef.current.scrollLeft = scrollStart.current + dx;
-    const containerW = filmstripRef.current.clientWidth;
-    const centerScroll = filmstripRef.current.scrollLeft + containerW / 2;
-    const totalWidth = totalDuration * SCALE;
-    const ratio = Math.max(0, Math.min(1, centerScroll / totalWidth));
-    const time = +(ratio * totalDuration).toFixed(1);
-    setCurrentTime(time);
-    setActiveIndex(getSceneAtTime(time));
+    if (didDrag.current) {
+      const containerW = filmstripRef.current.clientWidth;
+      const centerScroll = filmstripRef.current.scrollLeft + containerW / 2;
+      const totalWidth = totalDuration * SCALE;
+      const ratio = Math.max(0, Math.min(1, centerScroll / totalWidth));
+      const time = +(ratio * totalDuration).toFixed(1);
+      setCurrentTime(time);
+      setActiveIndex(getSceneAtTime(time));
+    }
   };
   const handleDragEnd = () => { dragging.current = false; };
 
