@@ -740,11 +740,13 @@ export default function V12() {
         </div>
       </div>
 
-      {/* ─── AI Prompt Bar ─── */}
-      <AIPromptBar />
+      {/* ─── AI Prompt Bar (sticky) ─── */}
+      <div className="sticky bottom-0 z-20 bg-card">
+        <AIPromptBar />
+      </div>
 
       {/* ─── Settings Panel (inline) ─── */}
-      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
+      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} brandKit={brandKit} setBrandKit={setBrandKit} endScreen={endScreen} setEndScreen={setEndScreen} />}
 
       {/* ─── Scene Editor (inline, scrollable) ─── */}
       {editingScene !== null && scenes[editingScene] && (
