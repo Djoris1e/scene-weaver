@@ -43,7 +43,7 @@ export default function AIPromptBar({ expanded, onExpand, onCollapse }: AIPrompt
         className="flex-1 min-w-0 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-secondary text-muted-foreground text-xs hover:bg-secondary/80 active:scale-[0.98] transition-all"
       >
         <Sparkles className="w-3.5 h-3.5 text-accent shrink-0" />
-        <span className="truncate">Describe changes with AI…</span>
+        <span className="truncate">Edit your video with AI…</span>
       </button>
     );
   }
