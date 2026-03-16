@@ -71,6 +71,12 @@ const Index = () => {
       description: 'Mojo-style carousel + always-visible segmented editor panel below.',
       icon: <SlidersHorizontal className="w-5 h-5" />,
     },
+    {
+      id: 'v12',
+      title: 'V12 — Polished Filmstrip',
+      description: 'Refined V8: collapsible editor, brand kit settings, export progress bar, and AI prompt input.',
+      icon: <Sparkles className="w-5 h-5" />,
+    },
   ];
 
   return (

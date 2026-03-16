@@ -39,6 +39,7 @@ const App = () => (
           <Route path="/v9" element={<V9 />} />
           <Route path="/v10" element={<V10 />} />
           <Route path="/v11" element={<V11 />} />
+          <Route path="/v12" element={<V12 />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
