@@ -363,40 +363,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── How it works — Connected Timeline ── */}
-      <AnimatedSection className="py-24 md:py-32 px-6 max-w-5xl mx-auto text-center space-y-16">
-        <div className="space-y-4">
-          <h2 className="font-heading text-3xl md:text-4xl font-bold">Delegate, don't operate</h2>
-          <p className="text-muted-foreground text-base max-w-lg mx-auto">You give the brief. The agent does the production work. You approve the result.</p>
-        </div>
-
-        {/* Timeline */}
-        <div className="relative">
-          {/* Connecting line */}
-          <div className="hidden md:block absolute top-7 left-[16.6%] right-[16.6%] h-0.5 gradient-vs rounded-full" />
-
-          <div className="grid md:grid-cols-3 gap-12 md:gap-8">
-            {steps.map((s, i) => (
-              <motion.div
-                key={s.num}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.5 }}
-                className="space-y-4 group relative"
-              >
-                <div className="relative mx-auto w-14 h-14 rounded-2xl bg-card border border-border flex items-center justify-center group-hover:shadow-[0_0_30px_hsla(338,72%,59%,0.2)] transition-shadow duration-500 z-10">
-                  <s.icon className="w-6 h-6 text-primary" />
-                  <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full gradient-vs text-xs font-bold flex items-center justify-center text-primary-foreground">{s.num}</span>
-                </div>
-                <h3 className="font-heading text-lg font-semibold">{s.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto">{s.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </AnimatedSection>
-
       {/* ── Video Showcase ── */}
       <AnimatedSection className="py-24 md:py-32 px-6 relative">
         <div className="glow-orb w-[600px] h-[400px] bg-primary/8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
