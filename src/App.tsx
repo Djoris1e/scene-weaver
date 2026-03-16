@@ -16,6 +16,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Editor />} />
+          <Route path="/create" element={<Create />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
