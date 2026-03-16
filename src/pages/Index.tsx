@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Layout, Layers, GalleryHorizontalEnd, List, Smartphone, TextCursorInput, Star, Film, Maximize, Grid2X2, SlidersHorizontal } from 'lucide-react';
+import { Layout, Layers, GalleryHorizontalEnd, List, Smartphone, TextCursorInput, Star, Film, Maximize, Grid2X2, SlidersHorizontal, Sparkles } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -70,6 +70,12 @@ const Index = () => {
       title: 'V11 — Carousel Editor',
       description: 'Mojo-style carousel + always-visible segmented editor panel below.',
       icon: <SlidersHorizontal className="w-5 h-5" />,
+    },
+    {
+      id: 'v12',
+      title: 'V12 — Polished Filmstrip',
+      description: 'Refined V8: collapsible editor, brand kit settings, export progress bar, and AI prompt input.',
+      icon: <Sparkles className="w-5 h-5" />,
     },
   ];
 
