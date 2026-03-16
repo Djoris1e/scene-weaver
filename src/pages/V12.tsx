@@ -516,6 +516,7 @@ export default function V12() {
   const {
     scenes, activeIndex, activeScene, totalDuration,
     setActiveIndex, addScene, deleteScene, updateScene,
+    brandKit, setBrandKit, endScreen, setEndScreen,
   } = useSceneStore();
 
   const [playing, setPlaying] = useState(false);
