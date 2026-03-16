@@ -5,8 +5,9 @@ import logo from '@/assets/logo.svg';
 import { TEXT_COLOR_PAIRINGS, FONT_OPTIONS, GRADIENT_STYLES, Scene } from '@/types/scene';
 import {
   Play, Pause, Plus, Share2, X, Settings,
-  AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd,
-  Sparkles, Send, Loader2, Check, Upload, Trash2,
+  Type, Image, Sparkles as MotionIcon,
+  Search, Upload, Palette, Code,
+  Sparkles, Send, Loader2, Check, Trash2, ChevronDown,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
