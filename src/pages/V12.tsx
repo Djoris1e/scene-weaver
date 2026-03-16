@@ -294,7 +294,7 @@ function ExportButton() {
 
   if (state === 'done') {
     return (
-      <button disabled className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-green-500/20 text-green-400 text-xs font-bold min-w-[100px] justify-center">
+      <button disabled className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-primary/20 text-primary text-xs font-bold min-w-[100px] justify-center">
         <Check className="w-3.5 h-3.5" /> Done
       </button>
     );
