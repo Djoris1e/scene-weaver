@@ -4,7 +4,7 @@ import {
   Send, Link, X, Palette, Sparkles, Loader2,
   Rocket, Monitor, CalendarDays, Video, Megaphone, Briefcase,
   Bot, Film, SlidersHorizontal, Eye, Terminal, ArrowRight,
-  Check, Star,
+  Check, Star, Music, Zap, Layers, Image,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
