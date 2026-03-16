@@ -137,7 +137,6 @@ function PromptCard({ glowOnHover = false }: { glowOnHover?: boolean }) {
   );
 }
 
-
 /* ───────── Video Showcase ───────── */
 const showcaseVideos = [
   { label: 'Product Launch', src: 'https://videos.pexels.com/video-files/5532767/5532767-sd_506_960_25fps.mp4' },
@@ -448,6 +447,63 @@ export default function Landing() {
               </div>
             </motion.div>
           ))}
+        </div>
+      </AnimatedSection>
+
+      {/* ── Pricing ── */}
+      <AnimatedSection className="py-24 md:py-32 px-6 max-w-4xl mx-auto text-center space-y-12">
+        <div className="space-y-4">
+          <span className="inline-block text-xs font-medium tracking-widest uppercase text-accent">Pricing</span>
+          <h2 className="font-heading text-3xl md:text-4xl font-bold">Free. And we plan to keep it that way.</h2>
+          <p className="text-muted-foreground text-base max-w-lg mx-auto">The editor, stock footage, soundtracks, animations, and backgrounds — all free. No trial, no watermark.</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+          {/* Free tier */}
+          <div className="glass-card rounded-2xl p-6 text-left space-y-5 border-primary/20">
+            <div className="flex items-center justify-between">
+              <span className="font-heading text-lg font-semibold">Free forever</span>
+              <span className="text-xs font-medium bg-primary/15 text-primary rounded-full px-3 py-1">Current plan</span>
+            </div>
+            <div className="space-y-3">
+              {[
+                'Full video editor & timeline',
+                'Stock footage from Pexels',
+                'Curated royalty-free soundtracks',
+                'Gradient backgrounds & animations',
+                'AI agent video drafts',
+                'Unlimited exports',
+              ].map(item => (
+                <div key={item} className="flex items-center gap-2.5 text-sm text-foreground">
+                  <Check className="w-4 h-4 text-primary shrink-0" />
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Pro tier */}
+          <div className="glass-card rounded-2xl p-6 text-left space-y-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="flex items-center justify-between relative">
+              <span className="font-heading text-lg font-semibold">Pro</span>
+              <span className="text-xs font-medium bg-accent/15 text-accent rounded-full px-3 py-1">Coming soon</span>
+            </div>
+            <p className="text-sm text-muted-foreground">Everything free, plus:</p>
+            <div className="space-y-3 relative">
+              {[
+                'AI-generated photos & video clips',
+                'Advanced agentic animations',
+                'Custom coded effects & counters',
+                'Priority rendering',
+              ].map(item => (
+                <div key={item} className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                  <Sparkles className="w-4 h-4 text-accent/60 shrink-0" />
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </AnimatedSection>
 
