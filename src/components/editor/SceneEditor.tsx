@@ -42,18 +42,12 @@ export default function SceneEditor({
       <div className="flex items-center justify-between px-4 pt-3 pb-0">
         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Scene {index + 1}</span>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] text-muted-foreground">Duration</span>
-            <select
-              value={(scene.endTime - scene.startTime).toFixed(1)}
-              onChange={e => onUpdate({ endTime: scene.startTime + Number(e.target.value) })}
-              className="bg-secondary border border-border rounded-lg px-2 py-1 text-[11px] font-medium text-foreground"
-            >
-              {[1, 1.5, 2, 2.5, 3, 4, 5].map(d => (
-                <option key={d} value={d.toFixed(1)}>{d}s</option>
-              ))}
-            </select>
-          </div>
+          {totalScenes > 1 && (
+            <button onClick={onDelete}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary text-muted-foreground text-[11px] font-medium hover:text-destructive hover:bg-destructive/10 transition-all">
+              <Trash2 className="w-3 h-3" /> Delete
+            </button>
+          )}
           <button onClick={onClose} className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors">
             <X className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
@@ -284,15 +278,6 @@ export default function SceneEditor({
           </div>
         )}
 
-        {/* Delete */}
-        {totalScenes > 1 && (
-          <div className="flex justify-end pt-1">
-            <button onClick={onDelete}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium text-destructive/70 hover:text-destructive bg-destructive/5 hover:bg-destructive/10 transition-all">
-              <Trash2 className="w-3 h-3" /> Remove
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
