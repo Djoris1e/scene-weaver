@@ -43,7 +43,7 @@ export default function Editor() {
   }, [playing, totalDuration, getSceneAtTime, activeIndex, setActiveIndex]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col max-w-[1200px] mx-auto w-full">
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm flex items-center justify-between px-4 h-12 shrink-0 border-b border-border/30">
         <img src={logo} alt="Logo" className="h-5" />
