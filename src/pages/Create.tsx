@@ -9,7 +9,11 @@ export default function Create() {
   const [url, setUrl] = useState('');
   const [showBrand, setShowBrand] = useState(false);
   const [brandColors, setBrandColors] = useState({ primary: '#E04F8A', secondary: '#EC9A2C' });
-  const [logoUrl, setLogoUrl] = useState('');
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setLogoPreview(URL.createObjectURL(file));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,14 +117,24 @@ export default function Create() {
                     />
                     <span className="text-xs text-muted-foreground">Accent</span>
                   </div>
-                  <div className="flex-1">
-                    <input
-                      value={logoUrl}
-                      onChange={e => setLogoUrl(e.target.value)}
-                      placeholder="Logo URL (optional)"
-                      className="w-full bg-background/40 border border-border rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
-                    />
-                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    {logoPreview ? (
+                      <div className="relative">
+                        <img src={logoPreview} alt="Logo" className="w-7 h-7 rounded-lg object-contain bg-background/40 border border-border" />
+                        <button type="button" onClick={(e) => { e.preventDefault(); setLogoPreview(null); }} className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
+                          <X className="w-2 h-2" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="w-7 h-7 rounded-lg border border-dashed border-border flex items-center justify-center bg-background/40 group-hover:border-muted-foreground transition-colors">
+                          <span className="text-muted-foreground text-xs">+</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">Logo</span>
+                      </>
+                    )}
+                    <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                  </label>
                 </div>
               </div>
             </div>
