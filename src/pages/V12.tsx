@@ -600,7 +600,7 @@ export default function V12() {
   const color = TEXT_COLOR_PAIRINGS.find(c => c.id === activeScene.textColorId) || TEXT_COLOR_PAIRINGS[0];
   const fontOpt = FONT_OPTIONS.find(f => f.id === activeScene.fontId) || FONT_OPTIONS[0];
   const gradientStyle = GRADIENT_STYLES.find(g => g.id === activeScene.gradient.style) || GRADIENT_STYLES[0];
-  const positionClass = { top: 'items-start pt-8', center: 'items-center', bottom: 'items-end pb-8' }[activeScene.textPosition];
+  const positionClass = { top: 'justify-start pt-8', center: 'justify-center', bottom: 'justify-end pb-8' }[activeScene.textPosition];
   const formatTime = (t: number) => `${Math.floor(t / 60)}:${Math.floor(t % 60).toString().padStart(2, '0')}`;
 
   const renderPreviewBg = () => {
