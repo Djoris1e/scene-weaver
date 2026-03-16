@@ -47,6 +47,30 @@ const Index = () => {
       description: 'Best of V5+V6: inline editing, select mode, segmented scrubber, and refined design.',
       icon: <Star className="w-5 h-5" />,
     },
+    {
+      id: 'v8',
+      title: 'V8 — Filmstrip Timeline',
+      description: 'CapCut-style horizontal filmstrip where scene width = duration. Drag to scrub, tap to edit.',
+      icon: <Film className="w-5 h-5" />,
+    },
+    {
+      id: 'v9',
+      title: 'V9 — Full-Screen Swipe',
+      description: 'TikTok-style full-screen preview. Swipe between scenes, overlay tool trays.',
+      icon: <Maximize className="w-5 h-5" />,
+    },
+    {
+      id: 'v10',
+      title: 'V10 — Storyboard Grid',
+      description: 'Canva-style 2-column grid of scene thumbnails. Tap to edit in a half-sheet.',
+      icon: <Grid2X2 className="w-5 h-5" />,
+    },
+    {
+      id: 'v11',
+      title: 'V11 — Carousel Editor',
+      description: 'Mojo-style carousel + always-visible segmented editor panel below.',
+      icon: <SlidersHorizontal className="w-5 h-5" />,
+    },
   ];
 
   return (
