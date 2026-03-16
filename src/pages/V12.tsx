@@ -605,14 +605,7 @@ export default function V12() {
       {/* ─── Header (sticky) ─── */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm flex items-center justify-between px-4 h-12 shrink-0 border-b border-border/30">
         <img src={logo} alt="Logo" className="h-5" />
-        <div className="flex items-center gap-2">
-          <button onClick={() => { setShowSettings(!showSettings); setEditingScene(null); }}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-medium transition-colors ${showSettings ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}>
-            <Settings className="w-3.5 h-3.5" />
-            <span className="hidden min-[380px]:inline">Brand</span>
-          </button>
-          <ExportButton />
-        </div>
+        <ExportButton />
       </div>
 
       {/* ─── 9:16 Preview (fixed height) ─── */}
