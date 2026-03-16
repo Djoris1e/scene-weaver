@@ -360,8 +360,6 @@ export default function Landing() {
           </p>
 
           <PromptCard glowOnHover />
-
-          <SocialProofBar />
         </div>
       </section>
 
