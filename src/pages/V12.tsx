@@ -67,14 +67,20 @@ const EDITOR_TABS = [
   { id: 'text', label: 'Text', icon: <Type className="w-5 h-5" /> },
   { id: 'media', label: 'Media', icon: <Image className="w-5 h-5" /> },
   { id: 'motion', label: 'Motion', icon: <MotionIcon className="w-5 h-5" /> },
+  { id: 'brand', label: 'Brand', icon: <Globe className="w-5 h-5" /> },
 ];
 
 function SceneEditor({
   scene, index, onUpdate, onDelete, onClose, totalScenes,
+  brandKit, setBrandKit, endScreen, setEndScreen,
 }: {
   scene: Scene; index: number;
   onUpdate: (u: Partial<Scene>) => void;
   onDelete: () => void; onClose: () => void; totalScenes: number;
+  brandKit: { bgColor: string; accentColor: string; logoUrl: string | null; slogan: string };
+  setBrandKit: (v: typeof brandKit) => void;
+  endScreen: { enabled: boolean; duration: number };
+  setEndScreen: (v: typeof endScreen) => void;
 }) {
   const [tab, setTab] = useState('text');
 
