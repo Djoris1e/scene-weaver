@@ -486,24 +486,36 @@ export default function V12() {
         </div>
       </div>
 
-      {/* ─── Playback Controls ─── */}
-      <div className="shrink-0 flex items-center justify-center gap-4 py-2">
-        <span className="text-[11px] text-muted-foreground tabular-nums w-8">{formatTime(currentTime)}</span>
-        <button
-          onClick={() => { if (currentTime >= totalDuration) setCurrentTime(0); setPlaying(!playing); }}
-          className="w-11 h-11 rounded-2xl bg-card border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all shadow-sm"
-        >
-          {playing ? <Pause className="w-5 h-5 text-foreground" /> : <Play className="w-5 h-5 text-foreground ml-0.5" />}
-        </button>
-        <span className="text-[11px] text-muted-foreground tabular-nums w-8 text-right">{formatTime(totalDuration)}</span>
-      </div>
-
-      {/* ─── Horizontal Filmstrip ─── */}
-      <div className="shrink-0 relative h-[88px] bg-card border-t border-border">
-        {/* Playhead */}
-        <div className="absolute top-0 bottom-0 left-1/2 -translate-x-px w-0.5 bg-primary z-20 pointer-events-none">
-          <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-primary shadow-md shadow-primary/40" />
+      {/* ─── Filmstrip with integrated playback ─── */}
+      <div className="shrink-0 bg-card border-t border-border">
+        {/* Compact playback row */}
+        <div className="flex items-center gap-2 px-3 py-1.5">
+          <button
+            onClick={() => { if (currentTime >= totalDuration) setCurrentTime(0); setPlaying(!playing); }}
+            className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center hover:bg-muted active:scale-95 transition-all shrink-0"
+          >
+            {playing ? <Pause className="w-3.5 h-3.5 text-foreground" /> : <Play className="w-3.5 h-3.5 text-foreground ml-0.5" />}
+          </button>
+          {/* Scrub bar */}
+          <div className="flex-1 relative h-1.5 bg-secondary rounded-full cursor-pointer"
+            onClick={e => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+              const time = +(ratio * totalDuration).toFixed(1);
+              setCurrentTime(time);
+              setActiveIndex(getSceneAtTime(time));
+            }}>
+            <div className="absolute inset-y-0 left-0 bg-primary rounded-full transition-all duration-100" style={{ width: `${totalDuration > 0 ? (currentTime / totalDuration) * 100 : 0}%` }} />
+          </div>
+          <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">{formatTime(currentTime)} / {formatTime(totalDuration)}</span>
         </div>
+
+        {/* Filmstrip segments */}
+        <div className="relative h-[72px]">
+          {/* Playhead */}
+          <div className="absolute top-0 bottom-0 left-1/2 -translate-x-px w-0.5 bg-primary z-20 pointer-events-none">
+            <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-primary shadow-md shadow-primary/40" />
+          </div>
 
         <div
           ref={filmstripRef}
