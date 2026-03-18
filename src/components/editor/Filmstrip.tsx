@@ -1,6 +1,6 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useMemo } from 'react';
 import { Scene, GRADIENT_STYLES, TEMPLATE_OPTIONS } from '@/types/scene';
-import { Plus, Play, Pause, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const SCALE = 80;
@@ -28,6 +28,17 @@ export default function Filmstrip({
   const didDrag = useRef(false);
   const dragStartX = useRef(0);
   const scrollStart = useRef(0);
+
+  // Compute cumulative start times for time markers
+  const sceneStarts = useMemo(() => {
+    const starts: number[] = [];
+    let t = 0;
+    for (const s of scenes) {
+      starts.push(t);
+      t += s.endTime - s.startTime;
+    }
+    return starts;
+  }, [scenes]);
 
   const handleDragStart = (clientX: number) => {
     dragging.current = true;
@@ -64,32 +75,50 @@ export default function Filmstrip({
     }
   };
 
-  const formatTime = (t: number) => `${Math.floor(t / 60)}:${Math.floor(t % 60).toString().padStart(2, '0')}`;
-
   return (
-    <div className="shrink-0 bg-card rounded-xl border border-border/40">
-      {/* Playback row */}
-      <div className="flex items-center gap-2 px-3 py-1.5">
-        <button
-          onClick={() => { if (currentTime >= totalDuration) onSetCurrentTime(0); onSetPlaying(!playing); }}
-          className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center hover:bg-muted active:scale-95 transition-all shrink-0"
-        >
-          {playing ? <Pause className="w-3.5 h-3.5 text-foreground" /> : <Play className="w-3.5 h-3.5 text-foreground ml-0.5" />}
-        </button>
-        <div className="flex-1 relative h-1.5 bg-secondary rounded-full cursor-pointer"
-          onClick={e => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-            const time = +(ratio * totalDuration).toFixed(1);
-            onSetCurrentTime(time);
-            onSetActiveIndex(getSceneAtTime(time));
-          }}>
-          <div className="absolute inset-y-0 left-0 bg-primary rounded-full transition-all duration-100"
-            style={{ width: `${totalDuration > 0 ? (currentTime / totalDuration) * 100 : 0}%` }} />
+    <div className="shrink-0">
+      {/* Time markers */}
+      <div className="relative h-4 mb-0.5">
+        <div className="absolute inset-0 overflow-x-auto scrollbar-none flex items-end px-[50%]">
+          <div className="flex items-end gap-1" style={{ minWidth: `${totalDuration * SCALE + 48}px` }}>
+            {scenes.map((scene, idx) => {
+              const dur = scene.endTime - scene.startTime;
+              const w = Math.max(dur * SCALE, 48);
+              return (
+                <div key={`marker-${idx}`} className="shrink-0 relative" style={{ width: `${w}px` }}>
+                  <span className="absolute left-1 bottom-0 text-[9px] text-muted-foreground/50 tabular-nums">
+                    {Math.round(sceneStarts[idx])}s
+                  </span>
+                </div>
+              );
+            })}
+            {/* Final time marker */}
+            <div className="shrink-0 w-12 relative">
+              <span className="absolute left-0 bottom-0 text-[9px] text-muted-foreground/50 tabular-nums">
+                {Math.round(totalDuration)}s
+              </span>
+            </div>
+          </div>
         </div>
-        <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
-          {formatTime(currentTime)} / {formatTime(totalDuration)}
-        </span>
+      </div>
+
+      {/* Active scene indicator dot */}
+      <div className="relative h-2.5 mb-0.5">
+        <div className="absolute inset-0 overflow-x-auto scrollbar-none flex items-center px-[50%]">
+          <div className="flex items-center gap-1">
+            {scenes.map((scene, idx) => {
+              const dur = scene.endTime - scene.startTime;
+              const w = Math.max(dur * SCALE, 48);
+              const isActive = idx === activeIndex;
+              return (
+                <div key={`dot-${idx}`} className="shrink-0 flex justify-center" style={{ width: `${w}px` }}>
+                  {isActive && <div className="w-2 h-2 rounded-full bg-primary" />}
+                </div>
+              );
+            })}
+            <div className="shrink-0 w-12" />
+          </div>
+        </div>
       </div>
 
       {/* Filmstrip segments */}
@@ -128,7 +157,7 @@ export default function Filmstrip({
                   )}
                   <div className="absolute inset-0 bg-background/30" />
                   <div className="absolute inset-0 flex flex-col items-center justify-center z-10 gap-0.5">
-                    <span className="text-[8px] font-semibold text-foreground/70 uppercase tracking-wider">{templateLabel}</span>
+                    <span className="text-[8px] font-semibold text-foreground/70 tracking-wide">{templateLabel}</span>
                     {scene.text && (
                       <span className="text-[9px] font-semibold text-foreground px-1.5 truncate max-w-full drop-shadow-md">
                         {scene.text.slice(0, 20)}
@@ -138,7 +167,8 @@ export default function Filmstrip({
                   <div className="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-background/60 backdrop-blur-sm">
                     <span className="text-[8px] font-semibold text-foreground tabular-nums">{dur.toFixed(1)}s</span>
                   </div>
-                  <div className="absolute top-1 left-1 w-4 h-4 rounded bg-background/50 flex items-center justify-center">
+                  {/* Scene number badge - green */}
+                  <div className="absolute top-1 left-1 w-4 h-4 rounded bg-emerald-500/80 flex items-center justify-center">
                     <span className="text-[8px] font-bold text-foreground">{idx + 1}</span>
                   </div>
                   {/* Active scene nav arrows & close */}
@@ -173,9 +203,10 @@ export default function Filmstrip({
             })}
             <button
               onClick={() => { onAddScene(); toast({ title: 'Scene added' }); }}
-              className="h-[72px] w-12 rounded-xl border-2 border-dashed border-border flex items-center justify-center shrink-0 hover:border-primary/50 hover:bg-primary/5 transition-all"
+              className="h-[72px] w-12 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 shrink-0 hover:border-primary/50 hover:bg-primary/5 transition-all"
             >
               <Plus className="w-4 h-4 text-muted-foreground" />
+              <span className="text-[8px] text-muted-foreground font-medium">Add</span>
             </button>
           </div>
         </div>

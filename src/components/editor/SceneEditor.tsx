@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Scene, TEXT_COLOR_PAIRINGS, FONT_OPTIONS, GRADIENT_STYLES, TEMPLATE_OPTIONS, TemplateType } from '@/types/scene';
 import { BrandKit } from '@/hooks/useSceneStore';
 import {
-  Globe, Upload, Trash2, X, ChevronDown, Star,
+  Globe, Upload, Trash2, X, ChevronDown,
   Layers, Sparkles,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
@@ -121,10 +121,6 @@ export default function SceneEditor({
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           )}
-          <button onClick={onClose}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-            <X className="w-3.5 h-3.5" />
-          </button>
         </div>
       </div>
 
@@ -232,14 +228,11 @@ export default function SceneEditor({
                 </div>
                 <div className="space-y-1.5">
                   <FieldLabel>Star rating (1-5)</FieldLabel>
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map(n => (
-                      <button key={n} onClick={() => onUpdate({ socialProof: { ...scene.socialProof, starRating: n } })}
-                        className="p-1 transition-colors">
-                        <Star className={`w-5 h-5 ${n <= scene.socialProof.starRating ? 'text-accent fill-accent' : 'text-muted-foreground/30'}`} />
-                      </button>
-                    ))}
-                  </div>
+                  <FieldInput
+                    type="number"
+                    value={scene.socialProof.starRating}
+                    onChange={v => onUpdate({ socialProof: { ...scene.socialProof, starRating: Math.min(5, Math.max(1, Number(v) || 1)) } })}
+                  />
                 </div>
               </>
             )}
