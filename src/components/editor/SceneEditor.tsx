@@ -121,10 +121,6 @@ export default function SceneEditor({
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           )}
-          <button onClick={onClose}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-            <X className="w-3.5 h-3.5" />
-          </button>
         </div>
       </div>
 
