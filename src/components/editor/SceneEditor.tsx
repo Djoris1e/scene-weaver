@@ -228,14 +228,11 @@ export default function SceneEditor({
                 </div>
                 <div className="space-y-1.5">
                   <FieldLabel>Star rating (1-5)</FieldLabel>
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map(n => (
-                      <button key={n} onClick={() => onUpdate({ socialProof: { ...scene.socialProof, starRating: n } })}
-                        className="p-1 transition-colors">
-                        <Star className={`w-5 h-5 ${n <= scene.socialProof.starRating ? 'text-accent fill-accent' : 'text-muted-foreground/30'}`} />
-                      </button>
-                    ))}
-                  </div>
+                  <FieldInput
+                    type="number"
+                    value={scene.socialProof.starRating}
+                    onChange={v => onUpdate({ socialProof: { ...scene.socialProof, starRating: Math.min(5, Math.max(1, Number(v) || 1)) } })}
+                  />
                 </div>
               </>
             )}
