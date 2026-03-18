@@ -3,6 +3,7 @@ import { useSceneStore } from '@/hooks/useSceneStore';
 import { Home } from 'lucide-react';
 import Preview from '@/components/editor/Preview';
 import Filmstrip from '@/components/editor/Filmstrip';
+import PlaybackControls from '@/components/editor/PlaybackControls';
 import SceneEditor from '@/components/editor/SceneEditor';
 import ExportButton from '@/components/editor/ExportButton';
 import AIPromptBar from '@/components/editor/AIPromptBar';
@@ -63,6 +64,15 @@ export default function Editor() {
 
       {/* Preview */}
       <Preview scene={activeScene} sceneIndex={activeIndex} totalScenes={scenes.length} />
+
+      {/* Playback Controls - centered between preview and filmstrip */}
+      <PlaybackControls
+        currentTime={currentTime}
+        totalDuration={totalDuration}
+        playing={playing}
+        onSetCurrentTime={setCurrentTime}
+        onSetPlaying={setPlaying}
+      />
 
       {/* Filmstrip */}
       <div className="mx-3">
