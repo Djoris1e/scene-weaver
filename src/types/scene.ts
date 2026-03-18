@@ -4,6 +4,29 @@ export type TextEffect = 'default' | 'fade-in' | 'typewriter' | 'scale-up';
 export type AnimationType = 'none' | 'ken-burns' | 'drift' | 'pulse';
 export type OverlayType = 'vignette' | 'film-grain' | 'rgb-split';
 export type AssetType = 'media' | 'gradient' | 'counter';
+export type TemplateType = 'gradient-text' | 'fullscreen' | 'counter' | 'social-proof' | 'product-launch' | 'end-screen';
+
+export interface SocialProofConfig {
+  quote: string;
+  authorName: string;
+  authorRole: string;
+  starRating: number;
+}
+
+export interface ProductLaunchConfig {
+  headline: string;
+  subheadline: string;
+  ctaText: string;
+}
+
+export const TEMPLATE_OPTIONS: { value: TemplateType; label: string; description: string }[] = [
+  { value: 'gradient-text', label: 'Gradient Text', description: 'Bold text over a gradient background.' },
+  { value: 'fullscreen', label: 'Fullscreen', description: 'Full-bleed media with text overlay.' },
+  { value: 'counter', label: 'Counter', description: 'Animated number with label and unit.' },
+  { value: 'social-proof', label: 'Social Proof', description: 'Testimonial or review card with a quote, author name, and star rating.' },
+  { value: 'product-launch', label: 'Product Launch', description: 'Headline, subheadline, and call-to-action.' },
+  { value: 'end-screen', label: 'End Screen', description: 'Closing card with logo and slogan.' },
+];
 
 export interface GradientConfig {
   style: string;
