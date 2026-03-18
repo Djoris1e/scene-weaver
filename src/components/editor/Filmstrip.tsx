@@ -1,5 +1,5 @@
 import { useRef, useCallback } from 'react';
-import { Scene, GRADIENT_STYLES } from '@/types/scene';
+import { Scene, GRADIENT_STYLES, TEMPLATE_OPTIONS } from '@/types/scene';
 import { Plus, Play, Pause } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
