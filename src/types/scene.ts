@@ -97,8 +97,11 @@ export interface Scene {
   animation: AnimationType;
   overlays: OverlayType[];
   assetType: AssetType;
+  template: TemplateType;
   gradient: GradientConfig;
   counter: CounterConfig;
+  socialProof: SocialProofConfig;
+  productLaunch: ProductLaunchConfig;
   startTime: number;
   endTime: number;
 }
@@ -115,6 +118,7 @@ export const createDefaultScene = (): Scene => ({
   animation: 'none',
   overlays: [],
   assetType: 'gradient',
+  template: 'gradient-text',
   gradient: {
     style: 'blob',
     bgColor: '#E8724A',
@@ -129,6 +133,17 @@ export const createDefaultScene = (): Scene => ({
     number: 0,
     label: 'Label',
     unit: '',
+  },
+  socialProof: {
+    quote: '',
+    authorName: '',
+    authorRole: '',
+    starRating: 5,
+  },
+  productLaunch: {
+    headline: '',
+    subheadline: '',
+    ctaText: '',
   },
   startTime: 0,
   endTime: 3,
