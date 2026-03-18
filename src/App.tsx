@@ -18,6 +18,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/editor" element={<Editor />} />
+          <Route path="/export-done" element={<ExportDone />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
