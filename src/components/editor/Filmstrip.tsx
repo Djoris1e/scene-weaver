@@ -1,6 +1,6 @@
 import { useRef, useCallback } from 'react';
-import { Scene, GRADIENT_STYLES } from '@/types/scene';
-import { Plus, Play, Pause } from 'lucide-react';
+import { Scene, GRADIENT_STYLES, TEMPLATE_OPTIONS } from '@/types/scene';
+import { Plus, Play, Pause, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const SCALE = 80;
@@ -111,6 +111,7 @@ export default function Filmstrip({
               const w = Math.max(dur * SCALE, 48);
               const gStyle = GRADIENT_STYLES.find(g => g.id === scene.gradient.style) || GRADIENT_STYLES[0];
               const isActive = idx === activeIndex;
+              const templateLabel = TEMPLATE_OPTIONS.find(t => t.value === scene.template)?.label || 'Scene';
 
               return (
                 <button
@@ -126,7 +127,8 @@ export default function Filmstrip({
                     <div className="absolute inset-0" style={{ background: gStyle.preview }} />
                   )}
                   <div className="absolute inset-0 bg-background/30" />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 gap-0.5">
+                    <span className="text-[8px] font-semibold text-foreground/70 uppercase tracking-wider">{templateLabel}</span>
                     {scene.text && (
                       <span className="text-[9px] font-semibold text-foreground px-1.5 truncate max-w-full drop-shadow-md">
                         {scene.text.slice(0, 20)}
@@ -139,6 +141,33 @@ export default function Filmstrip({
                   <div className="absolute top-1 left-1 w-4 h-4 rounded bg-background/50 flex items-center justify-center">
                     <span className="text-[8px] font-bold text-foreground">{idx + 1}</span>
                   </div>
+                  {/* Active scene nav arrows & close */}
+                  {isActive && (
+                    <>
+                      {idx > 0 && (
+                        <div className="absolute left-0.5 top-1/2 -translate-y-1/2 z-20"
+                          onClick={e => { e.stopPropagation(); onSetActiveIndex(idx - 1); onEditScene(idx - 1); }}>
+                          <div className="w-5 h-5 rounded-full bg-primary/80 flex items-center justify-center">
+                            <ChevronLeft className="w-3 h-3 text-primary-foreground" />
+                          </div>
+                        </div>
+                      )}
+                      {idx < scenes.length - 1 && (
+                        <div className="absolute right-6 top-1/2 -translate-y-1/2 z-20"
+                          onClick={e => { e.stopPropagation(); onSetActiveIndex(idx + 1); onEditScene(idx + 1); }}>
+                          <div className="w-5 h-5 rounded-full bg-primary/80 flex items-center justify-center">
+                            <ChevronRight className="w-3 h-3 text-primary-foreground" />
+                          </div>
+                        </div>
+                      )}
+                      <div className="absolute top-1 right-1 z-20"
+                        onClick={e => { e.stopPropagation(); }}>
+                        <div className="w-4 h-4 rounded-full bg-destructive/80 flex items-center justify-center">
+                          <X className="w-2.5 h-2.5 text-destructive-foreground" />
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </button>
               );
             })}
