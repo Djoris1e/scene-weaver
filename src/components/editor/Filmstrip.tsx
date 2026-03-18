@@ -1,6 +1,6 @@
 import { useRef, useCallback } from 'react';
 import { Scene, GRADIENT_STYLES, TEMPLATE_OPTIONS } from '@/types/scene';
-import { Plus, Play, Pause } from 'lucide-react';
+import { Plus, Play, Pause, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const SCALE = 80;
