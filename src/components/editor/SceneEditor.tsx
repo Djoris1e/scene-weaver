@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Scene, TEXT_COLOR_PAIRINGS, FONT_OPTIONS, GRADIENT_STYLES, TEMPLATE_OPTIONS, TemplateType } from '@/types/scene';
 import { BrandKit } from '@/hooks/useSceneStore';
 import {
-  Globe, Upload, Trash2, ChevronDown,
+  Globe, Upload, Trash2, X, ChevronDown,
   Layers, Sparkles,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
