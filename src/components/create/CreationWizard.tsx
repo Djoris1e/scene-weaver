@@ -214,18 +214,9 @@ export default function CreationWizard() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-card border border-border rounded-2xl overflow-hidden flex flex-col" style={{ height: '480px' }}>
-      {/* Header */}
-      <div className="px-5 py-3 border-b border-border/60 flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full gradient-vs flex items-center justify-center">
-          <Sparkles className="w-4 h-4 text-primary-foreground" />
-        </div>
-        <span className="text-sm font-semibold">VanillaSky Assistant</span>
-        <span className="ml-auto text-[10px] text-muted-foreground/60 bg-secondary px-2 py-0.5 rounded-full">AI</span>
-      </div>
-
+    <div className="w-full max-w-2xl mx-auto">
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-4 scrollbar-none">
+      <div ref={scrollRef} className="space-y-4">
         {messages.map((msg, i) => (
           <motion.div
             key={i}
