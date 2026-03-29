@@ -309,6 +309,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
               {msg.inputType === 'url' && (
                 <div className="flex w-full gap-2">
                   <input
+                    autoFocus
                     value={inputVal}
                     onChange={e => setInputVal(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleContentSubmit()}
