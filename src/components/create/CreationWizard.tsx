@@ -41,13 +41,9 @@ interface ChatMessage {
 
 type Phase = 'type' | 'source' | 'source-input' | 'brand' | 'brand-config' | 'logo' | 'generating';
 
-/* ───────── Bot Avatar ───────── */
-function BotAvatar() {
-  return (
-    <div className="w-8 h-8 rounded-full gradient-vs flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
-      <Sparkles className="w-4 h-4 text-primary-foreground" />
-    </div>
-  );
+/* ───────── Bot accent bar ───────── */
+function BotAccent() {
+  return <div className="w-0.5 self-stretch rounded-full gradient-vs shrink-0 opacity-60" />;
 }
 
 /* ───────── Component ───────── */
@@ -225,10 +221,9 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               className={`flex gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
             >
-              {/* Avatar for bot messages */}
-              {msg.role === 'bot' && <BotAvatar />}
+              {msg.role === 'bot' && <BotAccent />}
 
-              <div className={`flex-1 max-w-[85%] space-y-3 ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
+              <div className={`flex-1 space-y-3 ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
                 {/* Bubble */}
                 <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                   msg.role === 'user'
@@ -345,7 +340,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
           {/* Typing indicator */}
           {typing && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2.5">
-              <BotAvatar />
+              <BotAccent />
               <div className="bg-secondary/80 rounded-2xl rounded-tl-md px-4 py-3 flex gap-1.5">
                 {[0, 1, 2].map(i => (
                   <div key={i} className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-pulse" style={{ animationDelay: `${i * 0.15}s` }} />
