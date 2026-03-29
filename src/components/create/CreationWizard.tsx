@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Rocket, Monitor, CalendarDays, Video, Megaphone, Briefcase,
   Link, Upload, Sparkles, Loader2, ArrowRight, Check, X, Image,
@@ -22,8 +22,6 @@ const contentSources = [
   { id: 'prompt', icon: Sparkles, label: 'Describe it', desc: 'Write what you want in the video' },
 ] as const;
 
-type ContentSourceId = typeof contentSources[number]['id'];
-
 const generatingMessages = [
   'Analyzing your content...',
   'Picking the perfect soundtrack...',
@@ -42,6 +40,15 @@ interface ChatMessage {
 }
 
 type Phase = 'type' | 'source' | 'source-input' | 'brand' | 'brand-config' | 'logo' | 'generating';
+
+/* ───────── Bot Avatar ───────── */
+function BotAvatar() {
+  return (
+    <div className="w-8 h-8 rounded-full gradient-vs flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
+      <Sparkles className="w-4 h-4 text-primary-foreground" />
+    </div>
+  );
+}
 
 /* ───────── Component ───────── */
 export default function CreationWizard() {
@@ -64,21 +71,18 @@ export default function CreationWizard() {
     }, delay);
   }, []);
 
-  // Opening — jump straight to the question (hero already introduces VanillaSky)
   useEffect(() => {
     addBotMessage({
       role: 'bot',
-      content: "Let's make something 🎬 — what kind of video are we creating?",
+      content: "Let's make something amazing — what kind of video are we creating?",
       options: videoTypes.map(v => ({ id: v.id, label: v.label, icon: v.icon })),
-    }, 500);
+    }, 600);
   }, [addBotMessage]);
 
-  // Scroll to bottom
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, typing]);
 
-  // Generation timer
   useEffect(() => {
     if (phase.current !== 'generating') return;
     const interval = setInterval(() => {
@@ -96,11 +100,7 @@ export default function CreationWizard() {
 
   const startGenerating = () => {
     phase.current = 'generating';
-    addBotMessage({
-      role: 'bot',
-      content: '✨ Creating your video...',
-      inputType: 'generating',
-    });
+    addBotMessage({ role: 'bot', content: '✨ Creating your video...', inputType: 'generating' });
   };
 
   const handleOptionSelect = (optionId: string, label: string) => {
@@ -110,15 +110,15 @@ export default function CreationWizard() {
       phase.current = 'source';
       addBotMessage({
         role: 'bot',
-        content: 'Great choice! 🎯 Got any content I can work with?',
+        content: 'Great choice! Got any content I can work with?',
         options: contentSources.map(s => ({ id: s.id, label: s.label, icon: s.icon })),
       });
     } else if (phase.current === 'source') {
       phase.current = 'source-input';
       const prompts: Record<string, string> = {
-        url: "Drop the URL and I'll extract everything I need 🔗",
-        upload: 'Upload your images or videos below 📁',
-        prompt: 'Tell me what the video should be about ✍️',
+        url: "Drop the URL and I'll extract everything I need",
+        upload: 'Upload your images or videos below',
+        prompt: 'Tell me what the video should be about',
       };
       addBotMessage({
         role: 'bot',
@@ -128,17 +128,12 @@ export default function CreationWizard() {
     } else if (phase.current === 'brand') {
       if (optionId === 'yes') {
         phase.current = 'brand-config';
-        addBotMessage({
-          role: 'bot',
-          content: 'Set your brand colors below 🎨',
-          inputType: 'brand-ask',
-        });
+        addBotMessage({ role: 'bot', content: 'Set your brand colors below', inputType: 'brand-ask' });
       } else {
-        // Ask about logo even if skipping brand colors
         phase.current = 'logo';
         addBotMessage({
           role: 'bot',
-          content: 'Got a logo you\'d like to include? 🖼️',
+          content: 'Got a logo you\'d like to include?',
           options: [
             { id: 'upload-logo', label: 'Yes, upload logo', icon: Image },
             { id: 'skip-logo', label: 'Skip' },
@@ -147,11 +142,7 @@ export default function CreationWizard() {
       }
     } else if (phase.current === 'logo') {
       if (optionId === 'upload-logo') {
-        addBotMessage({
-          role: 'bot',
-          content: 'Drop your logo below — PNG or SVG works best!',
-          inputType: 'logo-upload',
-        });
+        addBotMessage({ role: 'bot', content: 'Drop your logo below — PNG or SVG works best!', inputType: 'logo-upload' });
       } else {
         startGenerating();
       }
@@ -165,7 +156,7 @@ export default function CreationWizard() {
     phase.current = 'brand';
     addBotMessage({
       role: 'bot',
-      content: 'Almost there! Want to add your brand colors? 🎨',
+      content: 'Almost there! Want to add your brand colors?',
       options: [
         { id: 'yes', label: 'Yes, configure' },
         { id: 'skip', label: 'Skip' },
@@ -178,7 +169,7 @@ export default function CreationWizard() {
     phase.current = 'brand';
     addBotMessage({
       role: 'bot',
-      content: 'Almost there! Want to add your brand colors? 🎨',
+      content: 'Almost there! Want to add your brand colors?',
       options: [
         { id: 'yes', label: 'Yes, configure' },
         { id: 'skip', label: 'Skip' },
@@ -191,7 +182,7 @@ export default function CreationWizard() {
     phase.current = 'logo';
     addBotMessage({
       role: 'bot',
-      content: 'Got a logo you\'d like to include? 🖼️',
+      content: 'Got a logo you\'d like to include?',
       options: [
         { id: 'upload-logo', label: 'Yes, upload logo', icon: Image },
         { id: 'skip-logo', label: 'Skip' },
@@ -214,136 +205,160 @@ export default function CreationWizard() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      {/* Messages */}
-      <div ref={scrollRef} className="space-y-4">
-        {messages.map((msg, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div className={`max-w-[85%] space-y-2 ${msg.role === 'user' ? 'items-end' : 'items-start'} flex flex-col`}>
-              <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                msg.role === 'user'
-                  ? 'bg-primary text-primary-foreground rounded-br-md'
-                  : 'bg-secondary text-foreground rounded-bl-md'
-              }`}>
-                {msg.content}
-              </div>
+    <div className="w-full max-w-xl mx-auto">
+      {/* Chat container with glass effect */}
+      <div className="glass-card rounded-2xl p-5 md:p-6">
+        {/* Chat header */}
+        <div className="flex items-center gap-3 pb-4 mb-4 border-b border-border/50">
+          <BotAvatar />
+          <div>
+            <span className="text-sm font-semibold text-foreground">VanillaSky</span>
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+              Ready to create
+            </span>
+          </div>
+        </div>
 
-              {/* Option chips */}
-              {msg.options && (
-                <div className="flex flex-wrap gap-1.5">
-                  {msg.options.map(opt => (
-                    <button
-                      key={opt.id}
-                      onClick={() => handleOptionSelect(opt.id, opt.label)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-card text-xs font-medium hover:border-primary hover:bg-primary/10 transition-colors"
-                    >
-                      {opt.icon && <opt.icon className="w-3.5 h-3.5" />}
-                      {opt.label}
-                    </button>
-                  ))}
+        {/* Messages */}
+        <div ref={scrollRef} className="space-y-5 max-h-[400px] overflow-y-auto scrollbar-none">
+          {messages.map((msg, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className={`flex gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+            >
+              {/* Avatar for bot messages */}
+              {msg.role === 'bot' && <BotAvatar />}
+
+              <div className={`flex-1 max-w-[85%] space-y-3 ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
+                {/* Bubble */}
+                <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                  msg.role === 'user'
+                    ? 'bg-primary text-primary-foreground rounded-tr-md'
+                    : 'bg-secondary/80 text-foreground rounded-tl-md'
+                }`}>
+                  {msg.content}
                 </div>
-              )}
 
-              {/* URL input */}
-              {msg.inputType === 'url' && (
-                <div className="flex gap-2 w-full">
-                  <input value={inputVal} onChange={e => setInputVal(e.target.value)} placeholder="https://..."
-                    className="flex-1 bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary"
-                    onKeyDown={e => e.key === 'Enter' && handleContentSubmit()} />
-                  <button onClick={handleContentSubmit} className="px-3 py-2 rounded-xl bg-primary text-primary-foreground text-sm">
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-
-              {/* Prompt textarea */}
-              {msg.inputType === 'prompt' && (
-                <div className="w-full space-y-2">
-                  <textarea value={inputVal} onChange={e => setInputVal(e.target.value)} placeholder="Describe your video..."
-                    rows={3} className="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary resize-none" />
-                  <button onClick={handleContentSubmit} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium">
-                    <ArrowRight className="w-4 h-4" /> Submit
-                  </button>
-                </div>
-              )}
-
-              {/* File upload */}
-              {msg.inputType === 'upload' && (
-                <div className="w-full">
-                  <label className="flex flex-col items-center gap-2 p-6 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary/40 transition-colors">
-                    <Upload className="w-6 h-6 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Click to upload images or videos</span>
-                    <input type="file" multiple accept="image/*,video/*" className="hidden" onChange={handleFileUpload} />
-                  </label>
-                </div>
-              )}
-
-              {/* Brand colors */}
-              {msg.inputType === 'brand-ask' && (
-                <div className="w-full space-y-3">
-                  <div className="flex gap-4">
-                    <div className="flex items-center gap-2">
-                      <input type="color" value={brandColors.primary} onChange={e => setBrandColors(c => ({ ...c, primary: e.target.value }))} className="w-8 h-8 rounded-lg border border-border cursor-pointer bg-transparent" />
-                      <span className="text-xs text-muted-foreground">Primary</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <input type="color" value={brandColors.secondary} onChange={e => setBrandColors(c => ({ ...c, secondary: e.target.value }))} className="w-8 h-8 rounded-lg border border-border cursor-pointer bg-transparent" />
-                      <span className="text-xs text-muted-foreground">Accent</span>
-                    </div>
-                  </div>
-                  <button onClick={handleBrandDone} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium">
-                    <Check className="w-4 h-4" /> Done
-                  </button>
-                </div>
-              )}
-
-              {/* Logo upload */}
-              {msg.inputType === 'logo-upload' && (
-                <div className="w-full space-y-2">
-                  {logoPreview ? (
-                    <div className="relative inline-block">
-                      <img src={logoPreview} alt="Logo preview" className="h-16 rounded-lg border border-border object-contain bg-secondary/40 p-2" />
-                      <button onClick={handleLogoRemove} className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
-                        <X className="w-3 h-3" />
+                {/* Option chips */}
+                {msg.options && (
+                  <div className="flex flex-wrap gap-2">
+                    {msg.options.map(opt => (
+                      <button
+                        key={opt.id}
+                        onClick={() => handleOptionSelect(opt.id, opt.label)}
+                        className="group flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border/80 bg-card/80 text-sm font-medium text-foreground hover:border-primary/60 hover:bg-primary/10 hover:shadow-[0_0_20px_hsla(338,72%,59%,0.1)] transition-all duration-200"
+                      >
+                        {opt.icon && <opt.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />}
+                        {opt.label}
                       </button>
-                    </div>
-                  ) : (
-                    <label className="flex flex-col items-center gap-2 p-6 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary/40 transition-colors">
-                      <Image className="w-6 h-6 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">Upload your logo (PNG, SVG)</span>
-                      <input type="file" accept="image/*,.svg" className="hidden" onChange={handleLogoUpload} />
+                    ))}
+                  </div>
+                )}
+
+                {/* URL input */}
+                {msg.inputType === 'url' && (
+                  <div className="flex gap-2 w-full">
+                    <input value={inputVal} onChange={e => setInputVal(e.target.value)} placeholder="https://..."
+                      className="flex-1 bg-card/80 border border-border/80 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-all"
+                      onKeyDown={e => e.key === 'Enter' && handleContentSubmit()} />
+                    <button onClick={handleContentSubmit} className="px-3.5 py-2.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
+                {/* Prompt textarea */}
+                {msg.inputType === 'prompt' && (
+                  <div className="w-full space-y-2.5">
+                    <textarea value={inputVal} onChange={e => setInputVal(e.target.value)} placeholder="Describe your video..."
+                      rows={3} className="w-full bg-card/80 border border-border/80 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 resize-none transition-all" />
+                    <button onClick={handleContentSubmit} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
+                      <ArrowRight className="w-4 h-4" /> Continue
+                    </button>
+                  </div>
+                )}
+
+                {/* File upload */}
+                {msg.inputType === 'upload' && (
+                  <div className="w-full">
+                    <label className="flex flex-col items-center gap-3 p-8 border-2 border-dashed border-border/60 rounded-xl cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all duration-200">
+                      <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+                        <Upload className="w-5 h-5 text-muted-foreground" />
+                      </div>
+                      <span className="text-xs text-muted-foreground">Click to upload images or videos</span>
+                      <input type="file" multiple accept="image/*,video/*" className="hidden" onChange={handleFileUpload} />
                     </label>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
 
-              {/* Generating */}
-              {msg.inputType === 'generating' && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                  <span>{generatingMessages[genMsg]}</span>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        ))}
+                {/* Brand colors */}
+                {msg.inputType === 'brand-ask' && (
+                  <div className="w-full space-y-3">
+                    <div className="flex gap-4">
+                      <div className="flex items-center gap-2">
+                        <input type="color" value={brandColors.primary} onChange={e => setBrandColors(c => ({ ...c, primary: e.target.value }))} className="w-9 h-9 rounded-lg border border-border cursor-pointer bg-transparent" />
+                        <span className="text-xs text-muted-foreground">Primary</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input type="color" value={brandColors.secondary} onChange={e => setBrandColors(c => ({ ...c, secondary: e.target.value }))} className="w-9 h-9 rounded-lg border border-border cursor-pointer bg-transparent" />
+                        <span className="text-xs text-muted-foreground">Accent</span>
+                      </div>
+                    </div>
+                    <button onClick={handleBrandDone} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
+                      <Check className="w-4 h-4" /> Done
+                    </button>
+                  </div>
+                )}
 
-        {/* Typing indicator */}
-        {typing && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
-            <div className="bg-secondary rounded-2xl rounded-bl-md px-4 py-3 flex gap-1">
-              {[0, 1, 2].map(i => (
-                <div key={i} className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
-              ))}
-            </div>
-          </motion.div>
-        )}
+                {/* Logo upload */}
+                {msg.inputType === 'logo-upload' && (
+                  <div className="w-full space-y-2">
+                    {logoPreview ? (
+                      <div className="relative inline-block">
+                        <img src={logoPreview} alt="Logo preview" className="h-16 rounded-lg border border-border object-contain bg-secondary/40 p-2" />
+                        <button onClick={handleLogoRemove} className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center gap-3 p-8 border-2 border-dashed border-border/60 rounded-xl cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all duration-200">
+                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+                          <Image className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                        <span className="text-xs text-muted-foreground">Upload your logo (PNG, SVG)</span>
+                        <input type="file" accept="image/*,.svg" className="hidden" onChange={handleLogoUpload} />
+                      </label>
+                    )}
+                  </div>
+                )}
+
+                {/* Generating */}
+                {msg.inputType === 'generating' && (
+                  <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    <span>{generatingMessages[genMsg]}</span>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ))}
+
+          {/* Typing indicator */}
+          {typing && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2.5">
+              <BotAvatar />
+              <div className="bg-secondary/80 rounded-2xl rounded-tl-md px-4 py-3 flex gap-1.5">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-pulse" style={{ animationDelay: `${i * 0.15}s` }} />
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </div>
       </div>
     </div>
   );
