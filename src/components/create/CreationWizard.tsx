@@ -340,7 +340,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
           {/* Typing indicator */}
           {typing && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2.5">
-              <BotAccent />
+              <BotDot />
               <div className="bg-secondary/80 rounded-2xl rounded-tl-md px-4 py-3 flex gap-1.5">
                 {[0, 1, 2].map(i => (
                   <div key={i} className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-pulse" style={{ animationDelay: `${i * 0.15}s` }} />
