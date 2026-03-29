@@ -7,6 +7,7 @@ import {
   Check, Music, Zap, Layers, Image,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import CreationWizard from '@/components/create/CreationWizard';
 
 /* ───────── Animated Section Wrapper ───────── */
 function AnimatedSection({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -352,7 +353,7 @@ export default function Landing() {
             An AI agent that picks the music, finds the footage, writes the copy, creates animations, and syncs it all to the beat. You review and direct — like having a production team on demand.
           </p>
 
-          <PromptCard glowOnHover />
+          <CreationWizard />
         </div>
       </section>
 
