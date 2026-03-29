@@ -64,13 +64,33 @@ export default function CreationWizard() {
     }, delay);
   }, []);
 
-  // Initial message
+  // Opening sequence — introduce VanillaSky, then ask the first question
   useEffect(() => {
-    addBotMessage({
-      role: 'bot',
-      content: 'Hey! 👋 What kind of video are you making?',
-      options: videoTypes.map(v => ({ id: v.id, label: v.label, icon: v.icon })),
-    }, 400);
+    const addSequence = async () => {
+      // Message 1: greeting
+      addBotMessage({
+        role: 'bot',
+        content: "Hey! I'm VanillaSky — your AI video production team. 🎬",
+      }, 300);
+
+      // Message 2: explain what we do
+      setTimeout(() => {
+        addBotMessage({
+          role: 'bot',
+          content: "I pick the music, find the footage, write the copy, and sync it all to the beat. You just tell me what you need.",
+        }, 600);
+      }, 1200);
+
+      // Message 3: ask the first question
+      setTimeout(() => {
+        addBotMessage({
+          role: 'bot',
+          content: "So — what kind of video are we making?",
+          options: videoTypes.map(v => ({ id: v.id, label: v.label, icon: v.icon })),
+        }, 600);
+      }, 2800);
+    };
+    addSequence();
   }, [addBotMessage]);
 
   // Scroll to bottom

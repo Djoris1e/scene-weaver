@@ -328,31 +328,12 @@ export default function Landing() {
       </nav>
 
       {/* ── Hero ── */}
-      <section id="hero" className="relative pt-12 pb-24 md:pt-20 md:pb-32 px-6 text-center max-w-4xl mx-auto">
+      <section id="hero" className="relative pt-8 pb-24 md:pt-14 md:pb-32 px-6 max-w-2xl mx-auto">
         {/* Ambient orbs */}
         <div className="glow-orb w-[500px] h-[500px] bg-primary/15 -top-40 left-1/2 -translate-x-1/2" />
         <div className="glow-orb w-[300px] h-[300px] bg-accent/10 top-20 -right-20" />
 
-        <div className="relative z-10 space-y-6">
-          {/* Floating badges */}
-          <div className="flex items-center justify-center gap-3 flex-wrap">
-            <span className="float-badge text-xs font-medium bg-primary/10 text-primary border border-primary/20 rounded-full px-3 py-1.5">
-              No editing skills needed
-            </span>
-            <span className="float-badge-delayed text-xs font-medium bg-accent/10 text-accent border border-accent/20 rounded-full px-3 py-1.5">
-              60s to first draft
-            </span>
-          </div>
-
-          <h1 className="font-heading text-4xl md:text-6xl font-bold tracking-tight leading-[1.08]">
-            Your AI&#8209;powered{' '}
-            <span className="gradient-vs-text">video team.</span>
-          </h1>
-
-          <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">
-            Tell us what you need — we'll handle the rest.
-          </p>
-
+        <div className="relative z-10">
           <CreationWizard />
         </div>
       </section>
