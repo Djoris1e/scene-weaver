@@ -51,7 +51,11 @@ function BotAvatar() {
 }
 
 /* ───────── Component ───────── */
-export default function CreationWizard() {
+interface CreationWizardProps {
+  onInteraction?: () => void;
+}
+
+export default function CreationWizard({ onInteraction }: CreationWizardProps) {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [typing, setTyping] = useState(false);
@@ -108,6 +112,7 @@ export default function CreationWizard() {
   };
 
   const handleOptionSelect = (optionId: string, label: string) => {
+    onInteraction?.();
     setMessages(prev => [...prev, { role: 'user', content: label }]);
 
     if (phase.current === 'type') {
