@@ -333,6 +333,14 @@ export default function Landing() {
       <section id="hero" className="relative pt-8 pb-24 md:pt-14 md:pb-32 px-6 max-w-2xl mx-auto">
         {/* Ambient orbs */}
         <div className="glow-orb w-[500px] h-[500px] bg-primary/15 -top-40 left-1/2 -translate-x-1/2" />
+      <motion.section
+        id="hero"
+        animate={{ paddingTop: chatStarted ? '1rem' : undefined }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="relative pt-8 pb-24 md:pt-14 md:pb-32 px-6 max-w-2xl mx-auto"
+      >
+        {/* Ambient orbs */}
+        <div className="glow-orb w-[500px] h-[500px] bg-primary/15 -top-40 left-1/2 -translate-x-1/2" />
         <div className="glow-orb w-[300px] h-[300px] bg-accent/10 top-20 -right-20" />
 
         <div className="relative z-10 space-y-10">
@@ -362,7 +370,7 @@ export default function Landing() {
           {/* Conversational wizard */}
           <CreationWizard onInteraction={() => setChatStarted(true)} />
         </div>
-      </section>
+      </motion.section>
 
       {/* ── Video Showcase ── */}
       <AnimatedSection className="py-24 md:py-32 px-6 relative">
