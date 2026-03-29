@@ -207,7 +207,7 @@ export default function CreationWizard() {
   return (
     <div className="w-full max-w-2xl mx-auto">
       {/* Messages */}
-      <div ref={scrollRef} className="space-y-5">
+      <div ref={scrollRef} className="space-y-5 max-h-[350px] overflow-y-auto scrollbar-none">
           {messages.map((msg, i) => (
             <motion.div
               key={i}
