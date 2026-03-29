@@ -79,8 +79,12 @@ export default function CreationWizard() {
     }, 600);
   }, [addBotMessage]);
 
+  // Auto-scroll to bottom on new messages or typing state change
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+    requestAnimationFrame(() => {
+      const el = scrollRef.current;
+      if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    });
   }, [messages, typing]);
 
   useEffect(() => {
