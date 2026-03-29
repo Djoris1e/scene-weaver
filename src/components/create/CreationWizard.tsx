@@ -205,23 +205,9 @@ export default function CreationWizard() {
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto">
-      {/* Chat container with glass effect */}
-      <div className="glass-card rounded-2xl p-5 md:p-6">
-        {/* Chat header */}
-        <div className="flex items-center gap-3 pb-4 mb-4 border-b border-border/50">
-          <BotAvatar />
-          <div>
-            <span className="text-sm font-semibold text-foreground">VanillaSky</span>
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-              Ready to create
-            </span>
-          </div>
-        </div>
-
-        {/* Messages */}
-        <div ref={scrollRef} className="space-y-5 max-h-[400px] overflow-y-auto scrollbar-none">
+    <div className="w-full max-w-2xl mx-auto">
+      {/* Messages */}
+      <div ref={scrollRef} className="space-y-5">
           {messages.map((msg, i) => (
             <motion.div
               key={i}
