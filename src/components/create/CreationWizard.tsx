@@ -41,13 +41,9 @@ interface ChatMessage {
 
 type Phase = 'type' | 'source' | 'source-input' | 'brand' | 'brand-config' | 'logo' | 'generating';
 
-/* ───────── Bot Avatar ───────── */
-function BotAvatar() {
-  return (
-    <div className="w-8 h-8 rounded-full gradient-vs flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
-      <Sparkles className="w-4 h-4 text-primary-foreground" />
-    </div>
-  );
+/* ───────── Bot accent bar ───────── */
+function BotAccent() {
+  return <div className="w-0.5 self-stretch rounded-full gradient-vs shrink-0 opacity-60" />;
 }
 
 /* ───────── Component ───────── */
