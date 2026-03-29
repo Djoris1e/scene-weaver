@@ -59,9 +59,12 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
   const [genMsg, setGenMsg] = useState(0);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
   const phase = useRef<Phase>('type');
 
   const [brandColors, setBrandColors] = useState({ primary: '#E04F8A', secondary: '#EC9A2C' });
+  const lastMessage = messages[messages.length - 1];
+  const activeBotMessageIndex = !typing && lastMessage?.role === 'bot' ? messages.length - 1 : -1;
 
   const addBotMessage = useCallback((msg: ChatMessage, delay = 600) => {
     setTyping(true);
@@ -79,13 +82,11 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
     }, 600);
   }, [addBotMessage]);
 
-  // Auto-scroll to bottom on new messages or typing state change
+  // Auto-scroll to the latest rendered content
   useEffect(() => {
-    // Double rAF to ensure DOM has fully rendered (including input fields)
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const el = scrollRef.current;
-        if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
       });
     });
   }, [messages, typing]);
