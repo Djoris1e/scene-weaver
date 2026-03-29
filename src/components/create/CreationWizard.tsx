@@ -41,9 +41,9 @@ interface ChatMessage {
 
 type Phase = 'type' | 'source' | 'source-input' | 'brand' | 'brand-config' | 'logo' | 'generating';
 
-/* ───────── Bot accent bar ───────── */
-function BotAccent() {
-  return <div className="w-0.5 self-stretch rounded-full gradient-vs shrink-0 opacity-60" />;
+/* ───────── Bot indicator ───────── */
+function BotDot() {
+  return <div className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0 mt-2.5" />;
 }
 
 /* ───────── Component ───────── */
