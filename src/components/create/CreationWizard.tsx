@@ -214,7 +214,7 @@ export default function CreationWizard() {
           <div>
             <span className="text-sm font-semibold text-foreground">VanillaSky</span>
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
               Ready to create
             </span>
           </div>
