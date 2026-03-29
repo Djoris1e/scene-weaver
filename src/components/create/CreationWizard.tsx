@@ -210,9 +210,9 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto flex flex-col" style={{ minHeight: 'calc(100vh - 120px)' }}>
       {/* Messages */}
-      <div ref={scrollRef} className="space-y-5 max-h-[350px] overflow-y-auto scrollbar-none">
+      <div ref={scrollRef} className="space-y-5 flex-1 overflow-y-auto scrollbar-none">
           {messages.map((msg, i) => (
             <motion.div
               key={i}
