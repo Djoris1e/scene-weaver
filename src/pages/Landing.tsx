@@ -353,7 +353,7 @@ export default function Landing() {
             An AI agent that picks the music, finds the footage, writes the copy, creates animations, and syncs it all to the beat. You review and direct — like having a production team on demand.
           </p>
 
-          <PromptCard glowOnHover />
+          <CreationWizard />
         </div>
       </section>
 
