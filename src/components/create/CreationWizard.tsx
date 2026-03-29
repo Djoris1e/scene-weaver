@@ -112,6 +112,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
   };
 
   const handleOptionSelect = (optionId: string, label: string) => {
+    onInteraction?.();
     setMessages(prev => [...prev, { role: 'user', content: label }]);
 
     if (phase.current === 'type') {
