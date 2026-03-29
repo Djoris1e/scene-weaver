@@ -328,6 +328,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
               {msg.inputType === 'prompt' && (
                 <div className="w-full space-y-2.5">
                   <textarea
+                    autoFocus
                     value={inputVal}
                     onChange={e => setInputVal(e.target.value)}
                     placeholder="Describe your video..."
