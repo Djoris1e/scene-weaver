@@ -81,9 +81,12 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
 
   // Auto-scroll to bottom on new messages or typing state change
   useEffect(() => {
+    // Double rAF to ensure DOM has fully rendered (including input fields)
     requestAnimationFrame(() => {
-      const el = scrollRef.current;
-      if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+      requestAnimationFrame(() => {
+        const el = scrollRef.current;
+        if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+      });
     });
   }, [messages, typing]);
 
