@@ -330,9 +330,6 @@ export default function Landing() {
       </nav>
 
       {/* ── Hero ── */}
-      <section id="hero" className="relative pt-8 pb-24 md:pt-14 md:pb-32 px-6 max-w-2xl mx-auto">
-        {/* Ambient orbs */}
-        <div className="glow-orb w-[500px] h-[500px] bg-primary/15 -top-40 left-1/2 -translate-x-1/2" />
       <motion.section
         id="hero"
         animate={{ paddingTop: chatStarted ? '1rem' : undefined }}
