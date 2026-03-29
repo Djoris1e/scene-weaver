@@ -41,9 +41,9 @@ interface ChatMessage {
 
 type Phase = 'type' | 'source' | 'source-input' | 'brand' | 'brand-config' | 'logo' | 'generating';
 
-/* ───────── Bot accent bar ───────── */
-function BotAccent() {
-  return <div className="w-0.5 self-stretch rounded-full gradient-vs shrink-0 opacity-60" />;
+/* ───────── Bot indicator ───────── */
+function BotDot() {
+  return <div className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0 mt-2.5" />;
 }
 
 /* ───────── Component ───────── */
@@ -221,7 +221,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               className={`flex gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
             >
-              {msg.role === 'bot' && <BotAccent />}
+              {msg.role === 'bot' && <BotDot />}
 
               <div className={`flex-1 space-y-3 ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
                 {/* Bubble */}
@@ -340,7 +340,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
           {/* Typing indicator */}
           {typing && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2.5">
-              <BotAccent />
+              <BotDot />
               <div className="bg-secondary/80 rounded-2xl rounded-tl-md px-4 py-3 flex gap-1.5">
                 {[0, 1, 2].map(i => (
                   <div key={i} className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-pulse" style={{ animationDelay: `${i * 0.15}s` }} />
