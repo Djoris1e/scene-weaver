@@ -332,7 +332,7 @@ export default function Landing() {
       {/* ── Hero ── */}
       <motion.section
         id="hero"
-        animate={{ paddingTop: chatStarted ? '1rem' : undefined }}
+        animate={{ paddingTop: chatStarted ? '0.5rem' : undefined, paddingBottom: chatStarted ? '2rem' : undefined }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative pt-8 pb-24 md:pt-14 md:pb-32 px-6 max-w-2xl mx-auto"
       >
@@ -340,13 +340,16 @@ export default function Landing() {
         <div className="glow-orb w-[500px] h-[500px] bg-primary/15 -top-40 left-1/2 -translate-x-1/2" />
         <div className="glow-orb w-[300px] h-[300px] bg-accent/10 top-20 -right-20" />
 
-        <div className="relative z-10 space-y-10">
+        <motion.div
+          animate={{ gap: chatStarted ? '0rem' : '2.5rem' }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="relative z-10 flex flex-col gap-10"
+        >
           {/* Branded hero header — collapses after first interaction */}
           <motion.div
             animate={{
               opacity: chatStarted ? 0 : 1,
               height: chatStarted ? 0 : 'auto',
-              marginBottom: chatStarted ? 0 : undefined,
             }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="text-center space-y-4 overflow-hidden"
@@ -366,7 +369,7 @@ export default function Landing() {
 
           {/* Conversational wizard */}
           <CreationWizard onInteraction={() => setChatStarted(true)} />
-        </div>
+        </motion.div>
       </motion.section>
 
       {/* ── Video Showcase ── */}
