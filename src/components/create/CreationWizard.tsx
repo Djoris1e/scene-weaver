@@ -221,7 +221,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               className={`flex gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
             >
-              {msg.role === 'bot' && <BotAccent />}
+              {msg.role === 'bot' && <BotDot />}
 
               <div className={`flex-1 space-y-3 ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
                 {/* Bubble */}
