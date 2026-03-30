@@ -140,7 +140,7 @@ function BotIcon() {
     <motion.div
       animate={{ opacity: [1, 0.6, 1] }}
       transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15"
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-card border border-primary/20 shadow-md shadow-primary/10"
     >
       <Bot className="h-3.5 w-3.5 text-primary" />
     </motion.div>
