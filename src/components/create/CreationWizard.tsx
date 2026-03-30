@@ -111,6 +111,28 @@ function BotWaveform() {
   );
 }
 
+/* Play — pulsing play triangle, feels like a video is about to start */
+function BotPlay() {
+  return (
+    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 border border-primary/30 shadow-md shadow-primary/10 animate-pulse">
+      <div className="ml-[2px] h-0 w-0 border-l-[7px] border-y-[5px] border-l-primary border-y-transparent" />
+    </div>
+  );
+}
+
+/* Filmstrip — two tiny animated frames like a rolling reel */
+function BotFilmstrip() {
+  return (
+    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-card border border-primary/20 shadow-md shadow-primary/10 overflow-hidden">
+      <div className="flex gap-[2px]" style={{ animation: 'fade-in 1.5s ease-in-out infinite alternate' }}>
+        <div className="h-3.5 w-[5px] rounded-[1px] bg-primary/70 border border-primary/40" />
+        <div className="h-3.5 w-[5px] rounded-[1px] bg-primary/40 border border-primary/25" />
+        <div className="h-3.5 w-[5px] rounded-[1px] bg-primary/70 border border-primary/40" />
+      </div>
+    </div>
+  );
+}
+
 /* Label above bubble */
 function BotLabel() {
   return (
