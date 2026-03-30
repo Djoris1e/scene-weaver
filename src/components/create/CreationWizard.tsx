@@ -85,7 +85,8 @@ function BotDot() {
 }
 
 /* ───────── Component ───────── */
-export default function CreationWizard({ onInteraction }: CreationWizardProps) {
+export default function CreationWizard({ onInteraction, contrastTheme = 'elevated' }: CreationWizardProps) {
+  const styles = themeStyles[contrastTheme];
   const navigate = useNavigate();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [typing, setTyping] = useState(false);
