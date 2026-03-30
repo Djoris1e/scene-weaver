@@ -66,7 +66,7 @@ const themeStyles: Record<ContrastTheme, { bubble: string; button: string }> = {
   },
   elevated: {
     bubble: 'rounded-tl-md bg-muted text-foreground shadow-lg shadow-black/30',
-    button: 'border border-border bg-card shadow-md shadow-black/20 hover:bg-secondary hover:shadow-lg',
+    button: 'bg-card/80 shadow-[inset_0_0_0_1px_hsla(338,72%,59%,0.2),inset_0_0_0_1px_hsla(34,83%,55%,0.15)] hover:shadow-[inset_0_0_0_1px_hsla(338,72%,59%,0.4),inset_0_0_0_1px_hsla(34,83%,55%,0.3)]',
   },
   gradient: {
     bubble: 'rounded-tl-md bg-gradient-to-br from-secondary to-card border border-primary/20 text-foreground',
