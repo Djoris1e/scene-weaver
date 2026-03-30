@@ -104,6 +104,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [typing, setTyping] = useState(false);
+  const [botStyle, setBotStyle] = useState<BotStyle>('avatar');
   const [inputVal, setInputVal] = useState('');
   const [genMsg, setGenMsg] = useState(0);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
