@@ -325,7 +325,7 @@ export default function CreationWizard({ onInteraction, contrastTheme = 'elevate
                     <button
                       key={opt.id}
                       onClick={() => handleOptionSelect(opt.id, opt.label)}
-                      className="group flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-all duration-200 hover:border-primary/60 hover:bg-primary/10"
+                      className={`group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 ${styles.button}`}
                     >
                       {opt.icon ? <opt.icon className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" /> : null}
                       {opt.label}
