@@ -316,9 +316,9 @@ export default function CreationWizard({ onInteraction, contrastTheme = 'elevate
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className={`flex gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+            className={`flex items-start gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
           >
-            {msg.role === 'bot' && i === activeBotMessageIndex ? <BotDot /> : msg.role === 'bot' ? <div className="w-2 shrink-0" /> : null}
+            {msg.role === 'bot' && i === activeBotMessageIndex ? <div className="flex h-[44px] items-center"><BotDot /></div> : msg.role === 'bot' ? <div className="w-2 shrink-0" /> : null}
 
             <div className={`max-w-[85%] space-y-3 ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
               <div
