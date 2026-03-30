@@ -7,7 +7,7 @@ import {
   Check, Music, Zap, Layers, Image,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import CreationWizard, { type ContrastTheme } from '@/components/create/CreationWizard';
+import CreationWizard from '@/components/create/CreationWizard';
 
 /* ───────── Animated Section Wrapper ───────── */
 function AnimatedSection({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
