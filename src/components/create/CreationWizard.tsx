@@ -285,12 +285,12 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
           >
             {msg.role === 'bot' && i === activeBotMessageIndex ? <BotDot /> : msg.role === 'bot' ? <div className="w-2 shrink-0" /> : null}
 
-            <div className={`flex-1 space-y-3 ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
+            <div className={`max-w-[85%] space-y-3 ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
               <div
-                className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                className={`inline-block rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                   msg.role === 'user'
                     ? 'rounded-tr-md bg-primary text-primary-foreground'
-                    : 'rounded-tl-md bg-secondary/80 text-foreground'
+                    : 'rounded-tl-md bg-secondary text-foreground'
                 }`}
               >
                 {msg.content}
@@ -302,7 +302,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
                     <button
                       key={opt.id}
                       onClick={() => handleOptionSelect(opt.id, opt.label)}
-                      className="group flex items-center gap-2 rounded-xl border border-border/80 bg-card/80 px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:border-primary/60 hover:bg-primary/10"
+                      className="group flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-all duration-200 hover:border-primary/60 hover:bg-primary/10"
                     >
                       {opt.icon ? <opt.icon className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" /> : null}
                       {opt.label}
