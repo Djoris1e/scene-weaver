@@ -595,6 +595,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
           { id: 'waveform' as const, label: '〰️ Waveform' },
           { id: 'play' as const, label: '▶️ Play' },
           { id: 'filmstrip' as const, label: '🎞️ Filmstrip' },
+          { id: 'boticon' as const, label: '🤖 Bot Icon' },
           { id: 'label' as const, label: '🏷️ Label' },
           { id: 'agent' as const, label: '🤖 Agent' },
         ]).map(t => (
