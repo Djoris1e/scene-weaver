@@ -63,12 +63,12 @@ interface CreationWizardProps {
   onInteraction?: () => void;
 }
 
-type BotStyle = 'avatar' | 'label' | 'agent';
+type BotStyle = 'sparkle' | 'orb' | 'monogram' | 'waveform' | 'label' | 'agent';
 
 /* ───────── Bot indicators ───────── */
 
-/* A: Avatar — small circle with sparkle icon */
-function BotAvatar() {
+/* Sparkle — gradient circle with sparkle icon (original) */
+function BotSparkle() {
   return (
     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent shadow-md shadow-primary/20">
       <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
@@ -76,7 +76,42 @@ function BotAvatar() {
   );
 }
 
-/* B: Label above bubble (like the reference image) */
+/* Orb — soft glowing gradient circle, no icon */
+function BotOrb() {
+  return (
+    <div className="h-7 w-7 shrink-0 rounded-full bg-gradient-to-br from-primary/80 to-accent/60 shadow-lg shadow-primary/30 animate-pulse" />
+  );
+}
+
+/* Monogram — branded 'VS' letter in circle */
+function BotMonogram() {
+  return (
+    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-card border border-primary/30 shadow-md shadow-primary/10">
+      <span className="text-[10px] font-heading font-bold gradient-vs-text leading-none">VS</span>
+    </div>
+  );
+}
+
+/* Waveform — animated bars that feel alive */
+function BotWaveform() {
+  return (
+    <div className="flex h-7 w-7 shrink-0 items-center justify-center gap-[2px] rounded-full bg-card border border-primary/20 shadow-md shadow-primary/10">
+      {[0, 1, 2].map(i => (
+        <div
+          key={i}
+          className="w-[3px] rounded-full bg-primary"
+          style={{
+            height: '10px',
+            animation: 'waveform 0.8s ease-in-out infinite',
+            animationDelay: `${i * 0.15}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* Label above bubble */
 function BotLabel() {
   return (
     <div className="flex items-center gap-1.5 mb-1">
@@ -86,7 +121,7 @@ function BotLabel() {
   );
 }
 
-/* C: Agent bar — name + status dot, feels like a live agent */
+/* Agent bar — name + status dot */
 function BotAgentBar() {
   return (
     <div className="flex items-center gap-2 mb-1.5">
@@ -99,12 +134,26 @@ function BotAgentBar() {
   );
 }
 
+/* Helper: renders the inline avatar for avatar-type styles */
+function InlineAvatar({ style }: { style: BotStyle }) {
+  switch (style) {
+    case 'sparkle': return <BotSparkle />;
+    case 'orb': return <BotOrb />;
+    case 'monogram': return <BotMonogram />;
+    case 'waveform': return <BotWaveform />;
+    default: return null;
+  }
+}
+
+const isInlineStyle = (s: BotStyle) => ['sparkle', 'orb', 'monogram', 'waveform'].includes(s);
+const inlineAvatarWidth = 'w-7';
+
 /* ───────── Component ───────── */
 export default function CreationWizard({ onInteraction }: CreationWizardProps) {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [typing, setTyping] = useState(false);
-  const [botStyle, setBotStyle] = useState<BotStyle>('avatar');
+  const [botStyle, setBotStyle] = useState<BotStyle>('sparkle');
   const [inputVal, setInputVal] = useState('');
   const [genMsg, setGenMsg] = useState(0);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -321,12 +370,12 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className={`flex items-start gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
           >
-            {/* Style A: Avatar — inline circle next to bubble */}
-            {msg.role === 'bot' && botStyle === 'avatar' && i === activeBotMessageIndex && (
-              <div className="flex h-[44px] items-center"><BotAvatar /></div>
+            {/* Inline avatar styles (sparkle, orb, monogram, waveform) */}
+            {msg.role === 'bot' && isInlineStyle(botStyle) && i === activeBotMessageIndex && (
+              <div className="flex h-[44px] items-center"><InlineAvatar style={botStyle} /></div>
             )}
-            {msg.role === 'bot' && botStyle === 'avatar' && i !== activeBotMessageIndex && (
-              <div className="w-7 shrink-0" />
+            {msg.role === 'bot' && isInlineStyle(botStyle) && i !== activeBotMessageIndex && (
+              <div className={`${inlineAvatarWidth} shrink-0`} />
             )}
 
             <div className={`max-w-[85%] space-y-3 ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
@@ -478,7 +527,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
 
         {typing && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-start gap-2.5">
-            {botStyle === 'avatar' && <div className="flex h-[44px] items-center"><BotAvatar /></div>}
+            {isInlineStyle(botStyle) && <div className="flex h-[44px] items-center"><InlineAvatar style={botStyle} /></div>}
             <div className="space-y-1">
               {botStyle === 'label' && <BotLabel />}
               {botStyle === 'agent' && <BotAgentBar />}
@@ -499,10 +548,13 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
       </div>
 
       {/* Floating bot style switcher */}
-      <div className="fixed bottom-6 right-6 z-50 flex gap-1.5 rounded-2xl border border-border bg-card/90 backdrop-blur-xl p-1.5 shadow-xl">
+      <div className="fixed bottom-6 right-6 z-50 flex flex-wrap gap-1.5 rounded-2xl border border-border bg-card/90 backdrop-blur-xl p-1.5 shadow-xl max-w-xs">
         {([
-          { id: 'avatar' as const, label: '🟣 Avatar' },
-          { id: 'label' as const, label: '✨ Label' },
+          { id: 'sparkle' as const, label: '✨ Sparkle' },
+          { id: 'orb' as const, label: '🟣 Orb' },
+          { id: 'monogram' as const, label: '🔤 Monogram' },
+          { id: 'waveform' as const, label: '〰️ Waveform' },
+          { id: 'label' as const, label: '🏷️ Label' },
           { id: 'agent' as const, label: '🤖 Agent' },
         ]).map(t => (
           <button
