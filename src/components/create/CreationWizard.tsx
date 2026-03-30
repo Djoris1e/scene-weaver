@@ -16,6 +16,7 @@ import {
   Check,
   X,
   Image,
+  Bot,
 } from 'lucide-react';
 
 /* ───────── Data ───────── */
