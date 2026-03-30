@@ -548,10 +548,13 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
       </div>
 
       {/* Floating bot style switcher */}
-      <div className="fixed bottom-6 right-6 z-50 flex gap-1.5 rounded-2xl border border-border bg-card/90 backdrop-blur-xl p-1.5 shadow-xl">
+      <div className="fixed bottom-6 right-6 z-50 flex flex-wrap gap-1.5 rounded-2xl border border-border bg-card/90 backdrop-blur-xl p-1.5 shadow-xl max-w-xs">
         {([
-          { id: 'avatar' as const, label: '🟣 Avatar' },
-          { id: 'label' as const, label: '✨ Label' },
+          { id: 'sparkle' as const, label: '✨ Sparkle' },
+          { id: 'orb' as const, label: '🟣 Orb' },
+          { id: 'monogram' as const, label: '🔤 Monogram' },
+          { id: 'waveform' as const, label: '〰️ Waveform' },
+          { id: 'label' as const, label: '🏷️ Label' },
           { id: 'agent' as const, label: '🤖 Agent' },
         ]).map(t => (
           <button
