@@ -179,6 +179,7 @@ function InlineAvatar({ style }: { style: BotStyle }) {
     case 'waveform': return <BotWaveform />;
     case 'play': return <BotPlay />;
     case 'filmstrip': return <BotFilmstrip />;
+    case 'boticon': return <BotIcon />;
     default: return null;
   }
 }
