@@ -163,6 +163,8 @@ function InlineAvatar({ style }: { style: BotStyle }) {
     case 'orb': return <BotOrb />;
     case 'monogram': return <BotMonogram />;
     case 'waveform': return <BotWaveform />;
+    case 'play': return <BotPlay />;
+    case 'filmstrip': return <BotFilmstrip />;
     default: return null;
   }
 }
