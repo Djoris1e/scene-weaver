@@ -350,9 +350,12 @@ export default function Landing() {
             animate={{
               opacity: chatStarted ? 0 : 1,
               height: chatStarted ? 0 : 'auto',
+              scale: chatStarted ? 0.92 : 1,
+              filter: chatStarted ? 'blur(8px)' : 'blur(0px)',
+              marginBottom: chatStarted ? 0 : undefined,
             }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="text-center space-y-4 overflow-hidden"
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center space-y-4 overflow-hidden origin-top"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-card/60 backdrop-blur-sm text-xs text-muted-foreground mb-2">
               <Sparkles className="w-3 h-3 text-primary" />
