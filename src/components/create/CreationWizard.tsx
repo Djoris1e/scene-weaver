@@ -53,7 +53,7 @@ interface ChatMessage {
 
 type Phase = 'type' | 'source' | 'source-input' | 'brand' | 'brand-config' | 'logo' | 'generating';
 
-export type ContrastTheme = 'glass' | 'outlined' | 'elevated' | 'gradient';
+export type ContrastTheme = 'glass' | 'outlined' | 'elevated' | 'gradient' | 'subtle-border' | 'soft-glow' | 'frosted';
 
 const themeStyles: Record<ContrastTheme, { bubble: string; button: string }> = {
   glass: {
@@ -71,6 +71,18 @@ const themeStyles: Record<ContrastTheme, { bubble: string; button: string }> = {
   gradient: {
     bubble: 'rounded-tl-md bg-gradient-to-br from-secondary to-card border border-primary/20 text-foreground',
     button: 'border border-transparent bg-gradient-to-r from-primary/20 to-accent/20 hover:from-primary/30 hover:to-accent/30 shadow-sm',
+  },
+  'subtle-border': {
+    bubble: 'rounded-tl-md bg-secondary/60 border border-border/60 text-foreground',
+    button: 'border border-border/80 bg-card/80 hover:border-primary/50 hover:bg-card',
+  },
+  'soft-glow': {
+    bubble: 'rounded-tl-md bg-secondary/50 border border-primary/10 text-foreground shadow-[0_0_15px_hsla(338,72%,59%,0.06)]',
+    button: 'border border-border/60 bg-card/60 shadow-[0_0_12px_hsla(338,72%,59%,0.05)] hover:border-primary/30 hover:shadow-[0_0_18px_hsla(338,72%,59%,0.1)]',
+  },
+  frosted: {
+    bubble: 'rounded-tl-md bg-white/[0.04] backdrop-blur-lg border border-white/[0.06] text-foreground',
+    button: 'border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm hover:border-white/[0.15] hover:bg-white/[0.06]',
   },
 };
 
