@@ -62,9 +62,40 @@ interface CreationWizardProps {
   onInteraction?: () => void;
 }
 
-/* ───────── Bot indicator ───────── */
-function BotDot() {
-  return <div className="h-2 w-2 shrink-0 rounded-full bg-primary animate-pulse" />;
+type BotStyle = 'avatar' | 'label' | 'agent';
+
+/* ───────── Bot indicators ───────── */
+
+/* A: Avatar — small circle with sparkle icon */
+function BotAvatar() {
+  return (
+    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent shadow-md shadow-primary/20">
+      <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
+    </div>
+  );
+}
+
+/* B: Label above bubble (like the reference image) */
+function BotLabel() {
+  return (
+    <div className="flex items-center gap-1.5 mb-1">
+      <Sparkles className="h-3.5 w-3.5 text-primary" />
+      <span className="text-xs font-semibold text-primary font-heading">AI Agent</span>
+    </div>
+  );
+}
+
+/* C: Agent bar — name + status dot, feels like a live agent */
+function BotAgentBar() {
+  return (
+    <div className="flex items-center gap-2 mb-1.5">
+      <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary/15">
+        <Bot className="h-3.5 w-3.5 text-primary" />
+      </div>
+      <span className="text-xs font-semibold text-foreground/80 font-heading">VanillaSky Agent</span>
+      <div className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+    </div>
+  );
 }
 
 /* ───────── Component ───────── */
