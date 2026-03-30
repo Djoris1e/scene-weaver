@@ -134,6 +134,19 @@ function BotFilmstrip() {
   );
 }
 
+/* Bot icon — uploaded image avatar with subtle blink */
+function BotIcon() {
+  return (
+    <motion.div
+      animate={{ opacity: [1, 0.6, 1] }}
+      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+      className="h-7 w-7 shrink-0 rounded-full overflow-hidden shadow-md shadow-primary/15"
+    >
+      <img src={botAvatarImg} alt="Bot" className="h-full w-full object-cover" />
+    </motion.div>
+  );
+}
+
 /* Label above bubble */
 function BotLabel() {
   return (
