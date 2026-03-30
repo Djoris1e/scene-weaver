@@ -1,62 +1,80 @@
-# Sequence — Video Scene Editor
+# VanillaSky — AI Video Creation Agent
 
-A mobile-first video scene editor built with React, TypeScript, and Tailwind CSS. Create short-form video sequences with text overlays, gradient backgrounds, counters, and brand customization.
+An AI-powered video creation platform with a conversational wizard, timeline editor, and export flow. Built with React 18, TypeScript, Vite, Tailwind CSS, and Framer Motion.
 
-## Architecture
+**Live preview:** Dark-themed, mobile-first SPA with three routes and A/B/C variant testing across all pages.
 
-```
-src/
-├── components/
-│   ├── editor/           # Core editor components
-│   │   ├── AIPromptBar   # AI prompt input bar
-│   │   ├── DropdownSelect# Reusable styled select
-│   │   ├── ExportButton  # Export with progress animation
-│   │   ├── Filmstrip     # Horizontal timeline with drag-to-scrub
-│   │   ├── IconTabBar    # Tab navigation with icons
-│   │   ├── Preview       # 9:16 scene preview canvas
-│   │   ├── SceneEditor   # Tabbed scene editing panel (Text/Media/Motion/Brand)
-│   │   └── SearchDialog  # Media search modal
-│   └── ui/               # shadcn/ui primitives
-├── hooks/
-│   └── useSceneStore     # Scene state management (scenes, brand kit, end screen)
-├── types/
-│   └── scene             # Scene model, constants (colors, fonts, gradients)
-├── pages/
-│   └── Editor            # Main page — composes all editor components
-└── assets/
-    └── logo.svg
-```
+---
 
-## Key Concepts
-
-- **Scene**: A clip with text, background (gradient/media/counter), timing, transitions, and effects
-- **Brand Kit**: Global settings (colors, logo, slogan) applied across all scenes
-- **Filmstrip**: Width-proportional timeline segments; drag to scrub, tap to edit
-- **State**: `useSceneStore` hook manages all editor state via React `useState`
-
-## Integration Guide
-
-To integrate into another codebase:
-
-1. Copy `src/components/editor/`, `src/hooks/useSceneStore.ts`, and `src/types/scene.ts`
-2. The editor requires these dependencies: `lucide-react`, `tailwindcss`, `class-variance-authority`
-3. It uses shadcn/ui's `Switch` component — copy `src/components/ui/switch.tsx` or replace with your own toggle
-4. CSS variables are defined in `src/index.css` — merge the `:root` tokens into your theme
-5. Mount the `<Editor />` page component or compose individual pieces as needed
-
-## Tech Stack
-
-- **React 18** + TypeScript
-- **Vite** for dev/build
-- **Tailwind CSS** with HSL design tokens
-- **shadcn/ui** for primitives
-- **lucide-react** for icons
-
-## Development
+## Quick Start
 
 ```sh
 npm install
 npm run dev     # http://localhost:8080
 npm run build   # Production build
-npm run test    # Run tests
+npm run test    # Vitest
 ```
+
+## Routes
+
+| Path | Page | Description |
+|------|------|-------------|
+| `/` | `Landing` | Marketing homepage with conversational creation wizard |
+| `/editor` | `Editor` | Timeline-based video scene editor (3 layout variants) |
+| `/export-done` | `ExportDone` | Post-export confirmation (3 variants) |
+
+## Project Structure
+
+```
+src/
+├── pages/
+│   ├── Landing.tsx          # Homepage: hero, wizard, features, pricing, use cases
+│   ├── Editor.tsx           # Scene editor with preview, filmstrip, AI prompt
+│   └── ExportDone.tsx       # Export confirmation screen
+├── components/
+│   ├── create/
+│   │   └── CreationWizard.tsx  # Chatbot-style multi-step video creation flow
+│   ├── editor/
+│   │   ├── Preview.tsx         # 9:16 scene preview canvas
+│   │   ├── Filmstrip.tsx       # Horizontal timeline with drag-to-scrub
+│   │   ├── SceneEditor.tsx     # Tabbed editing panel (Text/Media/Motion/Brand)
+│   │   ├── PlaybackControls.tsx
+│   │   ├── ExportButton.tsx    # Export with progress animation
+│   │   ├── AIPromptBar.tsx     # AI prompt input
+│   │   ├── DropdownSelect.tsx  # Styled select component
+│   │   ├── IconTabBar.tsx      # Tab navigation with icons
+│   │   └── SearchDialog.tsx    # Media search modal
+│   └── ui/                     # shadcn/ui primitives (button, dialog, etc.)
+├── hooks/
+│   └── useSceneStore.ts     # All editor state: scenes, brand kit, end screen
+├── types/
+│   └── scene.ts             # Scene model, gradient configs, font/color constants
+├── index.css                # Design tokens, fonts, utility classes, animations
+├── App.tsx                  # Router setup with React Query + Toast providers
+└── main.tsx                 # Entry point
+```
+
+## Tech Stack
+
+- **React 18** + TypeScript (strict)
+- **Vite 5** — dev server on port 8080
+- **Tailwind CSS 3** with HSL design tokens
+- **Framer Motion** — page transitions, scroll animations, layout animations
+- **shadcn/ui** — headless primitives (Button, Dialog, Switch, Tabs, etc.)
+- **lucide-react** — icons
+- **React Router 6** — client-side routing
+- **React Query** — data fetching (provider configured, not heavily used yet)
+
+## Key Dependencies
+
+```
+react, react-dom, react-router-dom, framer-motion, 
+lucide-react, class-variance-authority, tailwind-merge, clsx,
+@radix-ui/* (via shadcn), @tanstack/react-query, sonner
+```
+
+See `package.json` for exact versions.
+
+---
+
+For architecture details, design system reference, and component API docs, see **[ARCHITECTURE.md](./ARCHITECTURE.md)**.
