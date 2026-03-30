@@ -371,12 +371,15 @@ export default function Landing() {
           <CreationWizard onInteraction={() => setChatStarted(true)} contrastTheme={contrastTheme} />
 
           {/* Floating theme switcher */}
-          <div className="fixed bottom-6 right-6 z-50 flex gap-1.5 rounded-2xl border border-border bg-card/90 backdrop-blur-xl p-1.5 shadow-xl">
+          <div className="fixed bottom-6 right-6 z-50 flex flex-wrap gap-1.5 rounded-2xl border border-border bg-card/90 backdrop-blur-xl p-1.5 shadow-xl max-w-xs">
             {([
               { id: 'glass' as const, label: '🪟 Glass' },
               { id: 'outlined' as const, label: '🔲 Outlined' },
               { id: 'elevated' as const, label: '🏔️ Elevated' },
               { id: 'gradient' as const, label: '🌈 Gradient' },
+              { id: 'subtle-border' as const, label: '▫️ Subtle' },
+              { id: 'soft-glow' as const, label: '✨ Soft Glow' },
+              { id: 'frosted' as const, label: '❄️ Frosted' },
             ]).map(t => (
               <button
                 key={t.id}
