@@ -74,7 +74,7 @@ const themeStyles: Record<ContrastTheme, { bubble: string; button: string }> = {
   },
   'subtle-border': {
     bubble: 'rounded-tl-md bg-secondary/60 border border-border/60 text-foreground',
-    button: 'border border-border/80 bg-card/80 hover:border-primary/50 hover:bg-card',
+    button: 'bg-card/80 shadow-[inset_0_0_0_1px_hsla(338,72%,59%,0.2),inset_0_0_0_1px_hsla(34,83%,55%,0.15)] hover:shadow-[inset_0_0_0_1px_hsla(338,72%,59%,0.4),inset_0_0_0_1px_hsla(34,83%,55%,0.3)]',
   },
   'soft-glow': {
     bubble: 'rounded-tl-md bg-secondary/50 border border-primary/10 text-foreground shadow-[0_0_15px_hsla(338,72%,59%,0.06)]',
