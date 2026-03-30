@@ -357,10 +357,6 @@ export default function Landing() {
             transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
             className="text-center space-y-4 overflow-hidden origin-top"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-card/60 backdrop-blur-sm text-xs text-muted-foreground mb-2">
-              <Sparkles className="w-3 h-3 text-primary" />
-              AI-powered video production
-            </div>
             <h1 className="font-heading text-4xl md:text-6xl font-bold leading-[1.1] tracking-tight">
               Your idea.{' '}
               <span className="gradient-vs-text">Cinema-grade video.</span>
