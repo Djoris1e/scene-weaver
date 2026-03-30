@@ -477,21 +477,46 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
         ))}
 
         {typing && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2.5">
-            <BotDot />
-            <div className="flex gap-1.5 rounded-2xl rounded-tl-md bg-secondary/80 px-4 py-3">
-              {[0, 1, 2].map(i => (
-                <div
-                  key={i}
-                  className="h-2 w-2 rounded-full bg-muted-foreground/50 animate-pulse"
-                  style={{ animationDelay: `${i * 0.15}s` }}
-                />
-              ))}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-start gap-2.5">
+            {botStyle === 'avatar' && <div className="flex h-[44px] items-center"><BotAvatar /></div>}
+            <div className="space-y-1">
+              {botStyle === 'label' && <BotLabel />}
+              {botStyle === 'agent' && <BotAgentBar />}
+              <div className="flex gap-1.5 rounded-2xl rounded-tl-md bg-secondary/80 px-4 py-3">
+                {[0, 1, 2].map(i => (
+                  <div
+                    key={i}
+                    className="h-2 w-2 rounded-full bg-muted-foreground/50 animate-pulse"
+                    style={{ animationDelay: `${i * 0.15}s` }}
+                  />
+                ))}
+              </div>
             </div>
           </motion.div>
         )}
 
         <div ref={bottomRef} />
+      </div>
+
+      {/* Floating bot style switcher */}
+      <div className="fixed bottom-6 right-6 z-50 flex gap-1.5 rounded-2xl border border-border bg-card/90 backdrop-blur-xl p-1.5 shadow-xl">
+        {([
+          { id: 'avatar' as const, label: '🟣 Avatar' },
+          { id: 'label' as const, label: '✨ Label' },
+          { id: 'agent' as const, label: '🤖 Agent' },
+        ]).map(t => (
+          <button
+            key={t.id}
+            onClick={() => setBotStyle(t.id)}
+            className={`rounded-xl px-3 py-2 text-xs font-medium transition-all ${
+              botStyle === t.id
+                ? 'bg-primary text-primary-foreground shadow-md'
+                : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
     </div>
   );
