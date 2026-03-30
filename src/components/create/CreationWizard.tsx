@@ -184,7 +184,7 @@ function InlineAvatar({ style }: { style: BotStyle }) {
   }
 }
 
-const isInlineStyle = (s: BotStyle) => ['sparkle', 'orb', 'monogram', 'waveform', 'play', 'filmstrip'].includes(s);
+const isInlineStyle = (s: BotStyle) => ['sparkle', 'orb', 'monogram', 'waveform', 'play', 'filmstrip', 'boticon'].includes(s);
 const inlineAvatarWidth = 'w-7';
 
 /* ───────── Component ───────── */
