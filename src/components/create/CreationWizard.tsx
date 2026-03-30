@@ -63,7 +63,7 @@ interface CreationWizardProps {
   onInteraction?: () => void;
 }
 
-type BotStyle = 'sparkle' | 'orb' | 'monogram' | 'waveform' | 'label' | 'agent';
+type BotStyle = 'sparkle' | 'orb' | 'monogram' | 'waveform' | 'play' | 'filmstrip' | 'label' | 'agent';
 
 /* ───────── Bot indicators ───────── */
 
