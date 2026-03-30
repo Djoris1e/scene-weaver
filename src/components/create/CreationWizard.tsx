@@ -99,11 +99,16 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
   }, [addBotMessage]);
 
   useEffect(() => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      });
-    });
+    // Skip auto-scroll for the initial bot message (video type selection)
+    // to avoid fighting with the hero collapse animation
+    if (messages.length <= 1 && !typing) return;
+    if (messages.length === 0) return;
+
+    const timeout = setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, messages.length <= 2 ? 700 : 50);
+
+    return () => clearTimeout(timeout);
   }, [messages, typing]);
 
   useEffect(() => {
