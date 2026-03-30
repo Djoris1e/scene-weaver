@@ -578,6 +578,8 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
           { id: 'orb' as const, label: '🟣 Orb' },
           { id: 'monogram' as const, label: '🔤 Monogram' },
           { id: 'waveform' as const, label: '〰️ Waveform' },
+          { id: 'play' as const, label: '▶️ Play' },
+          { id: 'filmstrip' as const, label: '🎞️ Filmstrip' },
           { id: 'label' as const, label: '🏷️ Label' },
           { id: 'agent' as const, label: '🤖 Agent' },
         ]).map(t => (
