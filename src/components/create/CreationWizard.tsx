@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import botAvatarImg from '@/assets/bot-avatar.png';
 import {
   Rocket,
   Monitor,
