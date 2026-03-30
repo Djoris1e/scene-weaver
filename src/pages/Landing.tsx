@@ -7,7 +7,7 @@ import {
   Check, Music, Zap, Layers, Image,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import CreationWizard, { type ContrastTheme } from '@/components/create/CreationWizard';
+import CreationWizard from '@/components/create/CreationWizard';
 
 /* ───────── Animated Section Wrapper ───────── */
 function AnimatedSection({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -317,7 +317,7 @@ const terminalLines = [
 /* ───────── Landing Page ───────── */
 export default function Landing() {
   const [chatStarted, setChatStarted] = useState(false);
-  const [contrastTheme, setContrastTheme] = useState<ContrastTheme>('elevated');
+  
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden relative">
@@ -368,32 +368,7 @@ export default function Landing() {
           </motion.div>
 
           {/* Conversational wizard */}
-          <CreationWizard onInteraction={() => setChatStarted(true)} contrastTheme={contrastTheme} />
-
-          {/* Floating theme switcher */}
-          <div className="fixed bottom-6 right-6 z-50 flex flex-wrap gap-1.5 rounded-2xl border border-border bg-card/90 backdrop-blur-xl p-1.5 shadow-xl max-w-xs">
-            {([
-              { id: 'glass' as const, label: '🪟 Glass' },
-              { id: 'outlined' as const, label: '🔲 Outlined' },
-              { id: 'elevated' as const, label: '🏔️ Elevated' },
-              { id: 'gradient' as const, label: '🌈 Gradient' },
-              { id: 'subtle-border' as const, label: '▫️ Subtle' },
-              { id: 'soft-glow' as const, label: '✨ Soft Glow' },
-              { id: 'frosted' as const, label: '❄️ Frosted' },
-            ]).map(t => (
-              <button
-                key={t.id}
-                onClick={() => setContrastTheme(t.id)}
-                className={`rounded-xl px-3 py-2 text-xs font-medium transition-all ${
-                  contrastTheme === t.id
-                    ? 'bg-primary text-primary-foreground shadow-md'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+          <CreationWizard onInteraction={() => setChatStarted(true)} />
         </motion.div>
       </motion.section>
 
