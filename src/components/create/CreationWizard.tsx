@@ -79,7 +79,7 @@ function BotSparkle() {
 /* Orb — soft glowing gradient circle, no icon */
 function BotOrb() {
   return (
-    <div className="h-7 w-7 shrink-0 rounded-full bg-gradient-to-br from-primary to-primary/40 shadow-lg shadow-primary/30 animate-pulse" />
+    <div className="h-7 w-7 shrink-0 rounded-full bg-gradient-to-br from-primary to-primary/60 shadow-lg shadow-primary/30 animate-pulse" />
   );
 }
 
