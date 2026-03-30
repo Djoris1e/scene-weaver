@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import botAvatarImg from '@/assets/bot-avatar.png';
 import {
   Rocket,
   Monitor,
@@ -63,7 +64,7 @@ interface CreationWizardProps {
   onInteraction?: () => void;
 }
 
-type BotStyle = 'sparkle' | 'orb' | 'monogram' | 'waveform' | 'play' | 'filmstrip' | 'label' | 'agent';
+type BotStyle = 'sparkle' | 'orb' | 'monogram' | 'waveform' | 'play' | 'filmstrip' | 'boticon' | 'label' | 'agent';
 
 /* ───────── Bot indicators ───────── */
 
@@ -133,6 +134,19 @@ function BotFilmstrip() {
   );
 }
 
+/* Bot icon — uploaded image avatar with subtle blink */
+function BotIcon() {
+  return (
+    <motion.div
+      animate={{ opacity: [1, 0.6, 1] }}
+      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+      className="h-7 w-7 shrink-0 rounded-full overflow-hidden shadow-md shadow-primary/15"
+    >
+      <img src={botAvatarImg} alt="Bot" className="h-full w-full object-cover" />
+    </motion.div>
+  );
+}
+
 /* Label above bubble */
 function BotLabel() {
   return (
@@ -165,11 +179,12 @@ function InlineAvatar({ style }: { style: BotStyle }) {
     case 'waveform': return <BotWaveform />;
     case 'play': return <BotPlay />;
     case 'filmstrip': return <BotFilmstrip />;
+    case 'boticon': return <BotIcon />;
     default: return null;
   }
 }
 
-const isInlineStyle = (s: BotStyle) => ['sparkle', 'orb', 'monogram', 'waveform', 'play', 'filmstrip'].includes(s);
+const isInlineStyle = (s: BotStyle) => ['sparkle', 'orb', 'monogram', 'waveform', 'play', 'filmstrip', 'boticon'].includes(s);
 const inlineAvatarWidth = 'w-7';
 
 /* ───────── Component ───────── */
@@ -580,6 +595,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
           { id: 'waveform' as const, label: '〰️ Waveform' },
           { id: 'play' as const, label: '▶️ Play' },
           { id: 'filmstrip' as const, label: '🎞️ Filmstrip' },
+          { id: 'boticon' as const, label: '🤖 Bot Icon' },
           { id: 'label' as const, label: '🏷️ Label' },
           { id: 'agent' as const, label: '🤖 Agent' },
         ]).map(t => (
