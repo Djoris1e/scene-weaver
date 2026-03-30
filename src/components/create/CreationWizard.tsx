@@ -59,7 +59,7 @@ interface CreationWizardProps {
 
 /* ───────── Bot indicator ───────── */
 function BotDot() {
-  return <div className="mt-2.5 h-2 w-2 shrink-0 rounded-full bg-primary animate-pulse" />;
+  return <div className="mt-3.5 h-2 w-2 shrink-0 rounded-full bg-primary animate-pulse" />;
 }
 
 /* ───────── Component ───────── */
