@@ -527,7 +527,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
 
         {typing && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-start gap-2.5">
-            {botStyle === 'avatar' && <div className="flex h-[44px] items-center"><BotAvatar /></div>}
+            {isInlineStyle(botStyle) && <div className="flex h-[44px] items-center"><InlineAvatar style={botStyle} /></div>}
             <div className="space-y-1">
               {botStyle === 'label' && <BotLabel />}
               {botStyle === 'agent' && <BotAgentBar />}
