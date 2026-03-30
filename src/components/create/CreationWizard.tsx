@@ -313,7 +313,7 @@ export default function CreationWizard({ onInteraction, contrastTheme = 'elevate
                 className={`inline-block rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                   msg.role === 'user'
                     ? 'rounded-tr-md bg-primary text-primary-foreground'
-                    : 'rounded-tl-md bg-secondary text-foreground'
+                    : styles.bubble
                 }`}
               >
                 {msg.content}
