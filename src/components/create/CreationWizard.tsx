@@ -16,6 +16,7 @@ import {
   Check,
   X,
   Image,
+  Bot,
 } from 'lucide-react';
 
 /* ───────── Data ───────── */
@@ -62,9 +63,40 @@ interface CreationWizardProps {
   onInteraction?: () => void;
 }
 
-/* ───────── Bot indicator ───────── */
-function BotDot() {
-  return <div className="h-2 w-2 shrink-0 rounded-full bg-primary animate-pulse" />;
+type BotStyle = 'avatar' | 'label' | 'agent';
+
+/* ───────── Bot indicators ───────── */
+
+/* A: Avatar — small circle with sparkle icon */
+function BotAvatar() {
+  return (
+    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent shadow-md shadow-primary/20">
+      <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
+    </div>
+  );
+}
+
+/* B: Label above bubble (like the reference image) */
+function BotLabel() {
+  return (
+    <div className="flex items-center gap-1.5 mb-1">
+      <Sparkles className="h-3.5 w-3.5 text-primary" />
+      <span className="text-xs font-semibold text-primary font-heading">AI Agent</span>
+    </div>
+  );
+}
+
+/* C: Agent bar — name + status dot, feels like a live agent */
+function BotAgentBar() {
+  return (
+    <div className="flex items-center gap-2 mb-1.5">
+      <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary/15">
+        <Bot className="h-3.5 w-3.5 text-primary" />
+      </div>
+      <span className="text-xs font-semibold text-foreground/80 font-heading">VanillaSky Agent</span>
+      <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+    </div>
+  );
 }
 
 /* ───────── Component ───────── */
@@ -72,6 +104,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [typing, setTyping] = useState(false);
+  const [botStyle, setBotStyle] = useState<BotStyle>('avatar');
   const [inputVal, setInputVal] = useState('');
   const [genMsg, setGenMsg] = useState(0);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -288,9 +321,21 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className={`flex items-start gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
           >
-            {msg.role === 'bot' && i === activeBotMessageIndex ? <div className="flex h-[44px] items-center"><BotDot /></div> : msg.role === 'bot' ? <div className="w-2 shrink-0" /> : null}
+            {/* Style A: Avatar — inline circle next to bubble */}
+            {msg.role === 'bot' && botStyle === 'avatar' && i === activeBotMessageIndex && (
+              <div className="flex h-[44px] items-center"><BotAvatar /></div>
+            )}
+            {msg.role === 'bot' && botStyle === 'avatar' && i !== activeBotMessageIndex && (
+              <div className="w-7 shrink-0" />
+            )}
 
             <div className={`max-w-[85%] space-y-3 ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
+              {/* Style B: Label — text label above bubble */}
+              {msg.role === 'bot' && botStyle === 'label' && i === activeBotMessageIndex && <BotLabel />}
+
+              {/* Style C: Agent bar — name + status above bubble */}
+              {msg.role === 'bot' && botStyle === 'agent' && i === activeBotMessageIndex && <BotAgentBar />}
+
               <div
                 className={`inline-block rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                   msg.role === 'user'
@@ -432,21 +477,46 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
         ))}
 
         {typing && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2.5">
-            <BotDot />
-            <div className="flex gap-1.5 rounded-2xl rounded-tl-md bg-secondary/80 px-4 py-3">
-              {[0, 1, 2].map(i => (
-                <div
-                  key={i}
-                  className="h-2 w-2 rounded-full bg-muted-foreground/50 animate-pulse"
-                  style={{ animationDelay: `${i * 0.15}s` }}
-                />
-              ))}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-start gap-2.5">
+            {botStyle === 'avatar' && <div className="flex h-[44px] items-center"><BotAvatar /></div>}
+            <div className="space-y-1">
+              {botStyle === 'label' && <BotLabel />}
+              {botStyle === 'agent' && <BotAgentBar />}
+              <div className="flex gap-1.5 rounded-2xl rounded-tl-md bg-secondary/80 px-4 py-3">
+                {[0, 1, 2].map(i => (
+                  <div
+                    key={i}
+                    className="h-2 w-2 rounded-full bg-muted-foreground/50 animate-pulse"
+                    style={{ animationDelay: `${i * 0.15}s` }}
+                  />
+                ))}
+              </div>
             </div>
           </motion.div>
         )}
 
         <div ref={bottomRef} />
+      </div>
+
+      {/* Floating bot style switcher */}
+      <div className="fixed bottom-6 right-6 z-50 flex gap-1.5 rounded-2xl border border-border bg-card/90 backdrop-blur-xl p-1.5 shadow-xl">
+        {([
+          { id: 'avatar' as const, label: '🟣 Avatar' },
+          { id: 'label' as const, label: '✨ Label' },
+          { id: 'agent' as const, label: '🤖 Agent' },
+        ]).map(t => (
+          <button
+            key={t.id}
+            onClick={() => setBotStyle(t.id)}
+            className={`rounded-xl px-3 py-2 text-xs font-medium transition-all ${
+              botStyle === t.id
+                ? 'bg-primary text-primary-foreground shadow-md'
+                : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
     </div>
   );
