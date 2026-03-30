@@ -53,8 +53,30 @@ interface ChatMessage {
 
 type Phase = 'type' | 'source' | 'source-input' | 'brand' | 'brand-config' | 'logo' | 'generating';
 
+export type ContrastTheme = 'glass' | 'outlined' | 'elevated' | 'gradient';
+
+const themeStyles: Record<ContrastTheme, { bubble: string; button: string }> = {
+  glass: {
+    bubble: 'rounded-tl-md bg-white/[0.06] backdrop-blur-xl border border-white/[0.08] text-foreground',
+    button: 'border border-white/[0.1] bg-white/[0.05] backdrop-blur-md shadow-lg hover:border-primary/40 hover:bg-white/[0.1]',
+  },
+  outlined: {
+    bubble: 'rounded-tl-md bg-transparent border-2 border-primary/30 text-foreground',
+    button: 'border-2 border-accent/40 bg-transparent hover:border-accent hover:bg-accent/10',
+  },
+  elevated: {
+    bubble: 'rounded-tl-md bg-muted text-foreground shadow-lg shadow-black/30',
+    button: 'border border-border bg-card shadow-md shadow-black/20 hover:bg-secondary hover:shadow-lg',
+  },
+  gradient: {
+    bubble: 'rounded-tl-md bg-gradient-to-br from-secondary to-card border border-primary/20 text-foreground',
+    button: 'border border-transparent bg-gradient-to-r from-primary/20 to-accent/20 hover:from-primary/30 hover:to-accent/30 shadow-sm',
+  },
+};
+
 interface CreationWizardProps {
   onInteraction?: () => void;
+  contrastTheme?: ContrastTheme;
 }
 
 /* ───────── Bot indicator ───────── */
@@ -63,7 +85,8 @@ function BotDot() {
 }
 
 /* ───────── Component ───────── */
-export default function CreationWizard({ onInteraction }: CreationWizardProps) {
+export default function CreationWizard({ onInteraction, contrastTheme = 'elevated' }: CreationWizardProps) {
+  const styles = themeStyles[contrastTheme];
   const navigate = useNavigate();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [typing, setTyping] = useState(false);
@@ -290,7 +313,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
                 className={`inline-block rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                   msg.role === 'user'
                     ? 'rounded-tr-md bg-primary text-primary-foreground'
-                    : 'rounded-tl-md bg-secondary text-foreground'
+                    : styles.bubble
                 }`}
               >
                 {msg.content}
@@ -302,7 +325,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
                     <button
                       key={opt.id}
                       onClick={() => handleOptionSelect(opt.id, opt.label)}
-                      className="group flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-all duration-200 hover:border-primary/60 hover:bg-primary/10"
+                      className={`group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 ${styles.button}`}
                     >
                       {opt.icon ? <opt.icon className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" /> : null}
                       {opt.label}
