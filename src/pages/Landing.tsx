@@ -317,6 +317,7 @@ const terminalLines = [
 /* ───────── Landing Page ───────── */
 export default function Landing() {
   const [chatStarted, setChatStarted] = useState(false);
+  const [contrastTheme, setContrastTheme] = useState<ContrastTheme>('elevated');
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden relative">
