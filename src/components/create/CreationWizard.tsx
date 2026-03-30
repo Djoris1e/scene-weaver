@@ -94,7 +94,7 @@ function BotAgentBar() {
         <Bot className="h-3.5 w-3.5 text-primary" />
       </div>
       <span className="text-xs font-semibold text-foreground/80 font-heading">VanillaSky Agent</span>
-      <div className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+      <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
     </div>
   );
 }
