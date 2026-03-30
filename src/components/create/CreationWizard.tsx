@@ -321,9 +321,21 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className={`flex items-start gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
           >
-            {msg.role === 'bot' && i === activeBotMessageIndex ? <div className="flex h-[44px] items-center"><BotDot /></div> : msg.role === 'bot' ? <div className="w-2 shrink-0" /> : null}
+            {/* Style A: Avatar — inline circle next to bubble */}
+            {msg.role === 'bot' && botStyle === 'avatar' && i === activeBotMessageIndex && (
+              <div className="flex h-[44px] items-center"><BotAvatar /></div>
+            )}
+            {msg.role === 'bot' && botStyle === 'avatar' && i !== activeBotMessageIndex && (
+              <div className="w-7 shrink-0" />
+            )}
 
             <div className={`max-w-[85%] space-y-3 ${msg.role === 'user' ? 'flex flex-col items-end' : ''}`}>
+              {/* Style B: Label — text label above bubble */}
+              {msg.role === 'bot' && botStyle === 'label' && i === activeBotMessageIndex && <BotLabel />}
+
+              {/* Style C: Agent bar — name + status above bubble */}
+              {msg.role === 'bot' && botStyle === 'agent' && i === activeBotMessageIndex && <BotAgentBar />}
+
               <div
                 className={`inline-block rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                   msg.role === 'user'
