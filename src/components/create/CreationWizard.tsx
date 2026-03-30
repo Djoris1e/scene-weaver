@@ -53,8 +53,30 @@ interface ChatMessage {
 
 type Phase = 'type' | 'source' | 'source-input' | 'brand' | 'brand-config' | 'logo' | 'generating';
 
+export type ContrastTheme = 'glass' | 'outlined' | 'elevated' | 'gradient';
+
+const themeStyles: Record<ContrastTheme, { bubble: string; button: string }> = {
+  glass: {
+    bubble: 'rounded-tl-md bg-white/[0.06] backdrop-blur-xl border border-white/[0.08] text-foreground',
+    button: 'border border-white/[0.1] bg-white/[0.05] backdrop-blur-md shadow-lg hover:border-primary/40 hover:bg-white/[0.1]',
+  },
+  outlined: {
+    bubble: 'rounded-tl-md bg-transparent border-2 border-primary/30 text-foreground',
+    button: 'border-2 border-accent/40 bg-transparent hover:border-accent hover:bg-accent/10',
+  },
+  elevated: {
+    bubble: 'rounded-tl-md bg-muted text-foreground shadow-lg shadow-black/30',
+    button: 'border border-border bg-card shadow-md shadow-black/20 hover:bg-secondary hover:shadow-lg',
+  },
+  gradient: {
+    bubble: 'rounded-tl-md bg-gradient-to-br from-secondary to-card border border-primary/20 text-foreground',
+    button: 'border border-transparent bg-gradient-to-r from-primary/20 to-accent/20 hover:from-primary/30 hover:to-accent/30 shadow-sm',
+  },
+};
+
 interface CreationWizardProps {
   onInteraction?: () => void;
+  contrastTheme?: ContrastTheme;
 }
 
 /* ───────── Bot indicator ───────── */
