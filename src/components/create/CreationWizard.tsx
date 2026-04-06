@@ -193,7 +193,7 @@ const isInlineStyle = (s: BotStyle) => ['sparkle', 'orb', 'monogram', 'waveform'
 const inlineAvatarWidth = 'w-7';
 
 /* ───────── Component ───────── */
-export default function CreationWizard({ onInteraction }: CreationWizardProps) {
+export default function CreationWizard({ onInteraction, openingMessage, buttonStyle = 'default' }: CreationWizardProps) {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [typing, setTyping] = useState(false);
