@@ -664,6 +664,7 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
                     <ArrowRight className="h-4 w-4" /> That's everything
                   </button>
                 </div>
+              )}
 
               {msg.inputType === 'brand-ask' && (
                 <div className="w-full space-y-3">
