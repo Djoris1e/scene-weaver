@@ -225,12 +225,12 @@ export default function CreationWizard({ onInteraction, openingMessage, buttonSt
     addBotMessage(
       {
         role: 'bot',
-        content: "Let's make something amazing — what kind of video are we creating?",
+        content: openingMessage || "Let's make something amazing — what kind of video are we creating?",
         options: videoTypes.map(v => ({ id: v.id, label: v.label, icon: v.icon })),
       },
       600,
     );
-  }, [addBotMessage]);
+  }, [addBotMessage, openingMessage]);
 
   useEffect(() => {
     // Skip auto-scroll for the initial bot message (video type selection)
