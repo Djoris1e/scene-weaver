@@ -753,6 +753,24 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
         <div ref={bottomRef} />
       </div>
 
+      {/* Floating source flow variant switcher */}
+      <div className="fixed bottom-20 right-6 z-50 flex gap-1 rounded-xl border border-border bg-card/90 backdrop-blur-xl p-1 shadow-xl">
+        <span className="px-2 py-1.5 text-[10px] text-muted-foreground font-medium">Source flow:</span>
+        {(['A', 'B', 'C'] as const).map(v => (
+          <button
+            key={v}
+            onClick={() => setSourceFlowVariant(v)}
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+              sourceFlowVariant === v
+                ? 'bg-accent text-accent-foreground shadow-md'
+                : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+            }`}
+          >
+            {v === 'A' ? 'A: Anything else?' : v === 'B' ? 'B: Accumulator' : 'C: Multi-input'}
+          </button>
+        ))}
+      </div>
+
       {/* Floating bot style switcher */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-wrap gap-1.5 rounded-2xl border border-border bg-card/90 backdrop-blur-xl p-1.5 shadow-xl max-w-xs">
         {([
