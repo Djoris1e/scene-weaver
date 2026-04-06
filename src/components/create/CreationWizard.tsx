@@ -437,16 +437,57 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
   const handleFileUpload = () => {
     onInteraction?.();
     setMessages(prev => [...prev, { role: 'user', content: 'Files uploaded' }]);
-    phase.current = 'brand';
+    setCollectedSources(prev => [...prev, 'uploaded files']);
 
-    addBotMessage({
-      role: 'bot',
-      content: 'Almost there! Want to add your brand colors?',
-      options: [
-        { id: 'yes', label: 'Yes, configure' },
-        { id: 'skip', label: 'Skip' },
-      ],
-    });
+    if (sourceFlowVariant === 'A') {
+      addBotMessage({
+        role: 'bot',
+        content: 'Got it! Want to add another source, or shall we move on?',
+        options: [
+          { id: 'add-more', label: '+ Add another', icon: Link },
+          { id: 'move-on', label: "Let's go →" },
+        ],
+      });
+      return;
+    }
+
+    if (sourceFlowVariant === 'B') {
+      const newSources = [...collectedSources, 'uploaded files'];
+      phase.current = 'source-input';
+      addBotMessage({
+        role: 'bot',
+        content: `${newSources.length} sources added. Keep going or continue.`,
+        inputType: 'accumulator',
+        sources: newSources,
+      });
+      return;
+    }
+
+    goToBrandPhase();
+  };
+
+  const handleAccumulatorSubmit = () => {
+    if (inputVal.trim()) {
+      const newSources = [...collectedSources, inputVal.trim()];
+      setCollectedSources(newSources);
+      setInputVal('');
+      // Update the last message's sources
+      setMessages(prev => {
+        const updated = [...prev];
+        const last = updated[updated.length - 1];
+        if (last?.inputType === 'accumulator') {
+          updated[updated.length - 1] = {
+            ...last,
+            content: `${newSources.length} sources added. Keep going or continue.`,
+            sources: newSources,
+          };
+        }
+        return updated;
+      });
+      return;
+    }
+    // No input — user pressed "That's everything"
+    goToBrandPhase();
   };
 
   const handleBrandDone = () => {
