@@ -65,6 +65,8 @@ const styles = {
 
 interface CreationWizardProps {
   onInteraction?: () => void;
+  openingMessage?: string;
+  buttonStyle?: 'default' | 'descriptive' | 'minimal';
 }
 
 type BotStyle = 'sparkle' | 'orb' | 'monogram' | 'waveform' | 'play' | 'filmstrip' | 'boticon' | 'label' | 'agent';

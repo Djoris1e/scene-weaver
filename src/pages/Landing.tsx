@@ -315,9 +315,46 @@ const terminalLines = [
 ];
 
 /* ───────── Landing Page ───────── */
+type HeroVariant = 'A' | 'B' | 'C';
+
+const heroContent: Record<HeroVariant, { heading: React.ReactNode; subtitle: string; botMessage: string; buttonStyle: 'default' | 'descriptive' | 'minimal' }> = {
+  A: {
+    heading: (
+      <>
+        Your idea.{' '}
+        <span className="gradient-vs-text">Cinema-grade video.</span>
+      </>
+    ),
+    subtitle: 'Describe what you need. Get a polished video in under a minute.',
+    botMessage: "Let's make a video together. First, what's the vibe?",
+    buttonStyle: 'default',
+  },
+  B: {
+    heading: (
+      <>
+        Your <span className="gradient-vs-text">AI video agent.</span>
+      </>
+    ),
+    subtitle: 'You build the product. We make you look amazing.',
+    botMessage: "Hey! I'll build your video from scratch — what kind are we making?",
+    buttonStyle: 'descriptive',
+  },
+  C: {
+    heading: (
+      <>
+        <span className="gradient-vs-text">Make a video.</span>
+      </>
+    ),
+    subtitle: '',
+    botMessage: "What kind of video do you need?",
+    buttonStyle: 'minimal',
+  },
+};
+
 export default function Landing() {
   const [chatStarted, setChatStarted] = useState(false);
-  
+  const [heroVariant, setHeroVariant] = useState<HeroVariant>('A');
+  const hero = heroContent[heroVariant];
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden relative">
@@ -329,6 +366,24 @@ export default function Landing() {
           Get Started
         </a>
       </nav>
+
+      {/* ── Hero Variant Switcher ── */}
+      <div className="fixed top-20 right-6 z-50 flex gap-1 rounded-xl border border-border bg-card/90 backdrop-blur-xl p-1 shadow-xl">
+        <span className="px-2 py-1.5 text-[10px] text-muted-foreground font-medium">Hero:</span>
+        {(['A', 'B', 'C'] as const).map(v => (
+          <button
+            key={v}
+            onClick={() => setHeroVariant(v)}
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+              heroVariant === v
+                ? 'bg-primary text-primary-foreground shadow-md'
+                : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+            }`}
+          >
+            {v}
+          </button>
+        ))}
+      </div>
 
       {/* ── Hero ── */}
       <motion.section
@@ -359,16 +414,30 @@ export default function Landing() {
             className="text-center space-y-4 overflow-hidden origin-top"
           >
             <h1 className="font-heading text-4xl md:text-6xl font-bold leading-[1.1] tracking-tight">
-              Your idea.{' '}
-              <span className="gradient-vs-text">Cinema-grade video.</span>
+              {hero.heading}
             </h1>
-            <p className="text-muted-foreground text-base md:text-lg max-w-lg mx-auto leading-relaxed">
-              VanillaSky picks the music, finds the footage, writes the copy, and syncs it all to the beat.
-            </p>
+            {hero.subtitle && (
+              <p className="text-muted-foreground text-base md:text-lg max-w-lg mx-auto leading-relaxed">
+                {hero.subtitle}
+              </p>
+            )}
+            {/* Variant A: time badge */}
+            {heroVariant === 'A' && (
+              <div className="flex items-center justify-center gap-2 pt-1">
+                <span className="text-xs text-muted-foreground/70 bg-secondary/60 rounded-full px-3 py-1 border border-border/40">
+                  ⚡ ~60 seconds • 3 quick steps
+                </span>
+              </div>
+            )}
           </motion.div>
 
           {/* Conversational wizard */}
-          <CreationWizard onInteraction={() => setChatStarted(true)} />
+          <CreationWizard
+            key={heroVariant}
+            onInteraction={() => setChatStarted(true)}
+            openingMessage={hero.botMessage}
+            buttonStyle={hero.buttonStyle}
+          />
         </motion.div>
       </motion.section>
 
