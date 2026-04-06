@@ -50,8 +50,11 @@ interface ChatMessage {
   role: 'bot' | 'user';
   content: string;
   options?: { id: string; label: string; icon?: React.ElementType }[];
-  inputType?: 'url' | 'upload' | 'prompt' | 'brand-ask' | 'logo-upload' | 'generating';
+  inputType?: 'url' | 'upload' | 'prompt' | 'brand-ask' | 'logo-upload' | 'generating' | 'accumulator';
+  sources?: string[];
 }
+
+type SourceFlowVariant = 'A' | 'B' | 'C';
 
 type Phase = 'type' | 'source' | 'source-input' | 'brand' | 'brand-config' | 'logo' | 'generating';
 
@@ -197,6 +200,9 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
   const [genMsg, setGenMsg] = useState(0);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [brandColors, setBrandColors] = useState({ primary: '#E04F8A', secondary: '#EC9A2C' });
+  const [sourceFlowVariant, setSourceFlowVariant] = useState<SourceFlowVariant>('A');
+  const [collectedSources, setCollectedSources] = useState<string[]>([]);
+  const [sourceType, setSourceType] = useState<'url' | 'upload' | 'prompt'>('url');
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -270,6 +276,20 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
     }
 
     if (phase.current === 'source') {
+      sourceType === optionId as any || setSourceType(optionId as 'url' | 'upload' | 'prompt');
+      setSourceType(optionId as 'url' | 'upload' | 'prompt');
+
+      if (sourceFlowVariant === 'C' && optionId === 'url') {
+        // Variant C: multi-input — show textarea for multiple URLs
+        phase.current = 'source-input';
+        addBotMessage({
+          role: 'bot',
+          content: 'Paste one or more URLs (one per line) and I\'ll extract content from all of them',
+          inputType: 'prompt', // reuse textarea input type
+        });
+        return;
+      }
+
       phase.current = 'source-input';
       const prompts: Record<string, string> = {
         url: "Drop the URL and I'll extract everything I need",
@@ -282,6 +302,23 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
         content: prompts[optionId] || 'Tell me more!',
         inputType: optionId as 'url' | 'upload' | 'prompt',
       });
+      return;
+    }
+
+    // Handle "add-more" from Variant A
+    if (optionId === 'add-more') {
+      phase.current = 'source';
+      addBotMessage({
+        role: 'bot',
+        content: 'What else have you got?',
+        options: contentSources.map(source => ({ id: source.id, label: source.label, icon: source.icon })),
+      });
+      return;
+    }
+
+    // Handle "move-on" from Variant A
+    if (optionId === 'move-on') {
+      goToBrandPhase();
       return;
     }
 
@@ -334,14 +371,8 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
     });
   };
 
-  const handleContentSubmit = () => {
-    if (!inputVal.trim()) return;
-
-    onInteraction?.();
-    setMessages(prev => [...prev, { role: 'user', content: inputVal }]);
-    setInputVal('');
+  const goToBrandPhase = () => {
     phase.current = 'brand';
-
     addBotMessage({
       role: 'bot',
       content: 'Almost there! Want to add your brand colors?',
@@ -352,19 +383,111 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
     });
   };
 
+  const handleContentSubmit = () => {
+    if (!inputVal.trim()) return;
+
+    onInteraction?.();
+    const value = inputVal.trim();
+    setMessages(prev => [...prev, { role: 'user', content: value }]);
+    setInputVal('');
+
+    // Variant C: parse multiple URLs
+    if (sourceFlowVariant === 'C' && sourceType === 'url') {
+      const urls = value.split('\n').map(u => u.trim()).filter(Boolean);
+      setCollectedSources(prev => [...prev, ...urls]);
+      goToBrandPhase();
+      return;
+    }
+
+    // Variant A: "Anything else?" pattern
+    if (sourceFlowVariant === 'A') {
+      setCollectedSources(prev => [...prev, value]);
+      phase.current = 'source-input'; // stay in source phase logically
+      addBotMessage({
+        role: 'bot',
+        content: `Got it! ${collectedSources.length === 0 ? 'Want to add another source, or shall we move on?' : 'Anything else, or are we good?'}`,
+        options: [
+          { id: 'add-more', label: '+ Add another', icon: Link },
+          { id: 'move-on', label: "Let's go →" },
+        ],
+      });
+      return;
+    }
+
+    // Variant B: accumulator — add to sources and show accumulator UI
+    if (sourceFlowVariant === 'B') {
+      const newSources = [...collectedSources, value];
+      setCollectedSources(newSources);
+      phase.current = 'source-input';
+      addBotMessage({
+        role: 'bot',
+        content: newSources.length === 1
+          ? 'Added! Drop more URLs or files, or continue when ready.'
+          : `${newSources.length} sources added. Keep going or continue.`,
+        inputType: 'accumulator',
+        sources: newSources,
+      });
+      return;
+    }
+
+    // Default fallback (shouldn't reach)
+    goToBrandPhase();
+  };
+
   const handleFileUpload = () => {
     onInteraction?.();
     setMessages(prev => [...prev, { role: 'user', content: 'Files uploaded' }]);
-    phase.current = 'brand';
+    setCollectedSources(prev => [...prev, 'uploaded files']);
 
-    addBotMessage({
-      role: 'bot',
-      content: 'Almost there! Want to add your brand colors?',
-      options: [
-        { id: 'yes', label: 'Yes, configure' },
-        { id: 'skip', label: 'Skip' },
-      ],
-    });
+    if (sourceFlowVariant === 'A') {
+      addBotMessage({
+        role: 'bot',
+        content: 'Got it! Want to add another source, or shall we move on?',
+        options: [
+          { id: 'add-more', label: '+ Add another', icon: Link },
+          { id: 'move-on', label: "Let's go →" },
+        ],
+      });
+      return;
+    }
+
+    if (sourceFlowVariant === 'B') {
+      const newSources = [...collectedSources, 'uploaded files'];
+      phase.current = 'source-input';
+      addBotMessage({
+        role: 'bot',
+        content: `${newSources.length} sources added. Keep going or continue.`,
+        inputType: 'accumulator',
+        sources: newSources,
+      });
+      return;
+    }
+
+    goToBrandPhase();
+  };
+
+  const handleAccumulatorSubmit = () => {
+    if (inputVal.trim()) {
+      const newSources = [...collectedSources, inputVal.trim()];
+      setCollectedSources(newSources);
+      setInputVal('');
+      // Update the last message's sources
+      setMessages(prev => {
+        const updated = [...prev];
+        const last = updated[updated.length - 1];
+        if (last?.inputType === 'accumulator') {
+          updated[updated.length - 1] = {
+            ...last,
+            content: `${newSources.length} sources added. Keep going or continue.`,
+            sources: newSources,
+          };
+        }
+        return updated;
+      });
+      return;
+    }
+    // No input — user pressed "That's everything"
+    goToBrandPhase();
   };
 
   const handleBrandDone = () => {
@@ -499,6 +622,50 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
                 </div>
               )}
 
+              {msg.inputType === 'accumulator' && (
+                <div className="w-full space-y-3">
+                  {/* Source chips */}
+                  <div className="flex flex-wrap gap-2">
+                    {(msg.sources || []).map((src, si) => (
+                      <div
+                        key={si}
+                        className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs text-foreground border border-border/60"
+                      >
+                        <Link className="h-3 w-3 text-muted-foreground" />
+                        <span className="max-w-[180px] truncate">{src}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Always-ready input */}
+                  <div className="flex w-full gap-2">
+                    <input
+                      autoFocus
+                      value={inputVal}
+                      onChange={e => setInputVal(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && inputVal.trim()) handleAccumulatorSubmit();
+                      }}
+                      placeholder="Add another URL..."
+                      className="flex-1 rounded-xl border border-border/80 bg-card/80 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    />
+                    {inputVal.trim() ? (
+                      <button
+                        onClick={handleAccumulatorSubmit}
+                        className="rounded-xl bg-secondary px-3.5 py-2.5 text-foreground transition-colors hover:bg-secondary/80"
+                      >
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    ) : null}
+                  </div>
+                  <button
+                    onClick={() => goToBrandPhase()}
+                    className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  >
+                    <ArrowRight className="h-4 w-4" /> That's everything
+                  </button>
+                </div>
+              )}
+
               {msg.inputType === 'brand-ask' && (
                 <div className="w-full space-y-3">
                   <div className="flex gap-4">
@@ -584,6 +751,24 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
         )}
 
         <div ref={bottomRef} />
+      </div>
+
+      {/* Floating source flow variant switcher */}
+      <div className="fixed bottom-20 right-6 z-50 flex gap-1 rounded-xl border border-border bg-card/90 backdrop-blur-xl p-1 shadow-xl">
+        <span className="px-2 py-1.5 text-[10px] text-muted-foreground font-medium">Source flow:</span>
+        {(['A', 'B', 'C'] as const).map(v => (
+          <button
+            key={v}
+            onClick={() => setSourceFlowVariant(v)}
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+              sourceFlowVariant === v
+                ? 'bg-accent text-accent-foreground shadow-md'
+                : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+            }`}
+          >
+            {v === 'A' ? 'A: Anything else?' : v === 'B' ? 'B: Accumulator' : 'C: Multi-input'}
+          </button>
+        ))}
       </div>
 
       {/* Floating bot style switcher */}
