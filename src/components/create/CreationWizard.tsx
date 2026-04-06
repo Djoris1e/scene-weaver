@@ -371,14 +371,8 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
     });
   };
 
-  const handleContentSubmit = () => {
-    if (!inputVal.trim()) return;
-
-    onInteraction?.();
-    setMessages(prev => [...prev, { role: 'user', content: inputVal }]);
-    setInputVal('');
+  const goToBrandPhase = () => {
     phase.current = 'brand';
-
     addBotMessage({
       role: 'bot',
       content: 'Almost there! Want to add your brand colors?',
@@ -387,6 +381,57 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
         { id: 'skip', label: 'Skip' },
       ],
     });
+  };
+
+  const handleContentSubmit = () => {
+    if (!inputVal.trim()) return;
+
+    onInteraction?.();
+    const value = inputVal.trim();
+    setMessages(prev => [...prev, { role: 'user', content: value }]);
+    setInputVal('');
+
+    // Variant C: parse multiple URLs
+    if (sourceFlowVariant === 'C' && sourceType === 'url') {
+      const urls = value.split('\n').map(u => u.trim()).filter(Boolean);
+      setCollectedSources(prev => [...prev, ...urls]);
+      goToBrandPhase();
+      return;
+    }
+
+    // Variant A: "Anything else?" pattern
+    if (sourceFlowVariant === 'A') {
+      setCollectedSources(prev => [...prev, value]);
+      phase.current = 'source-input'; // stay in source phase logically
+      addBotMessage({
+        role: 'bot',
+        content: `Got it! ${collectedSources.length === 0 ? 'Want to add another source, or shall we move on?' : 'Anything else, or are we good?'}`,
+        options: [
+          { id: 'add-more', label: '+ Add another', icon: Link },
+          { id: 'move-on', label: "Let's go →" },
+        ],
+      });
+      return;
+    }
+
+    // Variant B: accumulator — add to sources and show accumulator UI
+    if (sourceFlowVariant === 'B') {
+      const newSources = [...collectedSources, value];
+      setCollectedSources(newSources);
+      phase.current = 'source-input';
+      addBotMessage({
+        role: 'bot',
+        content: newSources.length === 1
+          ? 'Added! Drop more URLs or files, or continue when ready.'
+          : `${newSources.length} sources added. Keep going or continue.`,
+        inputType: 'accumulator',
+        sources: newSources,
+      });
+      return;
+    }
+
+    // Default fallback (shouldn't reach)
+    goToBrandPhase();
   };
 
   const handleFileUpload = () => {
