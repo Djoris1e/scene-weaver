@@ -771,32 +771,6 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
         ))}
       </div>
 
-      {/* Floating bot style switcher */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-wrap gap-1.5 rounded-2xl border border-border bg-card/90 backdrop-blur-xl p-1.5 shadow-xl max-w-xs">
-        {([
-          { id: 'sparkle' as const, label: '✨ Sparkle' },
-          { id: 'orb' as const, label: '🟣 Orb' },
-          { id: 'monogram' as const, label: '🔤 Monogram' },
-          { id: 'waveform' as const, label: '〰️ Waveform' },
-          { id: 'play' as const, label: '▶️ Play' },
-          { id: 'filmstrip' as const, label: '🎞️ Filmstrip' },
-          { id: 'boticon' as const, label: '🤖 Bot Icon' },
-          { id: 'label' as const, label: '🏷️ Label' },
-          { id: 'agent' as const, label: '🤖 Agent' },
-        ]).map(t => (
-          <button
-            key={t.id}
-            onClick={() => setBotStyle(t.id)}
-            className={`rounded-xl px-3 py-2 text-xs font-medium transition-all ${
-              botStyle === t.id
-                ? 'bg-primary text-primary-foreground shadow-md'
-                : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }
