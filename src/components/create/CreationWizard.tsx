@@ -276,6 +276,20 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
     }
 
     if (phase.current === 'source') {
+      sourceType === optionId as any || setSourceType(optionId as 'url' | 'upload' | 'prompt');
+      setSourceType(optionId as 'url' | 'upload' | 'prompt');
+
+      if (sourceFlowVariant === 'C' && optionId === 'url') {
+        // Variant C: multi-input — show textarea for multiple URLs
+        phase.current = 'source-input';
+        addBotMessage({
+          role: 'bot',
+          content: 'Paste one or more URLs (one per line) and I\'ll extract content from all of them',
+          inputType: 'prompt', // reuse textarea input type
+        });
+        return;
+      }
+
       phase.current = 'source-input';
       const prompts: Record<string, string> = {
         url: "Drop the URL and I'll extract everything I need",
@@ -288,6 +302,23 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
         content: prompts[optionId] || 'Tell me more!',
         inputType: optionId as 'url' | 'upload' | 'prompt',
       });
+      return;
+    }
+
+    // Handle "add-more" from Variant A
+    if (optionId === 'add-more') {
+      phase.current = 'source';
+      addBotMessage({
+        role: 'bot',
+        content: 'What else have you got?',
+        options: contentSources.map(source => ({ id: source.id, label: source.label, icon: source.icon })),
+      });
+      return;
+    }
+
+    // Handle "move-on" from Variant A
+    if (optionId === 'move-on') {
+      goToBrandPhase();
       return;
     }
 
