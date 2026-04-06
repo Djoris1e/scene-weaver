@@ -622,6 +622,49 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
                 </div>
               )}
 
+              {msg.inputType === 'accumulator' && (
+                <div className="w-full space-y-3">
+                  {/* Source chips */}
+                  <div className="flex flex-wrap gap-2">
+                    {(msg.sources || []).map((src, si) => (
+                      <div
+                        key={si}
+                        className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs text-foreground border border-border/60"
+                      >
+                        <Link className="h-3 w-3 text-muted-foreground" />
+                        <span className="max-w-[180px] truncate">{src}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Always-ready input */}
+                  <div className="flex w-full gap-2">
+                    <input
+                      autoFocus
+                      value={inputVal}
+                      onChange={e => setInputVal(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && inputVal.trim()) handleAccumulatorSubmit();
+                      }}
+                      placeholder="Add another URL..."
+                      className="flex-1 rounded-xl border border-border/80 bg-card/80 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    />
+                    {inputVal.trim() ? (
+                      <button
+                        onClick={handleAccumulatorSubmit}
+                        className="rounded-xl bg-secondary px-3.5 py-2.5 text-foreground transition-colors hover:bg-secondary/80"
+                      >
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    ) : null}
+                  </div>
+                  <button
+                    onClick={() => goToBrandPhase()}
+                    className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  >
+                    <ArrowRight className="h-4 w-4" /> That's everything
+                  </button>
+                </div>
+
               {msg.inputType === 'brand-ask' && (
                 <div className="w-full space-y-3">
                   <div className="flex gap-4">
