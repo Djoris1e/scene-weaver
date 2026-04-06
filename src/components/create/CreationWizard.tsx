@@ -200,6 +200,9 @@ export default function CreationWizard({ onInteraction }: CreationWizardProps) {
   const [genMsg, setGenMsg] = useState(0);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [brandColors, setBrandColors] = useState({ primary: '#E04F8A', secondary: '#EC9A2C' });
+  const [sourceFlowVariant, setSourceFlowVariant] = useState<SourceFlowVariant>('A');
+  const [collectedSources, setCollectedSources] = useState<string[]>([]);
+  const [sourceType, setSourceType] = useState<'url' | 'upload' | 'prompt'>('url');
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
