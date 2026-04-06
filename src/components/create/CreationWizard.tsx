@@ -559,16 +559,49 @@ export default function CreationWizard({ onInteraction, openingMessage, buttonSt
                 {msg.content}
               </div>
 
-              {msg.options && (
+              {msg.options && buttonStyle === 'descriptive' && phase.current === 'type' ? (
+                <div className="flex flex-col gap-2 w-full">
+                  {msg.options.map(opt => {
+                    const desc = videoTypes.find(v => v.id === opt.id);
+                    return (
+                      <button
+                        key={opt.id}
+                        onClick={() => handleOptionSelect(opt.id, opt.label)}
+                        className={`group flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-foreground transition-all duration-200 ${styles.button}`}
+                      >
+                        {opt.icon ? <opt.icon className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-primary shrink-0" /> : null}
+                        <div className="flex flex-col">
+                          <span>{opt.label}</span>
+                          {desc && <span className="text-[11px] text-muted-foreground font-normal">Perfect for announcements &amp; demos</span>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : msg.options && buttonStyle === 'minimal' && phase.current === 'type' ? (
                 <div className="flex flex-wrap gap-2">
                   {msg.options.map(opt => (
                     <button
                       key={opt.id}
                       onClick={() => handleOptionSelect(opt.id, opt.label)}
-                      className={`group flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 ${styles.button}`}
+                      className="rounded-full px-4 py-2 text-xs font-medium text-foreground border border-border/60 bg-card/60 hover:border-primary/40 hover:bg-primary/10 transition-all duration-200"
                     >
-                      {opt.icon ? <opt.icon className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" /> : null}
                       {opt.label}
+                    </button>
+                  ))}
+                </div>
+              ) : msg.options && (
+                <div className="flex flex-wrap gap-2">
+                  {msg.options.map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => handleOptionSelect(opt.id, opt.label)}
+                      className={`group relative overflow-hidden flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 ${styles.button}`}
+                    >
+                      {/* Shimmer effect for variant A */}
+                      <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-[shimmer_3s_ease-in-out_infinite]" />
+                      {opt.icon ? <opt.icon className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary relative z-10" /> : null}
+                      <span className="relative z-10">{opt.label}</span>
                     </button>
                   ))}
                 </div>
