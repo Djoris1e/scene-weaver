@@ -50,8 +50,11 @@ interface ChatMessage {
   role: 'bot' | 'user';
   content: string;
   options?: { id: string; label: string; icon?: React.ElementType }[];
-  inputType?: 'url' | 'upload' | 'prompt' | 'brand-ask' | 'logo-upload' | 'generating';
+  inputType?: 'url' | 'upload' | 'prompt' | 'brand-ask' | 'logo-upload' | 'generating' | 'accumulator';
+  sources?: string[];
 }
+
+type SourceFlowVariant = 'A' | 'B' | 'C';
 
 type Phase = 'type' | 'source' | 'source-input' | 'brand' | 'brand-config' | 'logo' | 'generating';
 
