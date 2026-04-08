@@ -3,7 +3,7 @@ import { Scene, TEXT_COLOR_PAIRINGS, FONT_OPTIONS, GRADIENT_STYLES, TEMPLATE_OPT
 import { BrandKit } from '@/hooks/useSceneStore';
 import {
   Globe, Upload, Trash2, X, ChevronDown,
-  Type, Paintbrush, Music,
+  Type, Paintbrush, Music, Monitor,
   Play,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
