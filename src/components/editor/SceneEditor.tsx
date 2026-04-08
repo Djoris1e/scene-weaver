@@ -318,7 +318,7 @@ function StyleTab({ scene, onUpdate, brandKit, setBrandKit, endScreen, setEndScr
   brandKit: BrandKit; setBrandKit: (v: BrandKit) => void;
   endScreen: { enabled: boolean; duration: number }; setEndScreen: (v: { enabled: boolean; duration: number }) => void;
 }) {
-  const [format, setFormat] = useState<'9:16' | '16:9'>('9:16');
+  
 
   return (
     <div className="space-y-4 animate-in fade-in-0 duration-200">
