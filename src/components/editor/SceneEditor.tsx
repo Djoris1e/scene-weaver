@@ -507,40 +507,6 @@ function StyleTab({ scene, onUpdate, brandKit, setBrandKit, endScreen, setEndScr
   );
 }
 
-function MotionTab({ scene, onUpdate }: { scene: Scene; onUpdate: (u: Partial<Scene>) => void }) {
-  return (
-    <div className="space-y-4 animate-in fade-in-0 duration-200">
-      <SelectField label="Transition" value={scene.transition}
-        options={[
-          { value: 'default', label: 'Cut', description: 'Hard cut, no transition' },
-          { value: 'crossfade', label: 'Crossfade', description: 'Smooth blend between scenes' },
-          { value: 'zoom-in', label: 'Zoom In', description: 'Camera zooms into next scene' },
-          { value: 'flash', label: 'Flash', description: 'Bright flash transition' },
-          { value: 'slide', label: 'Slide', description: 'Slides to next scene' },
-        ]}
-        onChange={v => onUpdate({ transition: v as any })} />
-
-      <SelectField label="Text effect" value={scene.textEffect}
-        options={[
-          { value: 'default', label: 'None' },
-          { value: 'fade-in', label: 'Fade In', description: 'Text fades in smoothly' },
-          { value: 'typewriter', label: 'Typewriter', description: 'Character-by-character reveal' },
-          { value: 'scale-up', label: 'Scale Up', description: 'Text scales up from small' },
-        ]}
-        onChange={v => onUpdate({ textEffect: v as any })} />
-
-      <SelectField label="Animation" value={scene.animation}
-        options={[
-          { value: 'none', label: 'None' },
-          { value: 'ken-burns', label: 'Ken Burns', description: 'Slow pan and zoom' },
-          { value: 'drift', label: 'Drift', description: 'Gentle floating movement' },
-          { value: 'pulse', label: 'Pulse', description: 'Subtle pulsing effect' },
-        ]}
-        onChange={v => onUpdate({ animation: v as any })} />
-    </div>
-  );
-}
-
 function AudioTab() {
   const [selectedTrack, setSelectedTrack] = useState('funky-groove');
 
@@ -549,8 +515,6 @@ function AudioTab() {
       <p className="text-[11px] text-muted-foreground">
         Pick a new track. Scenes will automatically re-sync to the new beats.
       </p>
-
-      {/* Track list — matching screenshot: play button, name, duration, vibes, vibe matches, Use button */}
       <div className="space-y-2">
         {AUDIO_TRACKS.map(track => (
           <div key={track.id}
@@ -559,16 +523,11 @@ function AudioTab() {
                 ? 'bg-primary/10 border border-primary/30'
                 : 'bg-secondary/30 border border-border/30 hover:bg-secondary/50'
               }`}>
-            {/* Play button — circular, matching screenshot */}
             <button className="w-9 h-9 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 hover:bg-primary/30 transition-colors">
               <Play className="w-4 h-4 ml-0.5" />
             </button>
-
-            {/* Track info */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <p className="text-xs font-semibold text-foreground truncate">{track.name}</p>
-              </div>
+              <p className="text-xs font-semibold text-foreground truncate">{track.name}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="text-[10px] text-muted-foreground font-medium">{track.duration}</span>
                 <span className="text-[10px] text-muted-foreground/40">·</span>
@@ -579,175 +538,12 @@ function AudioTab() {
                 </span>
               </div>
             </div>
-
-            {/* Use button — pink pill matching screenshot */}
-            <button
-              onClick={() => setSelectedTrack(track.id)}
-              className={`px-3.5 py-1.5 rounded-full text-[11px] font-semibold transition-all shrink-0
-                ${selectedTrack === track.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                }`}>
+            <button onClick={() => setSelectedTrack(track.id)}
+              className="px-3.5 py-1.5 rounded-full text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shrink-0">
               Use
             </button>
           </div>
         ))}
-      </div>
-    </div>
-  );
-}
-
-function BrandTab({ brandKit, setBrandKit, endScreen, setEndScreen }: {
-  brandKit: BrandKit; setBrandKit: (v: BrandKit) => void;
-  endScreen: { enabled: boolean; duration: number }; setEndScreen: (v: { enabled: boolean; duration: number }) => void;
-}) {
-  const [format, setFormat] = useState<'9:16' | '16:9'>('9:16');
-
-  return (
-    <div className="space-y-4 animate-in fade-in-0 duration-200">
-      {/* FORMAT — toggle buttons matching screenshot */}
-      <div className="space-y-1.5">
-        <FieldLabel>Format</FieldLabel>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => setFormat('9:16')}
-            className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border transition-all
-              ${format === '9:16'
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border/50 bg-secondary/40 text-muted-foreground hover:text-foreground'
-              }`}>
-            <svg width="10" height="16" viewBox="0 0 10 16" fill="none" className="opacity-60">
-              <rect x="0.5" y="0.5" width="9" height="15" rx="1.5" stroke="currentColor" />
-            </svg>
-            9:16
-          </button>
-          <button
-            onClick={() => setFormat('16:9')}
-            className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border transition-all
-              ${format === '16:9'
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border/50 bg-secondary/40 text-muted-foreground hover:text-foreground'
-              }`}>
-            <svg width="16" height="10" viewBox="0 0 16 10" fill="none" className="opacity-60">
-              <rect x="0.5" y="0.5" width="15" height="9" rx="1.5" stroke="currentColor" />
-            </svg>
-            16:9
-          </button>
-        </div>
-      </div>
-
-      {/* FONT — dropdown matching screenshot */}
-      <div className="space-y-1.5">
-        <FieldLabel>Font</FieldLabel>
-        <div className="relative">
-          <select
-            className="w-full appearance-none bg-secondary/60 border border-border/50 rounded-xl px-4 pt-2.5 pb-2 text-sm font-medium text-foreground cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors"
-          >
-            {FONT_OPTIONS.map(f => (
-              <option key={f.id} value={f.id}>{f.label}</option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-        </div>
-      </div>
-
-      {/* COLOR — Background / Primary / Secondary with hex inputs matching screenshot */}
-      <div className="space-y-1.5">
-        <FieldLabel>Color</FieldLabel>
-        <p className="text-[10px] text-muted-foreground/50">Applied to all scenes</p>
-        <div className="grid grid-cols-3 gap-3">
-          {/* Background */}
-          <div className="space-y-1">
-            <span className="text-[10px] text-muted-foreground">Background</span>
-            <div className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-xl px-3 py-2">
-              <input type="color" value={brandKit.bgColor}
-                onChange={e => setBrandKit({ ...brandKit, bgColor: e.target.value })}
-                className="w-5 h-5 rounded border-0 cursor-pointer bg-transparent p-0 shrink-0" />
-              <span className="text-[10px] text-muted-foreground font-mono uppercase">{brandKit.bgColor}</span>
-            </div>
-          </div>
-          {/* Primary */}
-          <div className="space-y-1">
-            <span className="text-[10px] text-muted-foreground">Primary</span>
-            <div className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-xl px-3 py-2">
-              <input type="color" value={brandKit.bgColor}
-                onChange={e => setBrandKit({ ...brandKit, bgColor: e.target.value })}
-                className="w-5 h-5 rounded border-0 cursor-pointer bg-transparent p-0 shrink-0" />
-              <span className="text-[10px] text-muted-foreground font-mono uppercase">{brandKit.bgColor}</span>
-            </div>
-          </div>
-          {/* Secondary */}
-          <div className="space-y-1">
-            <span className="text-[10px] text-muted-foreground">Secondary</span>
-            <div className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-xl px-3 py-2">
-              <input type="color" value={brandKit.accentColor}
-                onChange={e => setBrandKit({ ...brandKit, accentColor: e.target.value })}
-                className="w-5 h-5 rounded border-0 cursor-pointer bg-transparent p-0 shrink-0" />
-              <span className="text-[10px] text-muted-foreground font-mono uppercase">{brandKit.accentColor}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Gradient preview bar — matching screenshot bottom bar with "Aa" */}
-      <div className="relative h-10 rounded-xl overflow-hidden">
-        <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${brandKit.bgColor}, ${brandKit.accentColor})` }} />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-white/90">Aa</div>
-      </div>
-
-      {/* Logo */}
-      <div className="space-y-1.5">
-        <FieldLabel>Logo</FieldLabel>
-        {brandKit.logoUrl ? (
-          <div className="flex items-center gap-3 bg-secondary/40 rounded-xl px-3 py-2">
-            <img src={brandKit.logoUrl} alt="Logo" className="h-8 object-contain" />
-            <div className="flex-1" />
-            <button onClick={() => setBrandKit({ ...brandKit, logoUrl: null })}
-              className="w-6 h-6 rounded-lg flex items-center justify-center hover:bg-muted transition-colors">
-              <X className="w-3.5 h-3.5 text-muted-foreground" />
-            </button>
-          </div>
-        ) : (
-          <label className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary/60 border border-border/50 text-xs text-muted-foreground cursor-pointer hover:bg-secondary hover:text-foreground transition-all">
-            <Upload className="w-3.5 h-3.5" />
-            Upload logo
-            <input type="file" accept="image/*" className="hidden" onChange={e => {
-              const file = e.target.files?.[0];
-              if (file) setBrandKit({ ...brandKit, logoUrl: URL.createObjectURL(file) });
-            }} />
-          </label>
-        )}
-      </div>
-
-      {/* Slogan */}
-      <div className="space-y-1.5">
-        <FieldLabel>Slogan</FieldLabel>
-        <FieldInput value={brandKit.slogan}
-          onChange={v => setBrandKit({ ...brandKit, slogan: v })}
-          placeholder="e.g. Your tagline or website" />
-      </div>
-
-      {/* End screen */}
-      <div className="border-t border-border/20 pt-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-foreground font-medium">End screen</p>
-            <p className="text-[10px] text-muted-foreground">Show logo & slogan at the end</p>
-          </div>
-          <Switch checked={endScreen.enabled} onCheckedChange={val => setEndScreen({ ...endScreen, enabled: val })} />
-        </div>
-        {endScreen.enabled && (
-          <div className="flex items-center gap-2">
-            <FieldLabel>Duration</FieldLabel>
-            <select value={endScreen.duration}
-              onChange={e => setEndScreen({ ...endScreen, duration: Number(e.target.value) })}
-              className="bg-secondary/60 border border-border/50 rounded-lg px-2 py-1 text-xs text-foreground cursor-pointer">
-              <option value={2}>2s</option>
-              <option value={3}>3s</option>
-              <option value={5}>5s</option>
-            </select>
-          </div>
-        )}
       </div>
     </div>
   );
