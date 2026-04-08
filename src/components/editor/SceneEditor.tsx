@@ -554,9 +554,7 @@ function AudioTab() {
 const EDITOR_TABS = [
   { id: 'content', label: 'Content', icon: <Type className="w-4 h-4" /> },
   { id: 'style', label: 'Style', icon: <Paintbrush className="w-4 h-4" /> },
-  { id: 'motion', label: 'Motion', icon: <Zap className="w-4 h-4" /> },
   { id: 'audio', label: 'Audio', icon: <Music className="w-4 h-4" /> },
-  { id: 'brand', label: 'Brand', icon: <Diamond className="w-4 h-4" /> },
 ];
 
 export default function SceneEditor({
@@ -576,7 +574,6 @@ export default function SceneEditor({
 
   return (
     <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/30 overflow-hidden">
-      {/* Header — matching screenshot: "Scene 1/7 · 0.0s - 4.5s  🗑" */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/20">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-foreground italic">Scene {index + 1}/{totalScenes}</span>
@@ -592,16 +589,12 @@ export default function SceneEditor({
         </div>
       </div>
 
-      {/* 5-tab icon bar */}
       <IconTabBar tabs={EDITOR_TABS} active={tab} onChange={id => setTab(id as EditorTab)} />
 
-      {/* Tab content */}
       <div className="px-4 py-4">
         {tab === 'content' && <ContentTab scene={scene} onUpdate={onUpdate} handleTemplateChange={handleTemplateChange} />}
-        {tab === 'style' && <StyleTab scene={scene} onUpdate={onUpdate} />}
-        {tab === 'motion' && <MotionTab scene={scene} onUpdate={onUpdate} />}
+        {tab === 'style' && <StyleTab scene={scene} onUpdate={onUpdate} brandKit={brandKit} setBrandKit={setBrandKit} endScreen={endScreen} setEndScreen={setEndScreen} />}
         {tab === 'audio' && <AudioTab />}
-        {tab === 'brand' && <BrandTab brandKit={brandKit} setBrandKit={setBrandKit} endScreen={endScreen} setEndScreen={setEndScreen} />}
       </div>
     </div>
   );
