@@ -564,6 +564,15 @@ export default function SceneEditor({
           <span className="text-[10px] text-muted-foreground tabular-nums">{scene.startTime.toFixed(1)}s – {scene.endTime.toFixed(1)}s</span>
         </div>
         <div className="flex items-center gap-1.5">
+          <button onClick={() => setFormat(altFormat)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/60 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
+            {altFormat === '16:9' ? (
+              <svg width="14" height="9" viewBox="0 0 14 9" fill="none"><rect x="0.5" y="0.5" width="13" height="8" rx="1" stroke="currentColor" strokeWidth="1" /></svg>
+            ) : (
+              <svg width="9" height="14" viewBox="0 0 9 14" fill="none"><rect x="0.5" y="0.5" width="8" height="13" rx="1" stroke="currentColor" strokeWidth="1" /></svg>
+            )}
+            <span className="text-[11px] font-medium">{altFormat}</span>
+          </button>
           {totalScenes > 1 && (
             <button onClick={onDelete}
               className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all">
