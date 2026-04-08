@@ -24,28 +24,36 @@ interface SceneEditorProps {
 
 type EditorTab = 'content' | 'style' | 'motion' | 'audio' | 'brand';
 
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{children}</span>;
-}
-
-function FieldInput({ value, onChange, placeholder, type = 'text', ...rest }: {
-  value: string | number; onChange: (v: string) => void; placeholder?: string; type?: string;
-  [key: string]: any;
-}) {
+function FieldLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
   return (
-    <input
-      type={type}
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      placeholder={placeholder}
-      className="w-full bg-secondary/60 border border-border/50 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors"
-      {...rest}
-    />
+    <div className="flex items-center justify-between">
+      <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{children}</span>
+      {right && <span className="text-[10px] text-muted-foreground/50 tabular-nums">{right}</span>}
+    </div>
   );
 }
 
-function FieldTextarea({ value, onChange, placeholder, maxLength, rows = 3 }: {
-  value: string; onChange: (v: string) => void; placeholder?: string; maxLength?: number; rows?: number;
+function FieldInput({ value, onChange, placeholder, type = 'text', maxLength, ...rest }: {
+  value: string | number; onChange: (v: string) => void; placeholder?: string; type?: string; maxLength?: number;
+  [key: string]: any;
+}) {
+  return (
+    <div className="space-y-0.5">
+      <input
+        type={type}
+        value={value}
+        onChange={e => onChange(maxLength ? e.target.value.slice(0, maxLength) : e.target.value)}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        className="w-full bg-secondary/60 border border-border/50 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors"
+        {...rest}
+      />
+    </div>
+  );
+}
+
+function FieldTextarea({ value, onChange, placeholder, maxLength, rows = 3, hint }: {
+  value: string; onChange: (v: string) => void; placeholder?: string; maxLength?: number; rows?: number; hint?: string;
 }) {
   return (
     <div className="space-y-1">
@@ -57,9 +65,7 @@ function FieldTextarea({ value, onChange, placeholder, maxLength, rows = 3 }: {
         rows={rows}
         className="w-full bg-secondary/60 border border-border/50 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none transition-colors"
       />
-      {maxLength && (
-        <span className="text-[10px] text-muted-foreground/50 tabular-nums float-right">{value.length}/{maxLength}</span>
-      )}
+      {hint && <p className="text-[10px] text-muted-foreground/50 px-1">{hint}</p>}
     </div>
   );
 }
@@ -93,13 +99,15 @@ function SelectField({ label, value, options, onChange }: {
   );
 }
 
-// ─── Mock audio tracks ───
+// ─── Mock audio tracks (matching screenshot exactly) ───
 const AUDIO_TRACKS = [
-  { id: 'upbeat-1', name: 'Sunrise Energy', vibe: 'upbeat', duration: '2:34' },
-  { id: 'chill-1', name: 'Ambient Drift', vibe: 'chill', duration: '3:12' },
-  { id: 'cinematic-1', name: 'Epic Rise', vibe: 'cinematic', duration: '2:48' },
-  { id: 'lofi-1', name: 'Lo-Fi Breeze', vibe: 'lo-fi', duration: '3:01' },
-  { id: 'corporate-1', name: 'Clean Motion', vibe: 'corporate', duration: '2:22' },
+  { id: 'funky-groove', name: 'Funky Groove', duration: '0:38', vibes: ['playful', 'happy', 'high'], vibeMatches: 3 },
+  { id: 'motivation-drive', name: 'Motivation Drive', duration: '0:31', vibes: ['confident', 'inspiring', 'high'], vibeMatches: 2 },
+  { id: 'launch-sequence', name: 'Launch Sequence', duration: '0:27', vibes: ['confident', 'happy', 'high'], vibeMatches: 2 },
+  { id: 'grand-project-warrior', name: 'Grand Project Warrior', duration: '0:38', vibes: ['dramatic', 'inspiring', 'high'], vibeMatches: 1 },
+  { id: 'upbeat-future-bass', name: 'Upbeat Future Bass', duration: '0:27', vibes: ['happy', 'playful', 'high'], vibeMatches: 2 },
+  { id: 'eternity', name: 'Eternity', duration: '0:30', vibes: ['warm', 'relaxed', 'low'], vibeMatches: 1 },
+  { id: 'quarterly-push', name: 'Quarterly Push', duration: '0:28', vibes: ['confident', 'inspiring', 'medium'], vibeMatches: 1 },
 ];
 
 // ─── Tab Content Components ───
@@ -109,33 +117,25 @@ function ContentTab({ scene, onUpdate, handleTemplateChange }: {
 }) {
   return (
     <div className="space-y-4 animate-in fade-in-0 duration-200">
-      {/* Template picker — horizontal thumbnails */}
-      <div className="space-y-1.5">
-        <FieldLabel>Template</FieldLabel>
-        <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
-          {TEMPLATE_OPTIONS.map(t => (
-            <button
-              key={t.value}
-              onClick={() => handleTemplateChange(t.value)}
-              className={`shrink-0 flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all min-w-[72px]
-                ${scene.template === t.value
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border/50 bg-secondary/40 text-muted-foreground hover:text-foreground hover:border-muted-foreground/30'
-                }`}
-            >
-              <div className="w-10 h-14 rounded-lg bg-secondary/80 flex items-center justify-center text-[10px] font-bold">
-                {t.label.charAt(0)}
-              </div>
-              <span className="text-[10px] font-medium leading-tight text-center">{t.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Template-specific fields first (matching screenshot order) */}
+      {scene.template === 'gradient-text' && (
+        <>
+          <div className="space-y-1.5">
+            <FieldLabel right={`${scene.text.length}/120`}>Text</FieldLabel>
+            <FieldTextarea
+              value={scene.text}
+              onChange={v => onUpdate({ text: v })}
+              placeholder="Your story begins."
+              maxLength={120}
+              rows={2}
+            />
+          </div>
+        </>
+      )}
 
-      {/* Template-specific fields */}
-      {(scene.template === 'gradient-text' || scene.template === 'fullscreen') && (
+      {scene.template === 'fullscreen' && (
         <div className="space-y-1.5">
-          <FieldLabel>Text</FieldLabel>
+          <FieldLabel right={`${scene.text.length}/120`}>Text</FieldLabel>
           <FieldTextarea
             value={scene.text}
             onChange={v => onUpdate({ text: v })}
@@ -149,11 +149,12 @@ function ContentTab({ scene, onUpdate, handleTemplateChange }: {
       {scene.template === 'social-proof' && (
         <>
           <div className="space-y-1.5">
-            <FieldLabel>Quote</FieldLabel>
+            <FieldLabel right={`${(scene.socialProof.quote || '').length}/120`}>Quote</FieldLabel>
             <FieldTextarea
               value={scene.socialProof.quote}
               onChange={v => onUpdate({ socialProof: { ...scene.socialProof, quote: v } })}
               placeholder="This changed how we create content."
+              maxLength={120}
               rows={3}
             />
           </div>
@@ -202,16 +203,16 @@ function ContentTab({ scene, onUpdate, handleTemplateChange }: {
       {scene.template === 'product-launch' && (
         <>
           <div className="space-y-1.5">
-            <FieldLabel>Headline</FieldLabel>
+            <FieldLabel right={`${(scene.productLaunch.headline || '').length}/120`}>Headline</FieldLabel>
             <FieldInput value={scene.productLaunch.headline}
               onChange={v => onUpdate({ productLaunch: { ...scene.productLaunch, headline: v } })}
-              placeholder="Introducing the future" />
+              placeholder="Introducing the future" maxLength={120} />
           </div>
           <div className="space-y-1.5">
-            <FieldLabel>Subheadline</FieldLabel>
+            <FieldLabel right={`${(scene.productLaunch.subheadline || '').length}/120`}>Subheadline</FieldLabel>
             <FieldInput value={scene.productLaunch.subheadline}
               onChange={v => onUpdate({ productLaunch: { ...scene.productLaunch, subheadline: v } })}
-              placeholder="Everything you need, nothing you don't" />
+              placeholder="Everything you need, nothing you don't" maxLength={120} />
           </div>
           <div className="space-y-1.5">
             <FieldLabel>CTA text</FieldLabel>
@@ -228,6 +229,90 @@ function ContentTab({ scene, onUpdate, handleTemplateChange }: {
           <span className="text-[11px] text-accent font-medium">End screen uses your Brand logo & slogan. Edit in the Brand tab.</span>
         </div>
       )}
+
+      {/* Text color — matches screenshot: black swatch with "Auto" label */}
+      {scene.template !== 'counter' && scene.template !== 'end-screen' && (
+        <div className="space-y-1.5">
+          <FieldLabel>Text color</FieldLabel>
+          <div className="flex items-center gap-3 bg-secondary/60 border border-border/50 rounded-xl px-4 py-2.5">
+            <div
+              className="w-6 h-6 rounded-md border border-border/60 shrink-0"
+              style={{ backgroundColor: TEXT_COLOR_PAIRINGS.find(c => c.id === scene.textColorId)?.text || '#fff' }}
+            />
+            <span className="text-sm text-foreground">
+              {TEXT_COLOR_PAIRINGS.find(c => c.id === scene.textColorId)?.label || 'Auto'}
+            </span>
+          </div>
+          <p className="text-[10px] text-muted-foreground/50 px-1">Override text color (leave empty for auto)</p>
+        </div>
+      )}
+
+      {/* Transition — dropdown matching screenshot */}
+      <SelectField label="Transition" value={scene.transition}
+        options={[
+          { value: 'default', label: 'Cut', description: 'Hard cut, no transition' },
+          { value: 'crossfade', label: 'Crossfade', description: 'Smooth blend between scenes' },
+          { value: 'zoom-in', label: 'Zoom In', description: 'Camera zooms into next scene' },
+          { value: 'flash', label: 'Flash', description: 'Bright flash transition' },
+          { value: 'slide', label: 'Slide', description: 'Slides to next scene' },
+        ]}
+        onChange={v => onUpdate({ transition: v as any })} />
+
+      {/* Template picker at bottom — horizontal scroll with visual thumbnails (matching screenshot) */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <div>
+            <FieldLabel>Template</FieldLabel>
+            <p className="text-[10px] text-muted-foreground/50 mt-0.5">TOP PICKS</p>
+          </div>
+          <button className="text-[11px] text-primary font-medium hover:text-primary/80 transition-colors">
+            Show all ({TEMPLATE_OPTIONS.length})
+          </button>
+        </div>
+        <div className="flex gap-2.5 overflow-x-auto scrollbar-none pb-1">
+          {TEMPLATE_OPTIONS.map(t => (
+            <button
+              key={t.value}
+              onClick={() => handleTemplateChange(t.value)}
+              className="shrink-0 flex flex-col items-start gap-1.5 group"
+            >
+              <div className={`relative w-[88px] h-[130px] rounded-xl overflow-hidden border-2 transition-all
+                ${scene.template === t.value
+                  ? 'border-primary'
+                  : 'border-border/30 hover:border-muted-foreground/40'
+                }`}>
+                {/* Template preview bg */}
+                <div className="absolute inset-0 bg-secondary/80 flex items-center justify-center">
+                  <div className="text-center px-2">
+                    <span className="text-[9px] text-muted-foreground/70 leading-tight block">{t.description.slice(0, 40)}</span>
+                  </div>
+                </div>
+                {scene.template === t.value && (
+                  <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-primary text-[8px] font-bold text-primary-foreground">
+                    Current
+                  </div>
+                )}
+              </div>
+              <div className="px-0.5">
+                <p className={`text-[11px] font-medium leading-tight ${scene.template === t.value ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
+                  {t.label}
+                </p>
+                <p className="text-[9px] text-muted-foreground/50 leading-tight">{
+                  t.value === 'gradient-text' ? 'Great for hooks' :
+                  t.value === 'fullscreen' ? 'Great for hooks' :
+                  t.value === 'counter' ? '' :
+                  t.value === 'social-proof' ? '4.5s scene' :
+                  t.value === 'product-launch' ? '' :
+                  t.value === 'end-screen' ? '4s scene' : ''
+                }</p>
+              </div>
+            </button>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground/40 px-1">
+          Use ONLY when content has a clear single pain + single fix. NOT a generic explai
+        </p>
+      </div>
     </div>
   );
 }
@@ -305,7 +390,7 @@ function MotionTab({ scene, onUpdate }: { scene: Scene; onUpdate: (u: Partial<Sc
     <div className="space-y-4 animate-in fade-in-0 duration-200">
       <SelectField label="Transition" value={scene.transition}
         options={[
-          { value: 'default', label: 'Cut', description: 'Standard cut between scenes' },
+          { value: 'default', label: 'Cut', description: 'Hard cut, no transition' },
           { value: 'crossfade', label: 'Crossfade', description: 'Smooth blend between scenes' },
           { value: 'zoom-in', label: 'Zoom In', description: 'Camera zooms into next scene' },
           { value: 'flash', label: 'Flash', description: 'Bright flash transition' },
@@ -335,54 +420,56 @@ function MotionTab({ scene, onUpdate }: { scene: Scene; onUpdate: (u: Partial<Sc
 }
 
 function AudioTab() {
-  const [selectedTrack, setSelectedTrack] = useState('upbeat-1');
-  const [muted, setMuted] = useState(false);
+  const [selectedTrack, setSelectedTrack] = useState('funky-groove');
 
   return (
-    <div className="space-y-4 animate-in fade-in-0 duration-200">
-      {/* Current track */}
-      <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/30">
-        <button className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 hover:bg-primary/30 transition-colors">
-          <Play className="w-3.5 h-3.5 ml-0.5" />
-        </button>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-medium text-foreground truncate">
-            {AUDIO_TRACKS.find(t => t.id === selectedTrack)?.name}
-          </p>
-          <p className="text-[10px] text-muted-foreground">
-            {AUDIO_TRACKS.find(t => t.id === selectedTrack)?.vibe} · {AUDIO_TRACKS.find(t => t.id === selectedTrack)?.duration}
-          </p>
-        </div>
-        <button onClick={() => setMuted(!muted)}
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-          {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-        </button>
-      </div>
+    <div className="space-y-3 animate-in fade-in-0 duration-200">
+      <p className="text-[11px] text-muted-foreground">
+        Pick a new track. Scenes will automatically re-sync to the new beats.
+      </p>
 
-      {/* Track list */}
-      <div className="space-y-1.5">
-        <FieldLabel>Change track</FieldLabel>
-        <div className="space-y-1">
-          {AUDIO_TRACKS.map(track => (
-            <button key={track.id} onClick={() => setSelectedTrack(track.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all
-                ${selectedTrack === track.id
-                  ? 'bg-primary/10 border border-primary/30'
-                  : 'bg-secondary/30 border border-transparent hover:bg-secondary/60'
-                }`}>
-              <div className="flex-1 min-w-0">
-                <p className={`text-xs font-medium truncate ${selectedTrack === track.id ? 'text-primary' : 'text-foreground'}`}>
-                  {track.name}
-                </p>
-                <p className="text-[10px] text-muted-foreground">{track.duration}</p>
-              </div>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium
-                ${selectedTrack === track.id ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'}`}>
-                {track.vibe}
-              </span>
+      {/* Track list — matching screenshot: play button, name, duration, vibes, vibe matches, Use button */}
+      <div className="space-y-2">
+        {AUDIO_TRACKS.map(track => (
+          <div key={track.id}
+            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all
+              ${selectedTrack === track.id
+                ? 'bg-primary/10 border border-primary/30'
+                : 'bg-secondary/30 border border-border/30 hover:bg-secondary/50'
+              }`}>
+            {/* Play button — circular, matching screenshot */}
+            <button className="w-9 h-9 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 hover:bg-primary/30 transition-colors">
+              <Play className="w-4 h-4 ml-0.5" />
             </button>
-          ))}
-        </div>
+
+            {/* Track info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-xs font-semibold text-foreground truncate">{track.name}</p>
+              </div>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-[10px] text-muted-foreground font-medium">{track.duration}</span>
+                <span className="text-[10px] text-muted-foreground/40">·</span>
+                <span className="text-[10px] text-muted-foreground">{track.vibes.join(', ')}</span>
+                <span className="text-[10px] text-muted-foreground/40">·</span>
+                <span className="text-[10px] text-accent font-medium">
+                  {track.vibeMatches} vibe match{track.vibeMatches !== 1 ? 'es' : ''}
+                </span>
+              </div>
+            </div>
+
+            {/* Use button — pink pill matching screenshot */}
+            <button
+              onClick={() => setSelectedTrack(track.id)}
+              className={`px-3.5 py-1.5 rounded-full text-[11px] font-semibold transition-all shrink-0
+                ${selectedTrack === track.id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                }`}>
+              Use
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -392,28 +479,101 @@ function BrandTab({ brandKit, setBrandKit, endScreen, setEndScreen }: {
   brandKit: BrandKit; setBrandKit: (v: BrandKit) => void;
   endScreen: { enabled: boolean; duration: number }; setEndScreen: (v: { enabled: boolean; duration: number }) => void;
 }) {
+  const [format, setFormat] = useState<'9:16' | '16:9'>('9:16');
+
   return (
     <div className="space-y-4 animate-in fade-in-0 duration-200">
-      <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-accent/8 border border-accent/15">
-        <Globe className="w-3.5 h-3.5 text-accent shrink-0" />
-        <span className="text-[11px] text-accent font-medium">Applies to all scenes</span>
+      {/* FORMAT — toggle buttons matching screenshot */}
+      <div className="space-y-1.5">
+        <FieldLabel>Format</FieldLabel>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => setFormat('9:16')}
+            className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border transition-all
+              ${format === '9:16'
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border/50 bg-secondary/40 text-muted-foreground hover:text-foreground'
+              }`}>
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="none" className="opacity-60">
+              <rect x="0.5" y="0.5" width="9" height="15" rx="1.5" stroke="currentColor" />
+            </svg>
+            9:16
+          </button>
+          <button
+            onClick={() => setFormat('16:9')}
+            className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border transition-all
+              ${format === '16:9'
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border/50 bg-secondary/40 text-muted-foreground hover:text-foreground'
+              }`}>
+            <svg width="16" height="10" viewBox="0 0 16 10" fill="none" className="opacity-60">
+              <rect x="0.5" y="0.5" width="15" height="9" rx="1.5" stroke="currentColor" />
+            </svg>
+            16:9
+          </button>
+        </div>
       </div>
 
-      <div className="flex gap-4">
-        <div className="space-y-1.5">
-          <FieldLabel>Background</FieldLabel>
-          <input type="color" value={brandKit.bgColor}
-            onChange={e => setBrandKit({ ...brandKit, bgColor: e.target.value })}
-            className="w-10 h-10 rounded-xl border-2 border-border/40 cursor-pointer bg-transparent p-0.5" />
-        </div>
-        <div className="space-y-1.5">
-          <FieldLabel>Accent</FieldLabel>
-          <input type="color" value={brandKit.accentColor}
-            onChange={e => setBrandKit({ ...brandKit, accentColor: e.target.value })}
-            className="w-10 h-10 rounded-xl border-2 border-border/40 cursor-pointer bg-transparent p-0.5" />
+      {/* FONT — dropdown matching screenshot */}
+      <div className="space-y-1.5">
+        <FieldLabel>Font</FieldLabel>
+        <div className="relative">
+          <select
+            className="w-full appearance-none bg-secondary/60 border border-border/50 rounded-xl px-4 pt-2.5 pb-2 text-sm font-medium text-foreground cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors"
+          >
+            {FONT_OPTIONS.map(f => (
+              <option key={f.id} value={f.id}>{f.label}</option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
         </div>
       </div>
 
+      {/* COLOR — Background / Primary / Secondary with hex inputs matching screenshot */}
+      <div className="space-y-1.5">
+        <FieldLabel>Color</FieldLabel>
+        <p className="text-[10px] text-muted-foreground/50">Applied to all scenes</p>
+        <div className="grid grid-cols-3 gap-3">
+          {/* Background */}
+          <div className="space-y-1">
+            <span className="text-[10px] text-muted-foreground">Background</span>
+            <div className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-xl px-3 py-2">
+              <input type="color" value={brandKit.bgColor}
+                onChange={e => setBrandKit({ ...brandKit, bgColor: e.target.value })}
+                className="w-5 h-5 rounded border-0 cursor-pointer bg-transparent p-0 shrink-0" />
+              <span className="text-[10px] text-muted-foreground font-mono uppercase">{brandKit.bgColor}</span>
+            </div>
+          </div>
+          {/* Primary */}
+          <div className="space-y-1">
+            <span className="text-[10px] text-muted-foreground">Primary</span>
+            <div className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-xl px-3 py-2">
+              <input type="color" value={brandKit.bgColor}
+                onChange={e => setBrandKit({ ...brandKit, bgColor: e.target.value })}
+                className="w-5 h-5 rounded border-0 cursor-pointer bg-transparent p-0 shrink-0" />
+              <span className="text-[10px] text-muted-foreground font-mono uppercase">{brandKit.bgColor}</span>
+            </div>
+          </div>
+          {/* Secondary */}
+          <div className="space-y-1">
+            <span className="text-[10px] text-muted-foreground">Secondary</span>
+            <div className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-xl px-3 py-2">
+              <input type="color" value={brandKit.accentColor}
+                onChange={e => setBrandKit({ ...brandKit, accentColor: e.target.value })}
+                className="w-5 h-5 rounded border-0 cursor-pointer bg-transparent p-0 shrink-0" />
+              <span className="text-[10px] text-muted-foreground font-mono uppercase">{brandKit.accentColor}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Gradient preview bar — matching screenshot bottom bar with "Aa" */}
+      <div className="relative h-10 rounded-xl overflow-hidden">
+        <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${brandKit.bgColor}, ${brandKit.accentColor})` }} />
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-white/90">Aa</div>
+      </div>
+
+      {/* Logo */}
       <div className="space-y-1.5">
         <FieldLabel>Logo</FieldLabel>
         {brandKit.logoUrl ? (
@@ -437,6 +597,7 @@ function BrandTab({ brandKit, setBrandKit, endScreen, setEndScreen }: {
         )}
       </div>
 
+      {/* Slogan */}
       <div className="space-y-1.5">
         <FieldLabel>Slogan</FieldLabel>
         <FieldInput value={brandKit.slogan}
@@ -444,6 +605,7 @@ function BrandTab({ brandKit, setBrandKit, endScreen, setEndScreen }: {
           placeholder="e.g. Your tagline or website" />
       </div>
 
+      {/* End screen */}
       <div className="border-t border-border/20 pt-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
@@ -496,11 +658,10 @@ export default function SceneEditor({
 
   return (
     <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/30 overflow-hidden">
-      {/* Header */}
+      {/* Header — matching screenshot: "Scene 1/7 · 0.0s - 4.5s  🗑" */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/20">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-foreground">Scene {index + 1}/{totalScenes}</span>
-          <span className="text-[10px] text-muted-foreground/60">·</span>
+          <span className="text-xs font-semibold text-foreground italic">Scene {index + 1}/{totalScenes}</span>
           <span className="text-[10px] text-muted-foreground tabular-nums">{scene.startTime.toFixed(1)}s – {scene.endTime.toFixed(1)}s</span>
         </div>
         <div className="flex items-center gap-1.5">
