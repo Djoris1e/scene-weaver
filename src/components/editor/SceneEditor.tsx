@@ -247,18 +247,26 @@ function ContentTab({ scene, onUpdate, handleTemplateChange }: {
         </div>
       )}
 
-      {/* Transition — dropdown matching screenshot */}
-      <SelectField label="Transition" value={scene.transition}
+      {/* Motion controls (merged from Motion tab) */}
+      <SelectField label="Text effect" value={scene.textEffect}
         options={[
-          { value: 'default', label: 'Cut', description: 'Hard cut, no transition' },
-          { value: 'crossfade', label: 'Crossfade', description: 'Smooth blend between scenes' },
-          { value: 'zoom-in', label: 'Zoom In', description: 'Camera zooms into next scene' },
-          { value: 'flash', label: 'Flash', description: 'Bright flash transition' },
-          { value: 'slide', label: 'Slide', description: 'Slides to next scene' },
+          { value: 'default', label: 'None' },
+          { value: 'fade-in', label: 'Fade In', description: 'Text fades in smoothly' },
+          { value: 'typewriter', label: 'Typewriter', description: 'Character-by-character reveal' },
+          { value: 'scale-up', label: 'Scale Up', description: 'Text scales up from small' },
         ]}
-        onChange={v => onUpdate({ transition: v as any })} />
+        onChange={v => onUpdate({ textEffect: v as any })} />
 
-      {/* Template picker at bottom — horizontal scroll with visual thumbnails (matching screenshot) */}
+      <SelectField label="Animation" value={scene.animation}
+        options={[
+          { value: 'none', label: 'None' },
+          { value: 'ken-burns', label: 'Ken Burns', description: 'Slow pan and zoom' },
+          { value: 'drift', label: 'Drift', description: 'Gentle floating movement' },
+          { value: 'pulse', label: 'Pulse', description: 'Subtle pulsing effect' },
+        ]}
+        onChange={v => onUpdate({ animation: v as any })} />
+
+      {/* Template picker at bottom */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <div>
@@ -281,7 +289,6 @@ function ContentTab({ scene, onUpdate, handleTemplateChange }: {
                   ? 'border-primary'
                   : 'border-border/30 hover:border-muted-foreground/40'
                 }`}>
-                {/* Template preview bg */}
                 <div className="absolute inset-0 bg-secondary/80 flex items-center justify-center">
                   <div className="text-center px-2">
                     <span className="text-[9px] text-muted-foreground/70 leading-tight block">{t.description.slice(0, 40)}</span>
@@ -297,21 +304,10 @@ function ContentTab({ scene, onUpdate, handleTemplateChange }: {
                 <p className={`text-[11px] font-medium leading-tight ${scene.template === t.value ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
                   {t.label}
                 </p>
-                <p className="text-[9px] text-muted-foreground/50 leading-tight">{
-                  t.value === 'gradient-text' ? 'Great for hooks' :
-                  t.value === 'fullscreen' ? 'Great for hooks' :
-                  t.value === 'counter' ? '' :
-                  t.value === 'social-proof' ? '4.5s scene' :
-                  t.value === 'product-launch' ? '' :
-                  t.value === 'end-screen' ? '4s scene' : ''
-                }</p>
               </div>
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-muted-foreground/40 px-1">
-          Use ONLY when content has a clear single pain + single fix. NOT a generic explai
-        </p>
       </div>
     </div>
   );
