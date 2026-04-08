@@ -544,6 +544,8 @@ export default function SceneEditor({
   brandKit, setBrandKit, endScreen, setEndScreen,
 }: SceneEditorProps) {
   const [tab, setTab] = useState<EditorTab>('content');
+  const [format, setFormat] = useState<'9:16' | '16:9'>('9:16');
+  const altFormat = format === '9:16' ? '16:9' : '9:16';
 
   const handleTemplateChange = (t: string) => {
     const template = t as TemplateType;
