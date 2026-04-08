@@ -225,8 +225,8 @@ function ContentTab({ scene, onUpdate, handleTemplateChange }: {
 
       {scene.template === 'end-screen' && (
         <div className="flex items-center gap-2 px-3 py-3 rounded-xl bg-accent/10 border border-accent/20">
-          <Diamond className="w-3.5 h-3.5 text-accent shrink-0" />
-          <span className="text-[11px] text-accent font-medium">End screen uses your Brand logo & slogan. Edit in the Brand tab.</span>
+          <Paintbrush className="w-3.5 h-3.5 text-accent shrink-0" />
+          <span className="text-[11px] text-accent font-medium">End screen uses your Brand logo & slogan. Edit in the Style tab.</span>
         </div>
       )}
 
