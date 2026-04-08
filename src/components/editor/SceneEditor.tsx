@@ -22,7 +22,7 @@ interface SceneEditorProps {
   setEndScreen: (v: { enabled: boolean; duration: number }) => void;
 }
 
-type EditorTab = 'content' | 'style' | 'audio' | 'format';
+type EditorTab = 'content' | 'style' | 'audio';
 
 function FieldLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
   return (
