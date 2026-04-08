@@ -313,9 +313,16 @@ function ContentTab({ scene, onUpdate, handleTemplateChange }: {
   );
 }
 
-function StyleTab({ scene, onUpdate }: { scene: Scene; onUpdate: (u: Partial<Scene>) => void }) {
+function StyleTab({ scene, onUpdate, brandKit, setBrandKit, endScreen, setEndScreen }: {
+  scene: Scene; onUpdate: (u: Partial<Scene>) => void;
+  brandKit: BrandKit; setBrandKit: (v: BrandKit) => void;
+  endScreen: { enabled: boolean; duration: number }; setEndScreen: (v: { enabled: boolean; duration: number }) => void;
+}) {
+  const [format, setFormat] = useState<'9:16' | '16:9'>('9:16');
+
   return (
     <div className="space-y-4 animate-in fade-in-0 duration-200">
+      {/* Per-scene style */}
       <div className="space-y-1.5">
         <FieldLabel>Font</FieldLabel>
         <div className="flex gap-2">
@@ -377,6 +384,125 @@ function StyleTab({ scene, onUpdate }: { scene: Scene; onUpdate: (u: Partial<Sce
           </div>
         </div>
       )}
+
+      {/* Brand section divider */}
+      <div className="border-t border-border/20 pt-4">
+        <p className="text-[10px] text-muted-foreground/50 uppercase tracking-wider mb-3">Brand · applies to all scenes</p>
+      </div>
+
+      {/* Format */}
+      <div className="space-y-1.5">
+        <FieldLabel>Format</FieldLabel>
+        <div className="grid grid-cols-2 gap-2">
+          <button onClick={() => setFormat('9:16')}
+            className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border transition-all
+              ${format === '9:16' ? 'border-primary bg-primary/10 text-primary' : 'border-border/50 bg-secondary/40 text-muted-foreground hover:text-foreground'}`}>
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="none" className="opacity-60"><rect x="0.5" y="0.5" width="9" height="15" rx="1.5" stroke="currentColor" /></svg>
+            9:16
+          </button>
+          <button onClick={() => setFormat('16:9')}
+            className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border transition-all
+              ${format === '16:9' ? 'border-primary bg-primary/10 text-primary' : 'border-border/50 bg-secondary/40 text-muted-foreground hover:text-foreground'}`}>
+            <svg width="16" height="10" viewBox="0 0 16 10" fill="none" className="opacity-60"><rect x="0.5" y="0.5" width="15" height="9" rx="1.5" stroke="currentColor" /></svg>
+            16:9
+          </button>
+        </div>
+      </div>
+
+      {/* Brand colors */}
+      <div className="space-y-1.5">
+        <FieldLabel>Color</FieldLabel>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="space-y-1">
+            <span className="text-[10px] text-muted-foreground">Background</span>
+            <div className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-xl px-3 py-2">
+              <input type="color" value={brandKit.bgColor}
+                onChange={e => setBrandKit({ ...brandKit, bgColor: e.target.value })}
+                className="w-5 h-5 rounded border-0 cursor-pointer bg-transparent p-0 shrink-0" />
+              <span className="text-[10px] text-muted-foreground font-mono uppercase">{brandKit.bgColor}</span>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <span className="text-[10px] text-muted-foreground">Primary</span>
+            <div className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-xl px-3 py-2">
+              <input type="color" value={brandKit.bgColor}
+                onChange={e => setBrandKit({ ...brandKit, bgColor: e.target.value })}
+                className="w-5 h-5 rounded border-0 cursor-pointer bg-transparent p-0 shrink-0" />
+              <span className="text-[10px] text-muted-foreground font-mono uppercase">{brandKit.bgColor}</span>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <span className="text-[10px] text-muted-foreground">Secondary</span>
+            <div className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-xl px-3 py-2">
+              <input type="color" value={brandKit.accentColor}
+                onChange={e => setBrandKit({ ...brandKit, accentColor: e.target.value })}
+                className="w-5 h-5 rounded border-0 cursor-pointer bg-transparent p-0 shrink-0" />
+              <span className="text-[10px] text-muted-foreground font-mono uppercase">{brandKit.accentColor}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Gradient preview */}
+      <div className="relative h-10 rounded-xl overflow-hidden">
+        <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${brandKit.bgColor}, ${brandKit.accentColor})` }} />
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-white/90">Aa</div>
+      </div>
+
+      {/* Logo */}
+      <div className="space-y-1.5">
+        <FieldLabel>Logo</FieldLabel>
+        {brandKit.logoUrl ? (
+          <div className="flex items-center gap-3 bg-secondary/40 rounded-xl px-3 py-2">
+            <img src={brandKit.logoUrl} alt="Logo" className="h-8 object-contain" />
+            <div className="flex-1" />
+            <button onClick={() => setBrandKit({ ...brandKit, logoUrl: null })}
+              className="w-6 h-6 rounded-lg flex items-center justify-center hover:bg-muted transition-colors">
+              <X className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+          </div>
+        ) : (
+          <label className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary/60 border border-border/50 text-xs text-muted-foreground cursor-pointer hover:bg-secondary hover:text-foreground transition-all">
+            <Upload className="w-3.5 h-3.5" />
+            Upload logo
+            <input type="file" accept="image/*" className="hidden" onChange={e => {
+              const file = e.target.files?.[0];
+              if (file) setBrandKit({ ...brandKit, logoUrl: URL.createObjectURL(file) });
+            }} />
+          </label>
+        )}
+      </div>
+
+      {/* Slogan */}
+      <div className="space-y-1.5">
+        <FieldLabel>Slogan</FieldLabel>
+        <FieldInput value={brandKit.slogan}
+          onChange={v => setBrandKit({ ...brandKit, slogan: v })}
+          placeholder="e.g. Your tagline or website" />
+      </div>
+
+      {/* End screen */}
+      <div className="border-t border-border/20 pt-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs text-foreground font-medium">End screen</p>
+            <p className="text-[10px] text-muted-foreground">Show logo & slogan at the end</p>
+          </div>
+          <Switch checked={endScreen.enabled} onCheckedChange={val => setEndScreen({ ...endScreen, enabled: val })} />
+        </div>
+        {endScreen.enabled && (
+          <div className="flex items-center gap-2">
+            <FieldLabel>Duration</FieldLabel>
+            <select value={endScreen.duration}
+              onChange={e => setEndScreen({ ...endScreen, duration: Number(e.target.value) })}
+              className="bg-secondary/60 border border-border/50 rounded-lg px-2 py-1 text-xs text-foreground cursor-pointer">
+              <option value={2}>2s</option>
+              <option value={3}>3s</option>
+              <option value={5}>5s</option>
+            </select>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
