@@ -7,23 +7,6 @@ import Filmstrip from '@/components/editor/Filmstrip';
 import PlaybackControls from '@/components/editor/PlaybackControls';
 import SceneEditor from '@/components/editor/SceneEditor';
 import ExportButton from '@/components/editor/ExportButton';
-import { toast } from '@/hooks/use-toast';
-
-function useAIPrompt(onDone?: () => void) {
-  const [prompt, setPrompt] = useState('');
-  const [loading, setLoading] = useState(false);
-  const submit = () => {
-    if (!prompt.trim() || loading) return;
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setPrompt('');
-      toast({ title: 'AI applied changes', description: 'Your video has been updated.' });
-      onDone?.();
-    }, 2000);
-  };
-  return { prompt, setPrompt, loading, submit };
-}
 
 export default function Editor() {
   const {
