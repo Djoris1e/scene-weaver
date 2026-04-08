@@ -52,20 +52,6 @@ export default function Editor() {
           <Home className="w-4.5 h-4.5" />
         </button>
         <div className="flex-1" />
-        <div className="flex items-center bg-secondary/60 rounded-lg p-0.5 gap-0.5">
-          <button onClick={() => setFormat('9:16')}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium transition-all
-              ${format === '9:16' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-            <svg width="8" height="12" viewBox="0 0 8 12" fill="none"><rect x="0.5" y="0.5" width="7" height="11" rx="1" stroke="currentColor" strokeWidth="1" /></svg>
-            9:16
-          </button>
-          <button onClick={() => setFormat('16:9')}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium transition-all
-              ${format === '16:9' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-            <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><rect x="0.5" y="0.5" width="11" height="7" rx="1" stroke="currentColor" strokeWidth="1" /></svg>
-            16:9
-          </button>
-        </div>
         <ExportButton />
       </div>
 
