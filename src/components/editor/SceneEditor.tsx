@@ -3,8 +3,8 @@ import { Scene, TEXT_COLOR_PAIRINGS, FONT_OPTIONS, GRADIENT_STYLES, TEMPLATE_OPT
 import { BrandKit } from '@/hooks/useSceneStore';
 import {
   Globe, Upload, Trash2, X, ChevronDown,
-  Type, Paintbrush, Zap, Music, Diamond,
-  Play, Volume2, VolumeX,
+  Type, Paintbrush, Music,
+  Play,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import IconTabBar from '@/components/editor/IconTabBar';
