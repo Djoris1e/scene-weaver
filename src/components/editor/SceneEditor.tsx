@@ -612,6 +612,7 @@ export default function SceneEditor({
         {tab === 'content' && <ContentTab scene={scene} onUpdate={onUpdate} handleTemplateChange={handleTemplateChange} />}
         {tab === 'style' && <StyleTab scene={scene} onUpdate={onUpdate} brandKit={brandKit} setBrandKit={setBrandKit} endScreen={endScreen} setEndScreen={setEndScreen} />}
         {tab === 'audio' && <AudioTab />}
+        {tab === 'format' && <FormatTab />}
       </div>
     </div>
   );
