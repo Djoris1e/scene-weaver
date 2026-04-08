@@ -390,24 +390,6 @@ function StyleTab({ scene, onUpdate, brandKit, setBrandKit, endScreen, setEndScr
         <p className="text-[10px] text-muted-foreground/50 uppercase tracking-wider mb-3">Brand · applies to all scenes</p>
       </div>
 
-      {/* Format */}
-      <div className="space-y-1.5">
-        <FieldLabel>Format</FieldLabel>
-        <div className="grid grid-cols-2 gap-2">
-          <button onClick={() => setFormat('9:16')}
-            className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border transition-all
-              ${format === '9:16' ? 'border-primary bg-primary/10 text-primary' : 'border-border/50 bg-secondary/40 text-muted-foreground hover:text-foreground'}`}>
-            <svg width="10" height="16" viewBox="0 0 10 16" fill="none" className="opacity-60"><rect x="0.5" y="0.5" width="9" height="15" rx="1.5" stroke="currentColor" /></svg>
-            9:16
-          </button>
-          <button onClick={() => setFormat('16:9')}
-            className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border transition-all
-              ${format === '16:9' ? 'border-primary bg-primary/10 text-primary' : 'border-border/50 bg-secondary/40 text-muted-foreground hover:text-foreground'}`}>
-            <svg width="16" height="10" viewBox="0 0 16 10" fill="none" className="opacity-60"><rect x="0.5" y="0.5" width="15" height="9" rx="1.5" stroke="currentColor" /></svg>
-            16:9
-          </button>
-        </div>
-      </div>
 
       {/* Brand colors */}
       <div className="space-y-1.5">
