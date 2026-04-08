@@ -3,8 +3,8 @@ import { Scene, TEXT_COLOR_PAIRINGS, FONT_OPTIONS, GRADIENT_STYLES, TEMPLATE_OPT
 import { BrandKit } from '@/hooks/useSceneStore';
 import {
   Globe, Upload, Trash2, X, ChevronDown,
-  Type, Paintbrush, Zap, Music, Diamond,
-  Play, Volume2, VolumeX,
+  Type, Paintbrush, Music,
+  Play,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import IconTabBar from '@/components/editor/IconTabBar';
@@ -22,7 +22,7 @@ interface SceneEditorProps {
   setEndScreen: (v: { enabled: boolean; duration: number }) => void;
 }
 
-type EditorTab = 'content' | 'style' | 'motion' | 'audio' | 'brand';
+type EditorTab = 'content' | 'style' | 'audio';
 
 function FieldLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
   return (
@@ -225,8 +225,8 @@ function ContentTab({ scene, onUpdate, handleTemplateChange }: {
 
       {scene.template === 'end-screen' && (
         <div className="flex items-center gap-2 px-3 py-3 rounded-xl bg-accent/10 border border-accent/20">
-          <Diamond className="w-3.5 h-3.5 text-accent shrink-0" />
-          <span className="text-[11px] text-accent font-medium">End screen uses your Brand logo & slogan. Edit in the Brand tab.</span>
+          <Paintbrush className="w-3.5 h-3.5 text-accent shrink-0" />
+          <span className="text-[11px] text-accent font-medium">End screen uses your Brand logo & slogan. Edit in the Style tab.</span>
         </div>
       )}
 
@@ -247,18 +247,26 @@ function ContentTab({ scene, onUpdate, handleTemplateChange }: {
         </div>
       )}
 
-      {/* Transition — dropdown matching screenshot */}
-      <SelectField label="Transition" value={scene.transition}
+      {/* Motion controls (merged from Motion tab) */}
+      <SelectField label="Text effect" value={scene.textEffect}
         options={[
-          { value: 'default', label: 'Cut', description: 'Hard cut, no transition' },
-          { value: 'crossfade', label: 'Crossfade', description: 'Smooth blend between scenes' },
-          { value: 'zoom-in', label: 'Zoom In', description: 'Camera zooms into next scene' },
-          { value: 'flash', label: 'Flash', description: 'Bright flash transition' },
-          { value: 'slide', label: 'Slide', description: 'Slides to next scene' },
+          { value: 'default', label: 'None' },
+          { value: 'fade-in', label: 'Fade In', description: 'Text fades in smoothly' },
+          { value: 'typewriter', label: 'Typewriter', description: 'Character-by-character reveal' },
+          { value: 'scale-up', label: 'Scale Up', description: 'Text scales up from small' },
         ]}
-        onChange={v => onUpdate({ transition: v as any })} />
+        onChange={v => onUpdate({ textEffect: v as any })} />
 
-      {/* Template picker at bottom — horizontal scroll with visual thumbnails (matching screenshot) */}
+      <SelectField label="Animation" value={scene.animation}
+        options={[
+          { value: 'none', label: 'None' },
+          { value: 'ken-burns', label: 'Ken Burns', description: 'Slow pan and zoom' },
+          { value: 'drift', label: 'Drift', description: 'Gentle floating movement' },
+          { value: 'pulse', label: 'Pulse', description: 'Subtle pulsing effect' },
+        ]}
+        onChange={v => onUpdate({ animation: v as any })} />
+
+      {/* Template picker at bottom */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <div>
@@ -281,7 +289,6 @@ function ContentTab({ scene, onUpdate, handleTemplateChange }: {
                   ? 'border-primary'
                   : 'border-border/30 hover:border-muted-foreground/40'
                 }`}>
-                {/* Template preview bg */}
                 <div className="absolute inset-0 bg-secondary/80 flex items-center justify-center">
                   <div className="text-center px-2">
                     <span className="text-[9px] text-muted-foreground/70 leading-tight block">{t.description.slice(0, 40)}</span>
@@ -297,29 +304,25 @@ function ContentTab({ scene, onUpdate, handleTemplateChange }: {
                 <p className={`text-[11px] font-medium leading-tight ${scene.template === t.value ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
                   {t.label}
                 </p>
-                <p className="text-[9px] text-muted-foreground/50 leading-tight">{
-                  t.value === 'gradient-text' ? 'Great for hooks' :
-                  t.value === 'fullscreen' ? 'Great for hooks' :
-                  t.value === 'counter' ? '' :
-                  t.value === 'social-proof' ? '4.5s scene' :
-                  t.value === 'product-launch' ? '' :
-                  t.value === 'end-screen' ? '4s scene' : ''
-                }</p>
               </div>
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-muted-foreground/40 px-1">
-          Use ONLY when content has a clear single pain + single fix. NOT a generic explai
-        </p>
       </div>
     </div>
   );
 }
 
-function StyleTab({ scene, onUpdate }: { scene: Scene; onUpdate: (u: Partial<Scene>) => void }) {
+function StyleTab({ scene, onUpdate, brandKit, setBrandKit, endScreen, setEndScreen }: {
+  scene: Scene; onUpdate: (u: Partial<Scene>) => void;
+  brandKit: BrandKit; setBrandKit: (v: BrandKit) => void;
+  endScreen: { enabled: boolean; duration: number }; setEndScreen: (v: { enabled: boolean; duration: number }) => void;
+}) {
+  const [format, setFormat] = useState<'9:16' | '16:9'>('9:16');
+
   return (
     <div className="space-y-4 animate-in fade-in-0 duration-200">
+      {/* Per-scene style */}
       <div className="space-y-1.5">
         <FieldLabel>Font</FieldLabel>
         <div className="flex gap-2">
@@ -381,160 +384,35 @@ function StyleTab({ scene, onUpdate }: { scene: Scene; onUpdate: (u: Partial<Sce
           </div>
         </div>
       )}
-    </div>
-  );
-}
 
-function MotionTab({ scene, onUpdate }: { scene: Scene; onUpdate: (u: Partial<Scene>) => void }) {
-  return (
-    <div className="space-y-4 animate-in fade-in-0 duration-200">
-      <SelectField label="Transition" value={scene.transition}
-        options={[
-          { value: 'default', label: 'Cut', description: 'Hard cut, no transition' },
-          { value: 'crossfade', label: 'Crossfade', description: 'Smooth blend between scenes' },
-          { value: 'zoom-in', label: 'Zoom In', description: 'Camera zooms into next scene' },
-          { value: 'flash', label: 'Flash', description: 'Bright flash transition' },
-          { value: 'slide', label: 'Slide', description: 'Slides to next scene' },
-        ]}
-        onChange={v => onUpdate({ transition: v as any })} />
-
-      <SelectField label="Text effect" value={scene.textEffect}
-        options={[
-          { value: 'default', label: 'None' },
-          { value: 'fade-in', label: 'Fade In', description: 'Text fades in smoothly' },
-          { value: 'typewriter', label: 'Typewriter', description: 'Character-by-character reveal' },
-          { value: 'scale-up', label: 'Scale Up', description: 'Text scales up from small' },
-        ]}
-        onChange={v => onUpdate({ textEffect: v as any })} />
-
-      <SelectField label="Animation" value={scene.animation}
-        options={[
-          { value: 'none', label: 'None' },
-          { value: 'ken-burns', label: 'Ken Burns', description: 'Slow pan and zoom' },
-          { value: 'drift', label: 'Drift', description: 'Gentle floating movement' },
-          { value: 'pulse', label: 'Pulse', description: 'Subtle pulsing effect' },
-        ]}
-        onChange={v => onUpdate({ animation: v as any })} />
-    </div>
-  );
-}
-
-function AudioTab() {
-  const [selectedTrack, setSelectedTrack] = useState('funky-groove');
-
-  return (
-    <div className="space-y-3 animate-in fade-in-0 duration-200">
-      <p className="text-[11px] text-muted-foreground">
-        Pick a new track. Scenes will automatically re-sync to the new beats.
-      </p>
-
-      {/* Track list — matching screenshot: play button, name, duration, vibes, vibe matches, Use button */}
-      <div className="space-y-2">
-        {AUDIO_TRACKS.map(track => (
-          <div key={track.id}
-            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all
-              ${selectedTrack === track.id
-                ? 'bg-primary/10 border border-primary/30'
-                : 'bg-secondary/30 border border-border/30 hover:bg-secondary/50'
-              }`}>
-            {/* Play button — circular, matching screenshot */}
-            <button className="w-9 h-9 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 hover:bg-primary/30 transition-colors">
-              <Play className="w-4 h-4 ml-0.5" />
-            </button>
-
-            {/* Track info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <p className="text-xs font-semibold text-foreground truncate">{track.name}</p>
-              </div>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[10px] text-muted-foreground font-medium">{track.duration}</span>
-                <span className="text-[10px] text-muted-foreground/40">·</span>
-                <span className="text-[10px] text-muted-foreground">{track.vibes.join(', ')}</span>
-                <span className="text-[10px] text-muted-foreground/40">·</span>
-                <span className="text-[10px] text-accent font-medium">
-                  {track.vibeMatches} vibe match{track.vibeMatches !== 1 ? 'es' : ''}
-                </span>
-              </div>
-            </div>
-
-            {/* Use button — pink pill matching screenshot */}
-            <button
-              onClick={() => setSelectedTrack(track.id)}
-              className={`px-3.5 py-1.5 rounded-full text-[11px] font-semibold transition-all shrink-0
-                ${selectedTrack === track.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                }`}>
-              Use
-            </button>
-          </div>
-        ))}
+      {/* Brand section divider */}
+      <div className="border-t border-border/20 pt-4">
+        <p className="text-[10px] text-muted-foreground/50 uppercase tracking-wider mb-3">Brand · applies to all scenes</p>
       </div>
-    </div>
-  );
-}
 
-function BrandTab({ brandKit, setBrandKit, endScreen, setEndScreen }: {
-  brandKit: BrandKit; setBrandKit: (v: BrandKit) => void;
-  endScreen: { enabled: boolean; duration: number }; setEndScreen: (v: { enabled: boolean; duration: number }) => void;
-}) {
-  const [format, setFormat] = useState<'9:16' | '16:9'>('9:16');
-
-  return (
-    <div className="space-y-4 animate-in fade-in-0 duration-200">
-      {/* FORMAT — toggle buttons matching screenshot */}
+      {/* Format */}
       <div className="space-y-1.5">
         <FieldLabel>Format</FieldLabel>
         <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => setFormat('9:16')}
+          <button onClick={() => setFormat('9:16')}
             className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border transition-all
-              ${format === '9:16'
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border/50 bg-secondary/40 text-muted-foreground hover:text-foreground'
-              }`}>
-            <svg width="10" height="16" viewBox="0 0 10 16" fill="none" className="opacity-60">
-              <rect x="0.5" y="0.5" width="9" height="15" rx="1.5" stroke="currentColor" />
-            </svg>
+              ${format === '9:16' ? 'border-primary bg-primary/10 text-primary' : 'border-border/50 bg-secondary/40 text-muted-foreground hover:text-foreground'}`}>
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="none" className="opacity-60"><rect x="0.5" y="0.5" width="9" height="15" rx="1.5" stroke="currentColor" /></svg>
             9:16
           </button>
-          <button
-            onClick={() => setFormat('16:9')}
+          <button onClick={() => setFormat('16:9')}
             className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border transition-all
-              ${format === '16:9'
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border/50 bg-secondary/40 text-muted-foreground hover:text-foreground'
-              }`}>
-            <svg width="16" height="10" viewBox="0 0 16 10" fill="none" className="opacity-60">
-              <rect x="0.5" y="0.5" width="15" height="9" rx="1.5" stroke="currentColor" />
-            </svg>
+              ${format === '16:9' ? 'border-primary bg-primary/10 text-primary' : 'border-border/50 bg-secondary/40 text-muted-foreground hover:text-foreground'}`}>
+            <svg width="16" height="10" viewBox="0 0 16 10" fill="none" className="opacity-60"><rect x="0.5" y="0.5" width="15" height="9" rx="1.5" stroke="currentColor" /></svg>
             16:9
           </button>
         </div>
       </div>
 
-      {/* FONT — dropdown matching screenshot */}
-      <div className="space-y-1.5">
-        <FieldLabel>Font</FieldLabel>
-        <div className="relative">
-          <select
-            className="w-full appearance-none bg-secondary/60 border border-border/50 rounded-xl px-4 pt-2.5 pb-2 text-sm font-medium text-foreground cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors"
-          >
-            {FONT_OPTIONS.map(f => (
-              <option key={f.id} value={f.id}>{f.label}</option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-        </div>
-      </div>
-
-      {/* COLOR — Background / Primary / Secondary with hex inputs matching screenshot */}
+      {/* Brand colors */}
       <div className="space-y-1.5">
         <FieldLabel>Color</FieldLabel>
-        <p className="text-[10px] text-muted-foreground/50">Applied to all scenes</p>
         <div className="grid grid-cols-3 gap-3">
-          {/* Background */}
           <div className="space-y-1">
             <span className="text-[10px] text-muted-foreground">Background</span>
             <div className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-xl px-3 py-2">
@@ -544,7 +422,6 @@ function BrandTab({ brandKit, setBrandKit, endScreen, setEndScreen }: {
               <span className="text-[10px] text-muted-foreground font-mono uppercase">{brandKit.bgColor}</span>
             </div>
           </div>
-          {/* Primary */}
           <div className="space-y-1">
             <span className="text-[10px] text-muted-foreground">Primary</span>
             <div className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-xl px-3 py-2">
@@ -554,7 +431,6 @@ function BrandTab({ brandKit, setBrandKit, endScreen, setEndScreen }: {
               <span className="text-[10px] text-muted-foreground font-mono uppercase">{brandKit.bgColor}</span>
             </div>
           </div>
-          {/* Secondary */}
           <div className="space-y-1">
             <span className="text-[10px] text-muted-foreground">Secondary</span>
             <div className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-xl px-3 py-2">
@@ -567,7 +443,7 @@ function BrandTab({ brandKit, setBrandKit, endScreen, setEndScreen }: {
         </div>
       </div>
 
-      {/* Gradient preview bar — matching screenshot bottom bar with "Aa" */}
+      {/* Gradient preview */}
       <div className="relative h-10 rounded-xl overflow-hidden">
         <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${brandKit.bgColor}, ${brandKit.accentColor})` }} />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-white/90">Aa</div>
@@ -631,14 +507,54 @@ function BrandTab({ brandKit, setBrandKit, endScreen, setEndScreen }: {
   );
 }
 
+function AudioTab() {
+  const [selectedTrack, setSelectedTrack] = useState('funky-groove');
+
+  return (
+    <div className="space-y-3 animate-in fade-in-0 duration-200">
+      <p className="text-[11px] text-muted-foreground">
+        Pick a new track. Scenes will automatically re-sync to the new beats.
+      </p>
+      <div className="space-y-2">
+        {AUDIO_TRACKS.map(track => (
+          <div key={track.id}
+            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all
+              ${selectedTrack === track.id
+                ? 'bg-primary/10 border border-primary/30'
+                : 'bg-secondary/30 border border-border/30 hover:bg-secondary/50'
+              }`}>
+            <button className="w-9 h-9 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 hover:bg-primary/30 transition-colors">
+              <Play className="w-4 h-4 ml-0.5" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-foreground truncate">{track.name}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-[10px] text-muted-foreground font-medium">{track.duration}</span>
+                <span className="text-[10px] text-muted-foreground/40">·</span>
+                <span className="text-[10px] text-muted-foreground">{track.vibes.join(', ')}</span>
+                <span className="text-[10px] text-muted-foreground/40">·</span>
+                <span className="text-[10px] text-accent font-medium">
+                  {track.vibeMatches} vibe match{track.vibeMatches !== 1 ? 'es' : ''}
+                </span>
+              </div>
+            </div>
+            <button onClick={() => setSelectedTrack(track.id)}
+              className="px-3.5 py-1.5 rounded-full text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shrink-0">
+              Use
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───
 
 const EDITOR_TABS = [
   { id: 'content', label: 'Content', icon: <Type className="w-4 h-4" /> },
   { id: 'style', label: 'Style', icon: <Paintbrush className="w-4 h-4" /> },
-  { id: 'motion', label: 'Motion', icon: <Zap className="w-4 h-4" /> },
   { id: 'audio', label: 'Audio', icon: <Music className="w-4 h-4" /> },
-  { id: 'brand', label: 'Brand', icon: <Diamond className="w-4 h-4" /> },
 ];
 
 export default function SceneEditor({
@@ -658,7 +574,6 @@ export default function SceneEditor({
 
   return (
     <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-border/30 overflow-hidden">
-      {/* Header — matching screenshot: "Scene 1/7 · 0.0s - 4.5s  🗑" */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/20">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-foreground italic">Scene {index + 1}/{totalScenes}</span>
@@ -674,16 +589,12 @@ export default function SceneEditor({
         </div>
       </div>
 
-      {/* 5-tab icon bar */}
       <IconTabBar tabs={EDITOR_TABS} active={tab} onChange={id => setTab(id as EditorTab)} />
 
-      {/* Tab content */}
       <div className="px-4 py-4">
         {tab === 'content' && <ContentTab scene={scene} onUpdate={onUpdate} handleTemplateChange={handleTemplateChange} />}
-        {tab === 'style' && <StyleTab scene={scene} onUpdate={onUpdate} />}
-        {tab === 'motion' && <MotionTab scene={scene} onUpdate={onUpdate} />}
+        {tab === 'style' && <StyleTab scene={scene} onUpdate={onUpdate} brandKit={brandKit} setBrandKit={setBrandKit} endScreen={endScreen} setEndScreen={setEndScreen} />}
         {tab === 'audio' && <AudioTab />}
-        {tab === 'brand' && <BrandTab brandKit={brandKit} setBrandKit={setBrandKit} endScreen={endScreen} setEndScreen={setEndScreen} />}
       </div>
     </div>
   );
