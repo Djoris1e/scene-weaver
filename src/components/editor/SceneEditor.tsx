@@ -533,12 +533,6 @@ function AudioTab() {
 
 // ─── Main Component ───
 
-const EDITOR_TABS = [
-  { id: 'content', label: 'Scene', icon: <Type className="w-4 h-4" /> },
-  { id: 'style', label: 'Style', icon: <Paintbrush className="w-4 h-4" /> },
-  { id: 'audio', label: 'Audio', icon: <Music className="w-4 h-4" /> },
-];
-
 export default function SceneEditor({
   scene, index, onUpdate, onDelete, onClose, totalScenes,
   brandKit, setBrandKit, endScreen, setEndScreen,
@@ -546,6 +540,25 @@ export default function SceneEditor({
   const [tab, setTab] = useState<EditorTab>('content');
   const [format, setFormat] = useState<'9:16' | '16:9'>('9:16');
   const altFormat = format === '9:16' ? '16:9' : '9:16';
+
+  const formatIcon = altFormat === '16:9'
+    ? <svg width="16" height="10" viewBox="0 0 16 10" fill="none"><rect x="0.5" y="0.5" width="15" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.2" /></svg>
+    : <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><rect x="0.5" y="0.5" width="9" height="15" rx="1.5" stroke="currentColor" strokeWidth="1.2" /></svg>;
+
+  const editorTabs = [
+    { id: 'content', label: 'Scene', icon: <Type className="w-4 h-4" /> },
+    { id: 'style', label: 'Style', icon: <Paintbrush className="w-4 h-4" /> },
+    { id: 'audio', label: 'Audio', icon: <Music className="w-4 h-4" /> },
+    { id: 'format', label: altFormat, icon: formatIcon },
+  ];
+
+  const handleTabChange = (id: string) => {
+    if (id === 'format') {
+      setFormat(altFormat);
+    } else {
+      setTab(id as EditorTab);
+    }
+  };
 
   const handleTemplateChange = (t: string) => {
     const template = t as TemplateType;
@@ -564,15 +577,6 @@ export default function SceneEditor({
           <span className="text-[10px] text-muted-foreground tabular-nums">{scene.startTime.toFixed(1)}s – {scene.endTime.toFixed(1)}s</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <button onClick={() => setFormat(altFormat)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary/60 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
-            {altFormat === '16:9' ? (
-              <svg width="14" height="9" viewBox="0 0 14 9" fill="none"><rect x="0.5" y="0.5" width="13" height="8" rx="1" stroke="currentColor" strokeWidth="1" /></svg>
-            ) : (
-              <svg width="9" height="14" viewBox="0 0 9 14" fill="none"><rect x="0.5" y="0.5" width="8" height="13" rx="1" stroke="currentColor" strokeWidth="1" /></svg>
-            )}
-            <span className="text-[11px] font-medium">{altFormat}</span>
-          </button>
           {totalScenes > 1 && (
             <button onClick={onDelete}
               className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all">
@@ -582,13 +586,12 @@ export default function SceneEditor({
         </div>
       </div>
 
-      <IconTabBar tabs={EDITOR_TABS} active={tab} onChange={id => setTab(id as EditorTab)} />
+      <IconTabBar tabs={editorTabs} active={tab} onChange={handleTabChange} />
 
       <div className="px-4 py-4">
         {tab === 'content' && <ContentTab scene={scene} onUpdate={onUpdate} handleTemplateChange={handleTemplateChange} />}
         {tab === 'style' && <StyleTab scene={scene} onUpdate={onUpdate} brandKit={brandKit} setBrandKit={setBrandKit} endScreen={endScreen} setEndScreen={setEndScreen} />}
         {tab === 'audio' && <AudioTab />}
-        
       </div>
     </div>
   );
