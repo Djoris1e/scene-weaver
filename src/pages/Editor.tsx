@@ -15,7 +15,7 @@ export default function Editor() {
     brandKit, setBrandKit, endScreen, setEndScreen,
   } = useSceneStore();
   const navigate = useNavigate();
-  const [format, setFormat] = useState<'9:16' | '16:9'>('9:16');
+  
 
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
