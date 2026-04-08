@@ -3,7 +3,7 @@ import { Scene, TEXT_COLOR_PAIRINGS, FONT_OPTIONS, GRADIENT_STYLES, TEMPLATE_OPT
 import { BrandKit } from '@/hooks/useSceneStore';
 import {
   Globe, Upload, Trash2, X, ChevronDown,
-  Type, Paintbrush, Music,
+  Type, Paintbrush, Music, Monitor,
   Play,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
@@ -22,7 +22,7 @@ interface SceneEditorProps {
   setEndScreen: (v: { enabled: boolean; duration: number }) => void;
 }
 
-type EditorTab = 'content' | 'style' | 'audio';
+type EditorTab = 'content' | 'style' | 'audio' | 'format';
 
 function FieldLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
   return (
@@ -533,10 +533,45 @@ function AudioTab() {
 
 // ─── Main Component ───
 
+function FormatTab() {
+  const [format, setFormat] = useState<'9:16' | '16:9'>('9:16');
+
+  return (
+    <div className="space-y-4 animate-in fade-in-0 duration-200">
+      <p className="text-[11px] text-muted-foreground">Choose the aspect ratio for your video.</p>
+      <div className="grid grid-cols-2 gap-3">
+        <button onClick={() => setFormat('9:16')}
+          className={`flex flex-col items-center gap-3 py-6 rounded-xl border-2 transition-all
+            ${format === '9:16' ? 'border-primary bg-primary/10' : 'border-border/50 bg-secondary/40 hover:border-muted-foreground/30'}`}>
+          <svg width="28" height="48" viewBox="0 0 28 48" fill="none" className={format === '9:16' ? 'text-primary' : 'text-muted-foreground'}>
+            <rect x="1" y="1" width="26" height="46" rx="3" stroke="currentColor" strokeWidth="2" />
+          </svg>
+          <div className="text-center">
+            <p className={`text-sm font-semibold ${format === '9:16' ? 'text-primary' : 'text-foreground'}`}>9:16</p>
+            <p className="text-[10px] text-muted-foreground">Reels · TikTok · Shorts</p>
+          </div>
+        </button>
+        <button onClick={() => setFormat('16:9')}
+          className={`flex flex-col items-center gap-3 py-6 rounded-xl border-2 transition-all
+            ${format === '16:9' ? 'border-primary bg-primary/10' : 'border-border/50 bg-secondary/40 hover:border-muted-foreground/30'}`}>
+          <svg width="48" height="28" viewBox="0 0 48 28" fill="none" className={format === '16:9' ? 'text-primary' : 'text-muted-foreground'}>
+            <rect x="1" y="1" width="46" height="26" rx="3" stroke="currentColor" strokeWidth="2" />
+          </svg>
+          <div className="text-center">
+            <p className={`text-sm font-semibold ${format === '16:9' ? 'text-primary' : 'text-foreground'}`}>16:9</p>
+            <p className="text-[10px] text-muted-foreground">YouTube · Ads · Presentations</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const EDITOR_TABS = [
   { id: 'content', label: 'Content', icon: <Type className="w-4 h-4" /> },
   { id: 'style', label: 'Style', icon: <Paintbrush className="w-4 h-4" /> },
   { id: 'audio', label: 'Audio', icon: <Music className="w-4 h-4" /> },
+  { id: 'format', label: 'Format', icon: <Monitor className="w-4 h-4" /> },
 ];
 
 export default function SceneEditor({
@@ -577,6 +612,7 @@ export default function SceneEditor({
         {tab === 'content' && <ContentTab scene={scene} onUpdate={onUpdate} handleTemplateChange={handleTemplateChange} />}
         {tab === 'style' && <StyleTab scene={scene} onUpdate={onUpdate} brandKit={brandKit} setBrandKit={setBrandKit} endScreen={endScreen} setEndScreen={setEndScreen} />}
         {tab === 'audio' && <AudioTab />}
+        {tab === 'format' && <FormatTab />}
       </div>
     </div>
   );
