@@ -111,44 +111,6 @@ export default function Editor() {
         </div>
       )}
 
-      {/* Floating bar */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-[500px]">
-        {aiExpanded ? (
-          <div className="flex items-center gap-2 bg-card/95 backdrop-blur-md rounded-2xl p-2 border border-border shadow-xl">
-            <div className="flex-1 min-w-0 flex items-center gap-2 bg-secondary rounded-xl px-3 py-2">
-              <Sparkles className="w-3.5 h-3.5 text-accent shrink-0" />
-              <input
-                value={ai.prompt} onChange={e => ai.setPrompt(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Escape') { ai.setPrompt(''); setAiExpanded(false); } if (e.key === 'Enter') ai.submit(); }}
-                placeholder="Describe changes…"
-                className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
-                disabled={ai.loading} autoFocus
-              />
-              {ai.prompt.trim() && (
-                <button onClick={ai.submit} disabled={ai.loading}
-                  className="w-6 h-6 rounded-lg bg-primary/20 text-primary flex items-center justify-center hover:bg-primary/30 transition-colors disabled:opacity-40 shrink-0">
-                  {ai.loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
-                </button>
-              )}
-            </div>
-            <button onClick={() => { ai.setPrompt(''); setAiExpanded(false); }}
-              className="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 bg-card/95 backdrop-blur-md rounded-2xl p-2 border border-border shadow-xl">
-            <button onClick={() => navigate('/')}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-border text-sm font-medium text-foreground hover:bg-secondary transition-colors">
-              <Plus className="w-4 h-4" /> New Video
-            </button>
-            <button onClick={() => setAiExpanded(true)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
-              <Sparkles className="w-4 h-4" /> Edit with AI
-            </button>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
