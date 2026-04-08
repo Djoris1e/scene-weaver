@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSceneStore } from '@/hooks/useSceneStore';
-import { Home, Plus, Sparkles, Send, Loader2, X } from 'lucide-react';
+import { Home } from 'lucide-react';
 import Preview from '@/components/editor/Preview';
 import Filmstrip from '@/components/editor/Filmstrip';
 import PlaybackControls from '@/components/editor/PlaybackControls';
