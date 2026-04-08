@@ -568,7 +568,7 @@ function FormatTab() {
 }
 
 const EDITOR_TABS = [
-  { id: 'content', label: 'Content', icon: <Type className="w-4 h-4" /> },
+  { id: 'content', label: 'Scene', icon: <Type className="w-4 h-4" /> },
   { id: 'style', label: 'Style', icon: <Paintbrush className="w-4 h-4" /> },
   { id: 'audio', label: 'Audio', icon: <Music className="w-4 h-4" /> },
   { id: 'format', label: 'Format', icon: <Monitor className="w-4 h-4" /> },
