@@ -19,9 +19,6 @@ export default function Editor() {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [editingScene, setEditingScene] = useState<number | null>(0);
-  const [aiExpanded, setAiExpanded] = useState(false);
-
-  const ai = useAIPrompt(() => setAiExpanded(false));
 
   const getSceneAtTime = useCallback((time: number) => {
     let cumulative = 0;
