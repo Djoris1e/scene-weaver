@@ -195,65 +195,79 @@ function BrandPanel({
   compact?: boolean;
 }) {
   return (
-    <div className={`space-y-3 ${compact ? '' : 'p-4 rounded-xl bg-card/60 border border-border/40'}`}>
-      <div className="flex items-center gap-4">
-        <div className="space-y-1">
-          <label className="text-xs text-muted-foreground">Primary</label>
-          <div className="flex items-center gap-2">
+    <div className={`space-y-4 ${compact ? '' : 'p-4 rounded-xl'}`} style={compact ? undefined : { background: 'hsla(240,36%,11%,0.8)', boxShadow: 'inset 0 0 0 1px hsla(240,20%,16%,1)' }}>
+      {/* Color pickers */}
+      <div className="flex flex-wrap gap-4">
+        <label className="flex items-center gap-2 cursor-pointer group">
+          <div className="relative">
             <input
               type="color"
               value={brand.primaryColor}
               onChange={e => setBrand(prev => ({ ...prev, primaryColor: e.target.value }))}
-              className="w-8 h-8 rounded-lg border border-border cursor-pointer bg-transparent"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
-            <span className="text-xs text-muted-foreground font-mono">{brand.primaryColor}</span>
+            <div
+              className="w-9 h-9 rounded-lg border border-border group-hover:border-foreground/30 transition-colors"
+              style={{ backgroundColor: brand.primaryColor }}
+            />
           </div>
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs text-muted-foreground">Accent</label>
-          <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">Primary</span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer group">
+          <div className="relative">
             <input
               type="color"
               value={brand.accentColor}
               onChange={e => setBrand(prev => ({ ...prev, accentColor: e.target.value }))}
-              className="w-8 h-8 rounded-lg border border-border cursor-pointer bg-transparent"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
-            <span className="text-xs text-muted-foreground font-mono">{brand.accentColor}</span>
+            <div
+              className="w-9 h-9 rounded-lg border border-border group-hover:border-foreground/30 transition-colors"
+              style={{ backgroundColor: brand.accentColor }}
+            />
           </div>
-        </div>
+          <span className="text-xs text-muted-foreground">Accent</span>
+        </label>
       </div>
 
+      {/* Logo */}
       <div className="flex items-center gap-3">
         {brand.logoPreview ? (
-          <div className="relative group">
-            <div className="h-10 px-3 rounded-lg border border-border bg-secondary/40 flex items-center">
-              <img src={brand.logoPreview} alt="Logo" className="h-6 object-contain" />
-            </div>
+          <div className="relative inline-block group">
+            <img
+              src={brand.logoPreview}
+              alt="Logo preview"
+              className="h-12 rounded-lg border border-border bg-secondary/40 p-2 object-contain"
+            />
             <button
               onClick={() => setBrand(prev => ({ ...prev, logo: null, logoPreview: null }))}
-              className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              <X className="w-2.5 h-2.5" />
+              <X className="w-3 h-3" />
             </button>
           </div>
         ) : (
-          <button
-            onClick={() => logoRef.current?.click()}
-            className="h-10 px-3 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors flex items-center gap-1.5"
-          >
-            <FileImage className="w-3.5 h-3.5" /> Logo
-          </button>
+          <label className="flex cursor-pointer items-center gap-2 group">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-dashed border-border/60 transition-all group-hover:border-primary/40">
+              <FileImage className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+              Upload logo
+            </span>
+            <input ref={logoRef} type="file" accept="image/*" onChange={onLogoUpload} className="hidden" />
+          </label>
         )}
-        <input ref={logoRef} type="file" accept="image/*" onChange={onLogoUpload} className="hidden" />
-
-        <select
-          value={brand.font}
-          onChange={e => setBrand(prev => ({ ...prev, font: e.target.value }))}
-          className="h-10 bg-secondary/60 border border-border rounded-lg px-3 text-xs text-foreground focus:outline-none focus:border-primary/40"
-        >
-          {FONTS.map(f => <option key={f} value={f}>{f}</option>)}
-        </select>
       </div>
+
+      {/* Font select */}
+      <select
+        value={brand.font}
+        onChange={e => setBrand(prev => ({ ...prev, font: e.target.value }))}
+        className="h-10 rounded-xl border-0 px-4 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
+        style={{ background: 'hsl(240,36%,9%)' }}
+      >
+        {FONTS.map(f => <option key={f} value={f}>{f}</option>)}
+      </select>
     </div>
   );
 }
