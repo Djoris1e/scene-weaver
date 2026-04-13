@@ -279,24 +279,46 @@ function ContentSourceChips({ active, onSelect }: { active: string | null; onSel
 }
 
 function ContentSourceInput({ source, state }: { source: string; state: CreateState }) {
-  if (source === 'blog' || source === 'release' || source === 'url') {
+  const isUrlSource = source === 'blog' || source === 'release' || source === 'url';
+  const urlIsValid = state.url.trim().length > 0 && /^https?:\/\/.+\..+/.test(state.url.trim());
+
+  if (isUrlSource) {
     return (
       <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
-        <div className="flex items-center gap-2 bg-card/60 border border-border rounded-xl px-4 py-3">
-          <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
-          <input
-            value={state.url}
-            onChange={e => state.setUrl(e.target.value)}
-            placeholder={source === 'blog' ? 'Paste your blog post URL…' : source === 'release' ? 'Paste your changelog or release notes URL…' : 'Paste any URL…'}
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
-            autoFocus
-          />
-          {state.url && (
-            <button onClick={() => state.setUrl('')} className="text-muted-foreground hover:text-foreground">
+        {urlIsValid ? (
+          /* ── Confirmed URL chip ── */
+          <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-xl px-4 py-3">
+            <Globe className="w-4 h-4 text-primary shrink-0" />
+            <span className="flex-1 text-sm text-foreground truncate">{state.url}</span>
+            <button onClick={() => state.setUrl('')} className="text-muted-foreground hover:text-foreground transition-colors">
               <X className="w-3.5 h-3.5" />
             </button>
-          )}
-        </div>
+          </div>
+        ) : (
+          /* ── Empty / typing state ── */
+          <div className="flex items-center gap-2 bg-card/60 border border-border rounded-xl px-4 py-3 focus-within:border-primary/40 transition-colors">
+            <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+            <input
+              value={state.url}
+              onChange={e => state.setUrl(e.target.value)}
+              onPaste={e => {
+                const pasted = e.clipboardData.getData('text').trim();
+                if (/^https?:\/\/.+\..+/.test(pasted)) {
+                  e.preventDefault();
+                  state.setUrl(pasted);
+                }
+              }}
+              placeholder={source === 'blog' ? 'Paste your blog post URL…' : source === 'release' ? 'Paste your changelog URL…' : 'Paste any URL…'}
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
+              autoFocus
+            />
+            {state.url && (
+              <button onClick={() => state.setUrl('')} className="text-muted-foreground hover:text-foreground transition-colors">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        )}
       </motion.div>
     );
   }
