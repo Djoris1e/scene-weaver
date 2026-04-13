@@ -280,13 +280,21 @@ function ContentSourceChips({ active, onSelect }: { active: string | null; onSel
           <button
             key={s.id}
             onClick={() => onSelect(active === s.id ? '' : s.id)}
-            className={`group flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium transition-all duration-200 ${
-              active === s.id
-                ? 'bg-primary/15 text-primary border border-primary/30'
-                : 'bg-card/50 text-muted-foreground border border-border/40 hover:border-border hover:text-foreground'
-            }`}
+            onMouseEnter={e => {
+              if (active !== s.id) e.currentTarget.style.boxShadow = 'inset 0 0 0 1.5px hsla(338,72%,59%,0.6)';
+            }}
+            onMouseLeave={e => {
+              if (active !== s.id) e.currentTarget.style.boxShadow = 'inset 0 0 0 1px hsla(338,72%,59%,0.3)';
+            }}
+            className="group flex items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-foreground transition-all duration-200 cursor-pointer"
+            style={{
+              background: 'hsla(240,36%,11%,0.8)',
+              boxShadow: active === s.id
+                ? 'inset 0 0 0 1.5px hsla(338,72%,59%,0.7)'
+                : 'inset 0 0 0 1px hsla(338,72%,59%,0.3)',
+            }}
           >
-            <s.icon className={`w-3.5 h-3.5 ${active === s.id ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
+            <s.icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${active === s.id ? 'text-primary' : 'text-muted-foreground transition-colors group-hover:text-primary'}`} />
             {s.label}
           </button>
         ))}
