@@ -825,6 +825,172 @@ function OptionD(state: CreateState) {
 }
 
 /* ═══════════════════════════════════════════════
+   OPTION E — Unified Prompt Card (Hybrid A+C)
+   ═══════════════════════════════════════════════ */
+function OptionE(state: CreateState) {
+  const [openPanel, setOpenPanel] = useState<'media' | 'brand' | null>(null);
+  const toggle = (panel: 'media' | 'brand') => setOpenPanel(prev => prev === panel ? null : panel);
+
+  const urlMatch = state.prompt.match(/https?:\/\/[^\s]+/);
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer.files.length) state.addFiles('background', e.dataTransfer.files);
+  };
+
+  const showUrlInput = state.contentSource === 'blog' || state.contentSource === 'release' || state.contentSource === 'url';
+  const showDocInput = state.contentSource === 'doc';
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
+      <div className="w-full max-w-xl space-y-4">
+        <h1 className="text-2xl font-heading font-semibold text-center mb-1">
+          What should we make?
+        </h1>
+        <p className="text-xs text-muted-foreground text-center mb-6">
+          Turn blog posts, release notes, docs, or any idea into video
+        </p>
+
+        <div
+          className="rounded-2xl border border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-xl shadow-black/20"
+          onDragOver={e => e.preventDefault()}
+          onDrop={handleDrop}
+        >
+          {/* Content source pills */}
+          <div className="flex flex-wrap gap-1.5 px-4 pt-4 pb-2">
+            {CONTENT_SOURCES.map(s => (
+              <button
+                key={s.id}
+                onClick={() => state.setContentSource(state.contentSource === s.id ? null : s.id)}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 ${
+                  state.contentSource === s.id
+                    ? 'bg-primary/15 text-primary border border-primary/30'
+                    : 'bg-secondary/50 text-muted-foreground border border-transparent hover:bg-secondary hover:text-foreground'
+                }`}
+              >
+                <s.icon className="w-3 h-3" />
+                {s.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Inline URL input */}
+          <AnimatePresence mode="wait">
+            {showUrlInput && (
+              <motion.div key="url-input" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                <div className="mx-4 mb-2 flex items-center gap-2 bg-secondary/40 border border-border/60 rounded-xl px-3 py-2.5">
+                  <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <input
+                    value={state.url}
+                    onChange={e => state.setUrl(e.target.value)}
+                    placeholder={state.contentSource === 'blog' ? 'Paste your blog post URL…' : state.contentSource === 'release' ? 'Paste changelog or release notes URL…' : 'Paste any URL…'}
+                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
+                    autoFocus
+                  />
+                  {state.url && (
+                    <button onClick={() => state.setUrl('')} className="text-muted-foreground hover:text-foreground"><X className="w-3.5 h-3.5" /></button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+            {showDocInput && (
+              <motion.div key="doc-input" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                <div className="mx-4 mb-2">
+                  {state.docFile ? (
+                    <div className="flex items-center gap-3 bg-secondary/40 border border-border/60 rounded-xl px-3 py-2.5">
+                      <FileText className="w-4 h-4 text-primary shrink-0" />
+                      <span className="text-sm text-foreground flex-1 truncate">{state.docFile.name}</span>
+                      <button onClick={() => state.setDocFile(null)} className="text-muted-foreground hover:text-foreground"><X className="w-3.5 h-3.5" /></button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => state.docRef.current?.click()}
+                      className="w-full flex items-center gap-3 rounded-xl border-2 border-dashed border-border/50 p-3 hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
+                    >
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-secondary shrink-0">
+                        <Upload className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <span className="text-sm text-foreground font-medium">Upload PDF or document</span>
+                        <span className="text-xs text-muted-foreground block">.pdf, .docx, .txt</span>
+                      </div>
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Prompt textarea */}
+          <textarea
+            value={state.prompt}
+            onChange={e => state.setPrompt(e.target.value)}
+            placeholder="Describe your video, paste a URL, or do both…"
+            rows={3}
+            className="w-full bg-transparent px-5 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
+          />
+
+          {/* Detected chips */}
+          {(!!urlMatch || state.files.length > 0) && (
+            <div className="flex flex-wrap items-center gap-2 px-5 pb-2">
+              {!!urlMatch && (
+                <span className="flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-medium px-3 py-1.5 rounded-full">
+                  <LinkIcon className="w-3 h-3" />
+                  URL detected
+                  <button onClick={() => state.setPrompt(state.prompt.replace(urlMatch[0], '').trim())} className="ml-1 hover:text-primary/70"><X className="w-3 h-3" /></button>
+                </span>
+              )}
+              <MediaFileCount files={state.files} />
+            </div>
+          )}
+
+          {/* Bottom toolbar */}
+          <div className="flex items-center gap-1 px-3 pb-3">
+            <button onClick={() => state.docRef.current?.click()} className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors" title="Upload PDF / doc">
+              <FileText className="w-4 h-4" />
+            </button>
+            <button onClick={() => toggle('media')} className={`p-2.5 rounded-xl transition-colors ${openPanel === 'media' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'}`} title="Screenshots & media">
+              <Image className="w-4 h-4" />
+            </button>
+            <button onClick={() => toggle('brand')} className={`p-2.5 rounded-xl transition-colors ${openPanel === 'brand' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'}`} title="Brand & style">
+              <Palette className="w-4 h-4" />
+            </button>
+            <div className="flex-1" />
+            <button onClick={state.handleGenerate} className="flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+              <Sparkles className="w-4 h-4" />
+              Create
+            </button>
+          </div>
+        </div>
+
+        <input ref={state.docRef} type="file" accept=".pdf,.doc,.docx,.txt,.md" onChange={state.handleDocUpload} className="hidden" />
+
+        <AnimatePresence>
+          {openPanel === 'media' && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+              <div className="p-4 rounded-xl bg-card/60 border border-border/40">
+                <MediaBucketPanel files={state.files} bucketRefs={state.bucketRefs} addFiles={state.addFiles} removeFile={state.removeFile} />
+              </div>
+            </motion.div>
+          )}
+          {openPanel === 'brand' && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+              <div className="p-4 rounded-xl bg-card/60 border border-border/40">
+                <BrandPanel brand={state.brand} setBrand={state.setBrand} logoRef={state.logoRef} onLogoUpload={state.handleLogoUpload} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <p className="text-xs text-muted-foreground/50 text-center">
+          Drop files anywhere · Combine sources freely · Add brand settings with 🎨
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
    Main Create Page
    ═══════════════════════════════════════════════ */
 export default function Create() {
