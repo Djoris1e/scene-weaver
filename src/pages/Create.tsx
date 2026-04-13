@@ -747,8 +747,10 @@ function OptionD(state: CreateState) {
     },
   ];
 
+  const isActive = state.prompt.trim().length > 0 || state.contentSource !== null || state.files.length > 0;
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16 pb-28">
       <div className="w-full max-w-2xl space-y-4">
         <h1 className="text-2xl font-heading font-semibold text-center mb-6">
           Create your video
@@ -761,17 +763,8 @@ function OptionD(state: CreateState) {
             onChange={e => state.setPrompt(e.target.value)}
             placeholder="Describe your video, paste a URL, or do both…"
             rows={3}
-            className="w-full bg-transparent px-5 pt-5 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
+            className="w-full bg-transparent px-5 pt-5 pb-4 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
           />
-          <div className="flex items-center justify-end px-3 pb-3">
-            <button
-              onClick={state.handleGenerate}
-              className="flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
-            >
-              <Sparkles className="w-4 h-4" />
-              Create
-            </button>
-          </div>
         </div>
 
         {/* Accordion sections */}
@@ -784,10 +777,12 @@ function OptionD(state: CreateState) {
                   onClick={() => toggleSection(section.id)}
                   className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-secondary/30 transition-colors"
                 >
-                  <section.icon className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium flex-1 text-left">{section.label}</span>
-                  <span className="text-xs text-muted-foreground/60">{section.summary}</span>
-                  <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} />
+                  <section.icon className="w-4 h-4 text-muted-foreground shrink-0 self-center" />
+                  <div className="flex-1 text-left min-w-0">
+                    <span className="block text-sm font-medium truncate">{section.label}</span>
+                    <span className="block text-xs text-muted-foreground/60 truncate">{section.summary}</span>
+                  </div>
+                  <ChevronRight className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} />
                 </button>
 
                 <AnimatePresence>
@@ -818,6 +813,24 @@ function OptionD(state: CreateState) {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* Sticky Create button */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent pointer-events-none">
+        <div className="max-w-2xl mx-auto pointer-events-auto">
+          <button
+            onClick={state.handleGenerate}
+            disabled={!isActive}
+            className={`w-full flex items-center justify-center gap-2 text-sm font-medium px-5 py-3.5 rounded-xl transition-all duration-300 shadow-lg ${
+              isActive
+                ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/20'
+                : 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed shadow-black/10'
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            Create video
+          </button>
         </div>
       </div>
     </div>
