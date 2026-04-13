@@ -819,6 +819,8 @@ function OptionD(state: CreateState) {
     }
   };
 
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
       <div className="w-full max-w-2xl space-y-4">
@@ -826,65 +828,91 @@ function OptionD(state: CreateState) {
           Create your video
         </h1>
 
-        {/* Prompt */}
-        <div className="rounded-2xl border border-border bg-card/60 overflow-hidden shadow-xl shadow-black/20">
-          <textarea
-            value={state.prompt}
-            onChange={e => state.setPrompt(e.target.value)}
-            placeholder="Describe your video, paste a URL, or do both…"
-            rows={3}
-            className="w-full bg-transparent px-5 pt-5 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
-          />
+        {/* Prompt card with glowing border */}
+        <div
+          className={`relative rounded-2xl p-[2px] transition-all duration-300 ${
+            isFocused
+              ? 'bg-gradient-to-r from-primary via-primary/80 to-primary shadow-[0_0_24px_rgba(224,79,138,0.3)]'
+              : 'bg-gradient-to-r from-primary/50 via-primary/30 to-primary/50'
+          }`}
+        >
+          <div className="rounded-[14px] bg-card">
+            <div className="flex items-start gap-3 px-4 pt-4 pb-2">
+              <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <textarea
+                value={state.prompt}
+                onChange={e => state.setPrompt(e.target.value)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                placeholder="What's your video about? e.g. gaming headset launch, fitness app promo..."
+                rows={1}
+                className="flex-1 bg-transparent text-base text-foreground placeholder:text-muted-foreground focus:outline-none resize-none leading-relaxed min-h-[28px]"
+                style={{ height: 'auto' }}
+              />
+            </div>
 
-          {/* Detected URL chip */}
-          <AnimatePresence>
-            {detectedUrl && !state.url && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-                className="px-4 pb-3"
-              >
-                <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-lg px-3 py-2">
-                  <Globe className="w-3.5 h-3.5 text-primary shrink-0" />
-                  <span className="text-xs text-foreground truncate flex-1">{detectedUrl}</span>
-                  <button onClick={extractAndConfirmUrl} className="text-xs text-primary font-medium hover:underline shrink-0">
-                    Use as source
-                  </button>
-                  <button onClick={removeDetectedUrl} className="text-muted-foreground hover:text-foreground shrink-0">
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+            {/* Detected URL chip */}
+            <AnimatePresence>
+              {detectedUrl && !state.url && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                  className="px-4 pb-3 overflow-hidden"
+                >
+                  <div
+                    className="flex items-center gap-2 rounded-xl px-3 py-2"
+                    style={{ background: 'hsla(240,36%,11%,0.8)', boxShadow: 'inset 0 0 0 1px hsla(142,72%,50%,0.4)' }}
+                  >
+                    <Globe className="w-3.5 h-3.5 text-primary shrink-0" />
+                    <span className="text-xs text-foreground truncate flex-1">{detectedUrl}</span>
+                    <button onClick={extractAndConfirmUrl} className="text-xs text-primary font-medium hover:underline shrink-0">
+                      Use as source
+                    </button>
+                    <button onClick={removeDetectedUrl} className="text-muted-foreground hover:text-foreground shrink-0">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-          {/* Confirmed URL (from paste or detection) */}
-          <AnimatePresence>
-            {state.url && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-                className="px-4 pb-3"
-              >
-                <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-lg px-3 py-2">
-                  <Globe className="w-3.5 h-3.5 text-primary shrink-0" />
-                  <span className="text-xs text-foreground truncate flex-1">{state.url}</span>
-                  <button onClick={() => state.setUrl('')} className="text-muted-foreground hover:text-foreground shrink-0">
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+            {/* Confirmed URL */}
+            <AnimatePresence>
+              {state.url && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                  className="px-4 pb-3 overflow-hidden"
+                >
+                  <div
+                    className="flex items-center gap-2 rounded-xl px-3 py-2"
+                    style={{ background: 'hsla(240,36%,11%,0.8)', boxShadow: 'inset 0 0 0 1.5px hsla(142,72%,50%,0.5)' }}
+                  >
+                    <Globe className="w-3.5 h-3.5 text-primary shrink-0" />
+                    <span className="text-xs text-foreground truncate flex-1">{state.url}</span>
+                    <button onClick={() => state.setUrl('')} className="text-muted-foreground hover:text-foreground shrink-0">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Accordion sections */}
-        <div className="space-y-1">
+        <div className="space-y-2">
           {sections.map(section => {
             const isOpen = openSections.has(section.id);
             return (
-              <div key={section.id} className="rounded-xl border border-border/40 bg-card/30 overflow-hidden">
+              <div
+                key={section.id}
+                className="rounded-xl overflow-hidden"
+                style={{ background: 'hsla(240,36%,11%,0.8)', boxShadow: 'inset 0 0 0 1px hsla(240,20%,16%,1)' }}
+              >
                 <button
                   onClick={() => toggleSection(section.id)}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-secondary/30 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors"
+                  onMouseEnter={e => { e.currentTarget.style.background = 'hsla(240,30%,14%,0.5)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                 >
                   <section.icon className="w-4 h-4 text-muted-foreground shrink-0 self-center" />
                   <div className="flex-1 text-left min-w-0">
@@ -928,11 +956,12 @@ function OptionD(state: CreateState) {
         <button
           onClick={state.handleGenerate}
           disabled={!isActive}
-          className={`w-full flex items-center justify-center gap-2 text-sm font-medium px-5 py-3.5 rounded-xl transition-all duration-300 shadow-lg ${
+          className={`w-full flex items-center justify-center gap-2 text-sm font-medium px-5 py-3.5 rounded-xl transition-all duration-300 ${
             isActive
-              ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/20'
-              : 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed shadow-black/10'
+              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+              : 'text-muted-foreground opacity-50 cursor-not-allowed'
           }`}
+          style={isActive ? undefined : { background: 'hsla(240,36%,11%,0.8)', boxShadow: 'inset 0 0 0 1px hsla(240,20%,16%,1)' }}
         >
           <Sparkles className="w-4 h-4" />
           Create video
