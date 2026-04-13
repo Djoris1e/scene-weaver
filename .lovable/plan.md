@@ -1,74 +1,120 @@
 
 
-# Editor Redesign — Better Grouping
+# Create Page — Four Layout Options
 
-## Problem
+## Context
 
-The current editor stacks everything vertically in two tabs (Scene / Brand). The Scene tab mixes content editing, styling, transitions, and template selection. Brand mixes format, font, and colors. Music lives in a disconnected modal. The result: long scrolling, unclear hierarchy, and unrelated controls sitting next to each other.
+The current Create page is a 3-step conversational wizard (Describe → Media → Brand) with bot bubbles, sequential reveals, and mandatory vibe/content-type selection before you can even type. It's overstructured for what's essentially "give us a prompt + optionally some assets."
 
-## Proposed Layout
+Looking at the competitor references:
+- **Pippit** (Screenshot 3): Single prompt field with inline action buttons below (attach, settings, format). Clean and fast.
+- **Visla** (Screenshot 1): Prompt field + "Or start with a tool" grid of shortcut cards. Two-tier entry.
+- **Pictory** (Screenshot 2): Action cards up top (Create new, Create clips, Record, etc.) + chat prompt below. Multiple entry points.
 
-Replace the 2-tab system with a horizontal icon tab bar at the bottom of the scene editor, using 4-5 focused sections:
+The key insight: **media and brand are optional enrichments, not gates.** The only required input is the prompt (or a URL). Everything else should be discoverable but not blocking.
+
+---
+
+## Four Options to Preview
+
+### Option A — "Prompt-First with Toolbar" (Pippit-style)
+
+Single page, no steps. A large textarea is the hero. Below it, a row of small icon buttons act as inline toggles: `+` (attach files), `🔗` (add URL), `🎨` (brand settings), `⚙️` (format/duration). Clicking one opens an inline expandable panel directly below the prompt. The "Create" button sits at the end of the input row. Everything is on one screen — no navigation, no steps.
 
 ```text
-┌─────────────────────────────────┐
-│  Preview (9:16)                 │
-│  Playback controls              │
-│  Filmstrip                      │
-├─────────────────────────────────┤
-│  Scene 1/7 · 0.0s – 4.5s    🗑 │
-├─────────────────────────────────┤
-│  [✏️ Content] [🎨 Style] [🎬 Motion] [🎵 Audio] [💎 Brand] │
-├─────────────────────────────────┤
-│  (active tab content)           │
-└─────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│  What video will you create?            │
+│                                         │
+│  ┌─────────────────────────────────┐    │
+│  │ Describe your video...          │    │
+│  │                                 │    │
+│  │                                 │    │
+│  │ [+] [🔗] [🎨] [⚙️]    [Create] │    │
+│  └─────────────────────────────────┘    │
+│                                         │
+│  ▼ expanded: attached files grid        │
+│  ▼ expanded: brand color/logo picker    │
+└─────────────────────────────────────────┘
 ```
 
-### Tab breakdown
+**Pros**: Fastest path to generate. Zero friction. Optional panels only appear when needed.
+**Cons**: Can feel dense if multiple panels are open.
 
-**Content** — What's in this scene
-- Template picker (horizontal scroll of thumbnails, currently at bottom — move here as the first thing)
-- Template-specific fields: text/quote/headline/number depending on template type
+### Option B — "Shortcut Cards + Prompt" (Visla-style)
 
-**Style** — How it looks
-- Font selector
-- Text color swatches
-- Text position (top/center/bottom — currently missing from editor UI but exists in type)
-- Background/gradient style (for gradient templates)
+Top half: a row of shortcut cards ("URL to video", "Text to video", "Images to video"). Clicking one pre-fills the prompt or opens a specialized input. Bottom half: a general-purpose prompt field with attach/brand buttons inside it. The prompt is always available regardless of which shortcut was picked.
 
-**Motion** — How it moves
-- Transition type (cut, crossfade, zoom, flash, slide)
-- Text effect (fade-in, typewriter, scale-up)
-- Animation type (ken-burns, drift, pulse)
+```text
+┌─────────────────────────────────────────┐
+│  Get started                            │
+│                                         │
+│  [🔗 URL to video] [📝 Text to video]  │
+│  [🖼 Images to video] [📄 Doc to video]│
+│                                         │
+│  ─── or describe anything ───           │
+│                                         │
+│  ┌─────────────────────────────────┐    │
+│  │ Describe your video...          │    │
+│  │ [+] [🎨]               [Create] │    │
+│  └─────────────────────────────────┘    │
+└─────────────────────────────────────────┘
+```
 
-**Audio** — Inline instead of modal
-- Current track display with play preview
-- "Change track" opens inline list (not a modal) with vibe-match tags
-- Per-scene volume or mute toggle (future-ready)
+**Pros**: Good for users who know exactly what they have (a URL, images, etc.). Provides structure without forcing it.
+**Cons**: Two competing entry points might confuse some users.
 
-**Brand** — Global settings (with "applies to all" badge)
-- Format toggle (9:16 / 16:9)
-- Brand colors (background, primary, secondary)
-- Font (global)
-- Logo upload
-- Slogan
-- End screen toggle
+### Option C — "Single Smart Field" (Google-style)
 
-### Other changes
+One text input that auto-detects intent. Paste a URL? It detects it and shows a "URL detected" chip. Type text? It's a prompt. Drag files onto it? They appear as thumbnails. A small `⚙️` icon at the right opens a slide-out or dropdown for brand/format settings. Everything flows through one field.
 
-- Remove the "Change music" button floating between playback and filmstrip — audio now lives in its own tab
-- Template thumbnails move from the bottom of the Scene tab to the top of the Content tab as the primary selection method
-- The A/B/C version switcher gets removed (lock in the best variant)
+```text
+┌─────────────────────────────────────────┐
+│  What should we make?                   │
+│                                         │
+│  ┌─────────────────────────────────┐    │
+│  │ Paste a URL, describe, or drop  │    │
+│  │ files here...                   │    │
+│  │                                 │    │
+│  │ [🔗 example.com ✕]  [📷 3 imgs]│    │
+│  │                          [⚙️] ↗│    │
+│  └─────────────────────────────────┘    │
+│                                         │
+│  ⚙️ panel: brand colors, logo, font    │
+└─────────────────────────────────────────┘
+```
+
+**Pros**: Absolute minimum UI. Feels magical when it auto-detects. Scales well.
+**Cons**: Discoverability of features is low. Users may not know they can drop files.
+
+### Option D — "Accordion Sections" (Structured but flat)
+
+Single page with the prompt at the top (always visible), followed by collapsible accordion sections: "Add Media", "Brand & Style". Sections start collapsed with a summary line ("No media added", "Default brand"). Clicking expands them inline. No step navigation — just scroll.
+
+```text
+┌─────────────────────────────────────────┐
+│  Create your video                      │
+│                                         │
+│  ┌─────────────────────────────────┐    │
+│  │ Describe your video...          │    │
+│  │                          Create │    │
+│  └─────────────────────────────────┘    │
+│                                         │
+│  ▸ Add media — No files added           │
+│  ▸ Brand & style — Default              │
+│  ▸ Source URL — Optional                │
+└─────────────────────────────────────────┘
+```
+
+**Pros**: Clear hierarchy. Everything visible at a glance. Easy to scan. Nothing hidden.
+**Cons**: Slightly more vertical space than Option A.
+
+---
 
 ## Technical scope
 
-### Files modified
-- **`src/components/editor/SceneEditor.tsx`** — Major rewrite: replace 2-tab Scene/Brand with 5-tab icon bar using the existing `IconTabBar` component. Split current content into ContentTab, StyleTab, MotionTab, AudioTab, BrandTab sub-sections within the same file.
-- **`src/pages/Editor.tsx`** — Remove variant switcher, lock in single layout (variant A's floating bar). Remove "Change music" button if present. Clean up unused variant code (~200 lines removed).
-- **`src/types/scene.ts`** — No changes needed, all fields already exist.
+All four options live in `src/pages/Create.tsx` (full rewrite, ~400-500 lines). Shared logic: prompt state, file upload handling, brand config state, navigation to `/editor` on submit. No new dependencies needed — framer-motion already installed for expand/collapse animations.
 
-### Estimated diff
-- ~300 lines rewritten in SceneEditor (reorganization, not new logic)
-- ~150 lines removed from Editor.tsx (variant B/C deletion)
-- ~30 lines for inline audio track list (mock data, same style as the modal but embedded)
+## Recommendation
+
+**Option A** is the strongest for your use case. It's the fastest path, mirrors what power users expect from AI tools, and keeps optional features accessible without cluttering the default view. Option C is a close second if you want maximum minimalism.
 
