@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send, Link as LinkIcon, Upload, Image, Palette, Settings,
   X, Sparkles, ChevronRight,
-  Plus, Globe, FileImage, Type, Video,
+  Plus, Globe, FileImage, Type,
   Smartphone, Monitor, FileText, BookOpen, Newspaper,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
