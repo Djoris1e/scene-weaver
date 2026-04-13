@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send, Link as LinkIcon, Upload, Image, Palette, Settings,
   X, Sparkles, ChevronRight,
-  Plus, Globe, FileImage, Type, Video,
+  Plus, Globe, FileImage, Type,
   Smartphone, Monitor, FileText, BookOpen, Newspaper,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -37,7 +37,6 @@ const CONTENT_SOURCES = [
   { id: 'doc', icon: FileText, label: 'PDF / Doc to video', desc: 'Upload a document' },
   { id: 'url', icon: LinkIcon, label: 'URL to video', desc: 'Any webpage' },
   { id: 'text', icon: Type, label: 'Text to video', desc: 'Write or paste a script' },
-  { id: 'footage', icon: Video, label: 'Footage to video', desc: 'Bring your own clips' },
 ];
 
 const MEDIA_BUCKETS: { id: MediaBucket; icon: typeof Smartphone; label: string; desc: string; accept: string }[] = [
@@ -257,21 +256,24 @@ function BrandPanel({
 
 function ContentSourceChips({ active, onSelect }: { active: string | null; onSelect: (id: string) => void }) {
   return (
-    <div className="flex flex-wrap gap-2">
-      {CONTENT_SOURCES.map(s => (
-        <button
-          key={s.id}
-          onClick={() => onSelect(active === s.id ? '' : s.id)}
-          className={`group flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium transition-all duration-200 ${
-            active === s.id
-              ? 'bg-primary/15 text-primary border border-primary/30'
-              : 'bg-card/50 text-muted-foreground border border-border/40 hover:border-border hover:text-foreground'
-          }`}
-        >
-          <s.icon className={`w-3.5 h-3.5 ${active === s.id ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
-          {s.label}
-        </button>
-      ))}
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
+        {CONTENT_SOURCES.map(s => (
+          <button
+            key={s.id}
+            onClick={() => onSelect(active === s.id ? '' : s.id)}
+            className={`group flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium transition-all duration-200 ${
+              active === s.id
+                ? 'bg-primary/15 text-primary border border-primary/30'
+                : 'bg-card/50 text-muted-foreground border border-border/40 hover:border-border hover:text-foreground'
+            }`}
+          >
+            <s.icon className={`w-3.5 h-3.5 ${active === s.id ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
+            {s.label}
+          </button>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground/60">Pick one or combine — add a URL, description, and media all at once</p>
     </div>
   );
 }
@@ -350,25 +352,6 @@ function ContentSourceInput({ source, state }: { source: string; state: CreateSt
     );
   }
 
-  // footage → trigger file upload for background bucket
-  if (source === 'footage') {
-    return (
-      <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
-        <button
-          onClick={() => state.bucketRefs.current.background?.click()}
-          className="w-full flex items-center gap-3 rounded-xl border-2 border-dashed border-border/50 p-4 hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
-        >
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-secondary shrink-0">
-            <Video className="w-4 h-4 text-muted-foreground" />
-          </div>
-          <div>
-            <span className="text-sm text-foreground font-medium">Upload video footage</span>
-            <span className="text-xs text-muted-foreground block">.mp4, .mov, .webm</span>
-          </div>
-        </button>
-      </motion.div>
-    );
-  }
 
   return null;
 }
@@ -438,7 +421,7 @@ function OptionA(state: CreateState) {
           <textarea
             value={state.prompt}
             onChange={e => state.setPrompt(e.target.value)}
-            placeholder="Add any extra instructions — tone, audience, key points…"
+            placeholder="Describe your video, paste a URL, or do both…"
             rows={3}
             className="w-full bg-transparent px-5 pt-4 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
           />
@@ -506,7 +489,6 @@ const SHORTCUT_CARDS = [
   { id: 'doc', icon: FileText, label: 'PDF / Doc', desc: 'Upload a document' },
   { id: 'url', icon: LinkIcon, label: 'URL to video', desc: 'Any webpage' },
   { id: 'text', icon: Type, label: 'Describe it', desc: 'Write a script' },
-  { id: 'footage', icon: Video, label: 'Footage', desc: 'Your own clips' },
 ];
 
 function OptionB(state: CreateState) {
@@ -550,7 +532,7 @@ function OptionB(state: CreateState) {
         {/* Divider */}
         <div className="flex items-center gap-4">
           <div className="flex-1 h-px bg-border/60" />
-          <span className="text-xs text-muted-foreground">add details & media</span>
+          <span className="text-xs text-muted-foreground">and/or describe it</span>
           <div className="flex-1 h-px bg-border/60" />
         </div>
 
@@ -559,7 +541,7 @@ function OptionB(state: CreateState) {
           <textarea
             value={state.prompt}
             onChange={e => state.setPrompt(e.target.value)}
-            placeholder="Extra instructions — tone, audience, key points…"
+            placeholder="Describe your video, paste a URL, or do both…"
             rows={3}
             className="w-full bg-transparent px-5 pt-4 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
           />
@@ -634,7 +616,7 @@ function OptionC(state: CreateState) {
           <textarea
             value={state.prompt}
             onChange={e => state.setPrompt(e.target.value)}
-            placeholder="Paste a blog URL, drop a PDF, or describe your video…"
+            placeholder="Paste a URL, describe your video, or both…"
             rows={4}
             className="w-full bg-transparent px-5 pt-5 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
           />
@@ -748,7 +730,7 @@ function OptionD(state: CreateState) {
     {
       id: 'source',
       icon: BookOpen,
-      label: 'Content source',
+      label: 'Describe & add sources',
       summary: state.contentSource ? CONTENT_SOURCES.find(s => s.id === state.contentSource)?.label || 'Selected' : 'Blog, release notes, PDF, URL…',
     },
     {
@@ -777,7 +759,7 @@ function OptionD(state: CreateState) {
           <textarea
             value={state.prompt}
             onChange={e => state.setPrompt(e.target.value)}
-            placeholder="Describe your video — what's the goal, audience, key message?"
+            placeholder="Describe your video, paste a URL, or do both…"
             rows={3}
             className="w-full bg-transparent px-5 pt-5 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
           />
