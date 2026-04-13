@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Editor from "./pages/Editor";
 import Landing from "./pages/Landing";
+import Create from "./pages/Create";
 import ExportDone from "./pages/ExportDone";
 
 const queryClient = new QueryClient();
@@ -17,6 +18,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/create" element={<Create />} />
           <Route path="/editor" element={<Editor />} />
           <Route path="/export-done" element={<ExportDone />} />
         </Routes>
