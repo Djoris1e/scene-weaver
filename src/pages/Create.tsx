@@ -769,7 +769,24 @@ function OptionD(state: CreateState) {
     },
   ];
 
-  const isActive = state.prompt.trim().length > 0 || state.contentSource !== null || state.files.length > 0;
+  const isActive = state.prompt.trim().length > 0 || state.contentSource !== null || state.files.length > 0 || state.url.trim().length > 0;
+
+  // Auto-detect URL in prompt
+  const urlMatch = state.prompt.match(/https?:\/\/[^\s]+/);
+  const detectedUrl = urlMatch ? urlMatch[0] : null;
+
+  const removeDetectedUrl = () => {
+    if (detectedUrl) {
+      state.setPrompt(state.prompt.replace(detectedUrl, '').trim());
+    }
+  };
+
+  const extractAndConfirmUrl = () => {
+    if (detectedUrl) {
+      state.setUrl(detectedUrl);
+      state.setPrompt(state.prompt.replace(detectedUrl, '').trim());
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
@@ -785,8 +802,47 @@ function OptionD(state: CreateState) {
             onChange={e => state.setPrompt(e.target.value)}
             placeholder="Describe your video, paste a URL, or do both…"
             rows={3}
-            className="w-full bg-transparent px-5 pt-5 pb-4 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
+            className="w-full bg-transparent px-5 pt-5 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
           />
+
+          {/* Detected URL chip */}
+          <AnimatePresence>
+            {detectedUrl && !state.url && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                className="px-4 pb-3"
+              >
+                <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-lg px-3 py-2">
+                  <Globe className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <span className="text-xs text-foreground truncate flex-1">{detectedUrl}</span>
+                  <button onClick={extractAndConfirmUrl} className="text-xs text-primary font-medium hover:underline shrink-0">
+                    Use as source
+                  </button>
+                  <button onClick={removeDetectedUrl} className="text-muted-foreground hover:text-foreground shrink-0">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Confirmed URL (from paste or detection) */}
+          <AnimatePresence>
+            {state.url && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                className="px-4 pb-3"
+              >
+                <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-lg px-3 py-2">
+                  <Globe className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <span className="text-xs text-foreground truncate flex-1">{state.url}</span>
+                  <button onClick={() => state.setUrl('')} className="text-muted-foreground hover:text-foreground shrink-0">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Accordion sections */}
