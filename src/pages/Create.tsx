@@ -134,7 +134,7 @@ function MediaBucketPanel({ files, bucketRefs, addFiles, removeFile }: {
               <div className="flex flex-wrap gap-2">
                 {bucketFiles.map(f => (
                   <div key={f.id} className="relative group">
-                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-border bg-card">
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-border bg-secondary/40">
                       <img src={f.preview} alt={f.name} className="w-full h-full object-cover" />
                     </div>
                     <button
@@ -147,7 +147,8 @@ function MediaBucketPanel({ files, bucketRefs, addFiles, removeFile }: {
                 ))}
                 <button
                   onClick={() => bucketRefs.current[bucket.id]?.click()}
-                  className="w-16 h-16 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-0.5 hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                  className="w-16 h-16 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-0.5 hover:border-primary/40 transition-colors"
+                  style={{ background: 'hsla(240,36%,11%,0.8)' }}
                 >
                   <Plus className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
@@ -155,15 +156,18 @@ function MediaBucketPanel({ files, bucketRefs, addFiles, removeFile }: {
             )}
 
             {bucketFiles.length === 0 && (
-              <button
+              <label
+                className="w-full flex cursor-pointer items-center gap-3 rounded-xl p-3 transition-all duration-200"
+                style={{ background: 'hsla(240,36%,11%,0.8)', boxShadow: 'inset 0 0 0 1px hsla(338,72%,59%,0.3)' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = 'inset 0 0 0 1px hsla(338,72%,59%,0.6)'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'inset 0 0 0 1px hsla(338,72%,59%,0.3)'; }}
                 onClick={() => bucketRefs.current[bucket.id]?.click()}
-                className="w-full flex items-center gap-3 rounded-xl border-2 border-dashed border-border/50 p-3 hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
               >
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-secondary shrink-0">
                   <Upload className="w-4 h-4 text-muted-foreground" />
                 </div>
                 <span className="text-xs text-muted-foreground">Click to upload</span>
-              </button>
+              </label>
             )}
 
             <input
