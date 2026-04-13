@@ -750,7 +750,7 @@ function OptionD(state: CreateState) {
   const isActive = state.prompt.trim().length > 0 || state.contentSource !== null || state.files.length > 0;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16 pb-28">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
       <div className="w-full max-w-2xl space-y-4">
         <h1 className="text-2xl font-heading font-semibold text-center mb-6">
           Create your video
@@ -814,24 +814,20 @@ function OptionD(state: CreateState) {
             );
           })}
         </div>
-      </div>
 
-      {/* Sticky Create button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent pointer-events-none">
-        <div className="max-w-2xl mx-auto pointer-events-auto">
-          <button
-            onClick={state.handleGenerate}
-            disabled={!isActive}
-            className={`w-full flex items-center justify-center gap-2 text-sm font-medium px-5 py-3.5 rounded-xl transition-all duration-300 shadow-lg ${
-              isActive
-                ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/20'
-                : 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed shadow-black/10'
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            Create video
-          </button>
-        </div>
+        {/* Create button */}
+        <button
+          onClick={state.handleGenerate}
+          disabled={!isActive}
+          className={`w-full flex items-center justify-center gap-2 text-sm font-medium px-5 py-3.5 rounded-xl transition-all duration-300 shadow-lg ${
+            isActive
+              ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/20'
+              : 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed shadow-black/10'
+          }`}
+        >
+          <Sparkles className="w-4 h-4" />
+          Create video
+        </button>
       </div>
     </div>
   );
