@@ -1,23 +1,54 @@
 
 
-# Remove "Footage to video" + Clarify multi-input across all variants
+# Recommendation: Option E — Hybrid of A + C
 
-## Changes
+## Assessment of current variants
 
-### 1. Remove "Footage to video" from CONTENT_SOURCES
-Delete the `footage` entry from the `CONTENT_SOURCES` array (line 40) and remove the `footage` handler in `ContentSourceInput` (lines 353-371). The media bucket panel already covers uploading video/images as background media.
+- **A** has the right structure — content source chips give clear affordance for blog/release/PDF/URL — but they sit above and feel disconnected from the prompt. Two separate zones.
+- **B** takes too much vertical space. The large cards + divider + prompt creates decision paralysis. Two competing entry points.
+- **C** is the cleanest and most inviting — one field, instant action. But it hides the content sources entirely (only mentioned in tiny subtitle text). Users won't discover "Blog to video" or "Release notes to video."
+- **D** is functional but the accordions feel like work. Nobody wants to expand three sections before creating.
 
-### 2. Make it clear users can combine multiple inputs
-Currently the content source chips behave as toggles (selecting one deselects the previous). The UX should communicate that these are additive — you can enter a URL AND describe it AND upload media.
+## The ideal: Option E
 
-Changes across all four variants:
-- **Prompt textarea**: Change placeholder from "Add any extra instructions…" to something like `"Describe your video, paste a URL, or do both…"` — wording that signals combining inputs is expected.
-- **Content source chips**: Keep them as quick-start shortcuts but add a small helper line below the chips: `"Pick one or combine — add a URL, description, and media all at once"`.
-- **URL input**: When a content source like "Blog to video" is selected and a URL is entered, keep the prompt textarea visible and prominent so users naturally add extra instructions alongside the URL.
-- In **Option B** (shortcut cards), update the divider text from "or describe anything" to "and/or describe it" to signal combination rather than alternatives.
-- In **Option C** (smart field), update placeholder to reinforce multi-input: `"Paste a URL, describe your video, or both…"`.
-- In **Option D** (accordion), ensure the prompt section header says something like `"Describe & add sources"` rather than implying a single input.
+Take C's minimal single-field layout as the foundation, but surface A's content source chips *inside* the prompt card as a row of small pill buttons above the textarea. This gives you:
 
-### Technical scope
-All changes are in `src/pages/Create.tsx` — removing ~20 lines (footage source + handler), updating ~10 placeholder/label strings across the four variants.
+1. **One visual unit** — everything in a single card, no separate zones
+2. **Source discoverability** — users immediately see "Blog to video", "Release notes", etc.
+3. **Zero friction** — can ignore the pills entirely and just type/paste
+4. **Smart detection** — still auto-detects URLs from the prompt text (from C)
+5. **Expandable panels** — media buckets and brand settings behind toolbar icons (from C)
+
+```text
+┌─────────────────────────────────────────────┐
+│  What should we make?                       │
+│                                             │
+│  ┌─────────────────────────────────────┐    │
+│  │ [Blog] [Release notes] [PDF/Doc]    │    │
+│  │ [URL] [Text]                        │    │
+│  │                                     │    │
+│  │ Describe your video, paste a URL,   │    │
+│  │ or do both...                       │    │
+│  │                                     │    │
+│  │ [🔗 detected URL ✕]  (if pasted)   │    │
+│  │                                     │    │
+│  │ [📄] [🖼] [🎨]          [✨ Create] │    │
+│  └─────────────────────────────────────┘    │
+│                                             │
+│  ▼ expanded: media buckets (if clicked 🖼)  │
+│  ▼ expanded: brand panel (if clicked 🎨)    │
+└─────────────────────────────────────────────┘
+```
+
+## Key differences from existing variants
+
+- Content source pills are **inside** the prompt card, not above it (unlike A)
+- Selecting a pill (e.g., "Blog") shows a URL input **inline within the card**, between the pills and the textarea — keeping everything in one place
+- URL auto-detection from C remains: typing a URL in the textarea shows a chip
+- Subtitle text mentions the content types for discoverability
+- The helper text "Pick one or combine" moves to a subtle tooltip or disappears — the UI itself makes it obvious
+
+## Technical scope
+
+Rewrite `src/pages/Create.tsx` to remove the four-variant switcher and implement Option E as the single layout. ~350 lines, reusing the existing shared components (`MediaBucketPanel`, `BrandPanel`, `ContentSourceInput`). No new dependencies.
 
