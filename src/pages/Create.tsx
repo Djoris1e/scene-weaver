@@ -1,683 +1,718 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Send, Link as LinkIcon, Upload, Image, Monitor, Smartphone,
-  Palette, Globe, X, Sparkles, Loader2, ArrowRight, ArrowLeft,
-  Check, Type, FileImage, Megaphone, GraduationCap, Star,
-  FileText, MessageSquare, GitCommit, File, Plus,
+  Send, Link as LinkIcon, Upload, Image, Palette, Settings,
+  X, Sparkles, Loader2, ChevronDown, ChevronRight,
+  Plus, Globe, FileImage, Type, Music, Video,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-/* ───────── Types ───────── */
-type Step = 'prompt' | 'media' | 'brand';
+/* ─── Shared types & state ─── */
+type Variant = 'A' | 'B' | 'C' | 'D';
 
 interface MediaFile {
   id: string;
   file: File;
   preview: string;
-  label: string;
+  name: string;
 }
 
 interface BrandConfig {
-  gradient: string;
-  customPrimary: string;
-  customSecondary: string;
-  useCustom: boolean;
+  primaryColor: string;
+  accentColor: string;
   logo: File | null;
   logoPreview: string | null;
-  logoDetected: string | null;
   font: string;
-  scrapeUrl: string;
 }
 
-/* ───────── Constants ───────── */
-const STEPS: { id: Step; label: string; number: number }[] = [
-  { id: 'prompt', label: 'Describe', number: 1 },
-  { id: 'media', label: 'Media', number: 2 },
-  { id: 'brand', label: 'Brand', number: 3 },
-];
+const FONTS = ['System Default', 'Inter', 'Raleway', 'Manrope', 'Space Grotesk'];
 
-const VIBES = [
-  { id: 'promote', icon: Megaphone, label: 'Promote' },
-  { id: 'explain', icon: GraduationCap, label: 'Explain' },
-  { id: 'showcase', icon: Sparkles, label: 'Showcase' },
-];
+/* ─── Shared hooks ─── */
+function useCreateState() {
+  const [prompt, setPrompt] = useState('');
+  const [url, setUrl] = useState('');
+  const [files, setFiles] = useState<MediaFile[]>([]);
+  const [brand, setBrand] = useState<BrandConfig>({
+    primaryColor: '#E04F8A',
+    accentColor: '#3B82F6',
+    logo: null,
+    logoPreview: null,
+    font: 'System Default',
+  });
+  const fileRef = useRef<HTMLInputElement>(null);
+  const logoRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
-const CONTENT_TYPES = [
-  { id: 'page', icon: LinkIcon, label: 'Page' },
-  { id: 'blog', icon: FileText, label: 'Blog Post' },
-  { id: 'social', icon: MessageSquare, label: 'Social Post' },
-  { id: 'review', icon: Star, label: 'Review' },
-  { id: 'changelog', icon: GitCommit, label: 'Changelog' },
-  { id: 'document', icon: File, label: 'Document' },
-  { id: 'describe', icon: Sparkles, label: 'Just describe it' },
-];
-
-const MEDIA_SLOTS = [
-  { type: 'mobile', icon: Smartphone, label: 'Mobile Screenshots', desc: 'App or mobile web screenshots' },
-  { type: 'desktop', icon: Monitor, label: 'Desktop Screenshots', desc: 'Desktop or dashboard screenshots' },
-  { type: 'background', icon: Image, label: 'Background Media', desc: 'Video or images for scene backgrounds' },
-];
-
-const GRADIENTS: { id: string; label: string; from: string; to: string }[] = [
-  { id: 'brand', label: 'Brand', from: '#E04F8A', to: '#3B82F6' },
-  { id: 'aurora', label: 'Aurora', from: '#5EEAD4', to: '#3B82F6' },
-  { id: 'berry', label: 'Berry', from: '#A855F7', to: '#EC4899' },
-  { id: 'forest', label: 'Forest', from: '#22C55E', to: '#16A34A' },
-  { id: 'sunset', label: 'Sunset', from: '#F97316', to: '#EF4444' },
-];
-
-const FONTS = ['System Default', 'Inter', 'Raleway', 'Manrope', 'Space Grotesk', 'DM Sans'];
-
-/* ───────── Step Indicator ───────── */
-function StepIndicator({ current, onNavigate }: { current: Step; onNavigate: (s: Step) => void }) {
-  const currentIdx = STEPS.findIndex(s => s.id === current);
-  return (
-    <div className="flex items-center gap-2">
-      {STEPS.map((step, i) => {
-        const done = i < currentIdx;
-        const active = step.id === current;
-        return (
-          <button
-            key={step.id}
-            onClick={() => (done || active) && onNavigate(step.id)}
-            className="flex items-center gap-2 group"
-            disabled={i > currentIdx}
-          >
-            <div className={`w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center transition-all duration-300 ${
-              done ? 'bg-primary text-primary-foreground'
-                : active ? 'bg-primary/20 text-primary border border-primary/40'
-                : 'bg-secondary text-muted-foreground'
-            }`}>
-              {done ? <Check className="w-3.5 h-3.5" /> : step.number}
-            </div>
-            <span className={`text-xs font-medium transition-colors hidden sm:inline ${
-              active ? 'text-foreground' : done ? 'text-muted-foreground' : 'text-muted-foreground/50'
-            }`}>
-              {step.label}
-            </span>
-            {i < STEPS.length - 1 && (
-              <div className={`w-8 h-px mx-1 transition-colors ${done ? 'bg-primary/60' : 'bg-border'}`} />
-            )}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ───────── Bot Bubble ───────── */
-function BotBubble({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-start gap-2.5 mb-4">
-      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent shadow-md shadow-primary/20 mt-0.5">
-        <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
-      </div>
-      <div className="rounded-2xl rounded-tl-md bg-muted text-foreground shadow-lg shadow-black/30 px-4 py-3 text-sm leading-relaxed">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-/* ───────── Step 1: Prompt ───────── */
-function PromptStep({
-  vibe, setVibe,
-  contentType, setContentType,
-  prompt, setPrompt,
-  url, setUrl,
-}: {
-  vibe: string; setVibe: (v: string) => void;
-  contentType: string; setContentType: (v: string) => void;
-  prompt: string; setPrompt: (v: string) => void;
-  url: string; setUrl: (v: string) => void;
-}) {
-  const needsUrl = contentType && contentType !== 'describe';
-  const needsPrompt = contentType === 'describe';
-
-  return (
-    <div className="space-y-6">
-      {/* Vibe selection */}
-      <div>
-        <BotBubble>Let's make a video together. First, what's the vibe?</BotBubble>
-        <div className="flex flex-wrap gap-2 ml-[38px]">
-          {VIBES.map(v => (
-            <button
-              key={v.id}
-              type="button"
-              onClick={() => setVibe(v.id)}
-              className={`group relative overflow-hidden flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
-                vibe === v.id
-                  ? 'bg-primary/20 text-primary border border-primary/40 shadow-[0_0_20px_hsla(338,72%,59%,0.15)]'
-                  : 'bg-card/80 text-foreground shadow-[inset_0_0_0_1px_hsla(338,72%,59%,0.2),inset_0_0_0_1px_hsla(34,83%,55%,0.15)] hover:shadow-[inset_0_0_0_1px_hsla(338,72%,59%,0.4),inset_0_0_0_1px_hsla(34,83%,55%,0.3)]'
-              }`}
-            >
-              <v.icon className={`h-4 w-4 transition-colors ${vibe === v.id ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
-              {v.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Content type selection */}
-      {vibe && (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
-          <BotBubble>What content should I work with?</BotBubble>
-          <div className="flex flex-wrap gap-2 ml-[38px]">
-            {CONTENT_TYPES.map(ct => (
-              <button
-                key={ct.id}
-                type="button"
-                onClick={() => setContentType(ct.id)}
-                className={`group relative overflow-hidden flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
-                  contentType === ct.id
-                    ? 'bg-primary/20 text-primary border border-primary/40 shadow-[0_0_20px_hsla(338,72%,59%,0.15)]'
-                    : 'bg-card/80 text-foreground shadow-[inset_0_0_0_1px_hsla(338,72%,59%,0.2),inset_0_0_0_1px_hsla(34,83%,55%,0.15)] hover:shadow-[inset_0_0_0_1px_hsla(338,72%,59%,0.4),inset_0_0_0_1px_hsla(34,83%,55%,0.3)]'
-                }`}
-              >
-                <ct.icon className={`h-4 w-4 transition-colors ${contentType === ct.id ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
-                {ct.label}
-              </button>
-            ))}
-          </div>
-        </motion.div>
-      )}
-
-      {/* URL input for content types that need it */}
-      {needsUrl && (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="ml-[38px]">
-          <div className="flex items-center gap-2 bg-secondary/60 rounded-xl px-3 py-2.5">
-            <LinkIcon className="w-4 h-4 text-muted-foreground shrink-0" />
-            <input
-              value={url}
-              onChange={e => setUrl(e.target.value)}
-              placeholder="Paste the URL here…"
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
-            />
-          </div>
-        </motion.div>
-      )}
-
-      {/* Prompt for "Just describe it" */}
-      {needsPrompt && (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="ml-[38px]">
-          <textarea
-            value={prompt}
-            onChange={e => {
-              setPrompt(e.target.value);
-              e.target.style.height = 'auto';
-              e.target.style.height = e.target.scrollHeight + 'px';
-            }}
-            placeholder="Describe what the video should be about…"
-            rows={3}
-            className="w-full bg-secondary/40 border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 resize-none leading-relaxed min-h-[5rem] max-h-48 overflow-y-auto transition-colors"
-          />
-        </motion.div>
-      )}
-    </div>
-  );
-}
-
-/* ───────── Step 2: Media ───────── */
-function MediaStep({
-  mediaFiles, setMediaFiles,
-}: {
-  mediaFiles: Record<string, MediaFile[]>;
-  setMediaFiles: React.Dispatch<React.SetStateAction<Record<string, MediaFile[]>>>;
-}) {
-  const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
-
-  const handleFiles = (slotType: string, files: FileList) => {
-    const newFiles: MediaFile[] = Array.from(files).map(f => ({
+  const addFiles = useCallback((fileList: FileList) => {
+    const newFiles: MediaFile[] = Array.from(fileList).map(f => ({
       id: crypto.randomUUID(),
       file: f,
       preview: URL.createObjectURL(f),
-      label: f.name,
+      name: f.name,
     }));
-    setMediaFiles(prev => ({
-      ...prev,
-      [slotType]: [...(prev[slotType] || []), ...newFiles],
-    }));
-  };
+    setFiles(prev => [...prev, ...newFiles]);
+  }, []);
 
-  const removeFile = (slotType: string, fileId: string) => {
-    setMediaFiles(prev => ({
-      ...prev,
-      [slotType]: (prev[slotType] || []).filter(f => f.id !== fileId),
-    }));
-  };
+  const removeFile = useCallback((id: string) => {
+    setFiles(prev => prev.filter(f => f.id !== id));
+  }, []);
 
+  const handleGenerate = useCallback(() => {
+    if (!prompt.trim() && !url.trim()) {
+      toast({ title: 'Add a description or URL', description: 'We need something to work with.' });
+      return;
+    }
+    toast({ title: 'Generating…', description: 'Your video is being created.' });
+    setTimeout(() => navigate('/editor'), 1500);
+  }, [prompt, url, navigate]);
+
+  const handleLogoUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setBrand(prev => ({ ...prev, logo: file, logoPreview: URL.createObjectURL(file) }));
+    }
+  }, []);
+
+  return {
+    prompt, setPrompt, url, setUrl,
+    files, addFiles, removeFile, fileRef,
+    brand, setBrand, logoRef, handleLogoUpload,
+    handleGenerate,
+  };
+}
+
+/* ─── Shared sub-components ─── */
+
+function FileThumbnails({ files, onRemove }: { files: MediaFile[]; onRemove: (id: string) => void }) {
+  if (files.length === 0) return null;
   return (
-    <div className="space-y-5">
-      <BotBubble>Now let's add your media. Upload screenshots and background footage — I'll use them to build your scenes.</BotBubble>
-
-      <div className="space-y-4 ml-[38px]">
-        {MEDIA_SLOTS.map(slot => {
-          const files = mediaFiles[slot.type] || [];
-          return (
-            <div key={slot.type} className="space-y-2">
-              <div className="flex items-center gap-2">
-                <slot.icon className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">{slot.label}</span>
-                <span className="text-xs text-muted-foreground">— {slot.desc}</span>
-              </div>
-
-              {/* Uploaded file thumbnails */}
-              {files.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {files.map(f => (
-                    <div key={f.id} className="relative group">
-                      <div className="w-20 h-20 rounded-lg overflow-hidden border border-border bg-card">
-                        <img src={f.preview} alt={f.label} className="w-full h-full object-cover" />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeFile(slot.type, f.id)}
-                        className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-
-                  {/* Add more button */}
-                  <button
-                    type="button"
-                    onClick={() => fileRefs.current[slot.type]?.click()}
-                    className="w-20 h-20 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 transition-colors"
-                  >
-                    <Upload className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-[10px] text-muted-foreground">Add more</span>
-                  </button>
-                </div>
-              )}
-
-              {/* Empty state — upload zone */}
-              {files.length === 0 && (
-                <button
-                  type="button"
-                  onClick={() => fileRefs.current[slot.type]?.click()}
-                  className="w-full flex items-center gap-3 rounded-xl border-2 border-dashed border-border/60 p-4 hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
-                >
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-secondary shrink-0">
-                    <Upload className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                  <span className="text-xs text-muted-foreground">Click to upload or drag files here</span>
-                </button>
-              )}
-
-              <input
-                ref={el => { fileRefs.current[slot.type] = el; }}
-                type="file"
-                multiple
-                accept="image/*,video/*"
-                onChange={e => {
-                  if (e.target.files?.length) handleFiles(slot.type, e.target.files);
-                  e.target.value = '';
-                }}
-                className="hidden"
-              />
-            </div>
-          );
-        })}
-      </div>
-
-      <p className="text-xs text-muted-foreground/60 text-center">
-        All uploads are optional — we'll use stock footage to fill any gaps.
-      </p>
+    <div className="flex flex-wrap gap-2">
+      {files.map(f => (
+        <div key={f.id} className="relative group">
+          <div className="w-16 h-16 rounded-lg overflow-hidden border border-border bg-card">
+            <img src={f.preview} alt={f.name} className="w-full h-full object-cover" />
+          </div>
+          <button
+            onClick={() => onRemove(f.id)}
+            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
 
-/* ───────── Step 3: Brand ───────── */
-function BrandStep({
-  brand, setBrand,
+function BrandPanel({
+  brand, setBrand, logoRef, onLogoUpload, compact = false,
 }: {
   brand: BrandConfig;
   setBrand: React.Dispatch<React.SetStateAction<BrandConfig>>;
+  logoRef: React.RefObject<HTMLInputElement | null>;
+  onLogoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  compact?: boolean;
 }) {
-  const logoRef = useRef<HTMLInputElement>(null);
-  const [scraping, setScraping] = useState(false);
-
-  const handleScrape = () => {
-    if (!brand.scrapeUrl.trim()) return;
-    setScraping(true);
-    setTimeout(() => {
-      setScraping(false);
-      // Simulate finding a logo and brand colors
-      setBrand(prev => ({
-        ...prev,
-        gradient: 'brand',
-        logoDetected: 'https://placehold.co/120x40/E04F8A/FFF?text=Logo',
-      }));
-      toast({ title: 'Brand detected', description: 'We found your colors and logo from the website.' });
-    }, 2000);
-  };
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setBrand(prev => ({ ...prev, logo: file, logoPreview: URL.createObjectURL(file), logoDetected: null }));
-    }
-  };
-
   return (
-    <div className="space-y-5">
-      {/* Auto-detect */}
-      <BotBubble>Let's match your brand. Paste your website and I'll try to detect your colors and logo.</BotBubble>
-
-      <div className="space-y-5 ml-[38px]">
-        {/* Scrape URL */}
-        <div className="flex gap-2">
-          <div className="flex-1 flex items-center gap-2 bg-secondary/60 rounded-xl px-3 py-2.5">
-            <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+    <div className={`space-y-3 ${compact ? '' : 'p-4 rounded-xl bg-card/60 border border-border/40'}`}>
+      <div className="flex items-center gap-4">
+        <div className="space-y-1">
+          <label className="text-xs text-muted-foreground">Primary</label>
+          <div className="flex items-center gap-2">
             <input
-              value={brand.scrapeUrl}
-              onChange={e => setBrand(prev => ({ ...prev, scrapeUrl: e.target.value }))}
-              placeholder="https://yoursite.com"
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
+              type="color"
+              value={brand.primaryColor}
+              onChange={e => setBrand(prev => ({ ...prev, primaryColor: e.target.value }))}
+              className="w-8 h-8 rounded-lg border border-border cursor-pointer bg-transparent"
             />
+            <span className="text-xs text-muted-foreground font-mono">{brand.primaryColor}</span>
           </div>
-          <button
-            type="button"
-            onClick={handleScrape}
-            disabled={!brand.scrapeUrl.trim() || scraping}
-            className="flex items-center gap-1.5 bg-primary/15 text-primary text-xs font-medium px-4 py-2.5 rounded-xl hover:bg-primary/25 transition-colors disabled:opacity-40"
-          >
-            {scraping ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-            Detect
-          </button>
         </div>
+        <div className="space-y-1">
+          <label className="text-xs text-muted-foreground">Accent</label>
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={brand.accentColor}
+              onChange={e => setBrand(prev => ({ ...prev, accentColor: e.target.value }))}
+              className="w-8 h-8 rounded-lg border border-border cursor-pointer bg-transparent"
+            />
+            <span className="text-xs text-muted-foreground font-mono">{brand.accentColor}</span>
+          </div>
+        </div>
+      </div>
 
-        {/* Detected logo */}
-        {brand.logoDetected && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-            <BotBubble>I found this logo on your site. Keep it, replace it, or remove it.</BotBubble>
-            <div className="ml-[38px] flex items-center gap-3">
-              <div className="relative">
-                <div className="h-14 px-4 rounded-lg border border-border bg-secondary/40 flex items-center justify-center">
-                  <img src={brand.logoDetected} alt="Detected logo" className="h-8 object-contain" />
-                </div>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => logoRef.current?.click()}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <FileImage className="w-3.5 h-3.5" />
-                  Replace
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setBrand(prev => ({ ...prev, logoDetected: null }))}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
-                >
-                  <X className="w-3.5 h-3.5" />
-                  Remove
-                </button>
-              </div>
+      <div className="flex items-center gap-3">
+        {brand.logoPreview ? (
+          <div className="relative group">
+            <div className="h-10 px-3 rounded-lg border border-border bg-secondary/40 flex items-center">
+              <img src={brand.logoPreview} alt="Logo" className="h-6 object-contain" />
             </div>
-          </motion.div>
-        )}
-
-        {/* Manual logo upload if no detected logo */}
-        {!brand.logoDetected && (
-          <div className="space-y-2">
-            {brand.logoPreview ? (
-              <div className="flex items-center gap-3">
-                <div className="h-14 px-4 rounded-lg border border-border bg-secondary/40 flex items-center justify-center">
-                  <img src={brand.logoPreview} alt="Logo" className="h-8 object-contain" />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setBrand(prev => ({ ...prev, logo: null, logoPreview: null }))}
-                  className="text-xs text-destructive hover:text-destructive/80 transition-colors"
-                >
-                  Remove
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => logoRef.current?.click()}
-                className="flex items-center gap-3 rounded-xl border-2 border-dashed border-border/60 p-4 hover:border-primary/40 hover:bg-primary/5 transition-all w-full text-left"
-              >
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-secondary shrink-0 border border-dashed border-border">
-                  <FileImage className="w-4 h-4 text-muted-foreground" />
-                </div>
-                <span className="text-xs text-muted-foreground">Upload logo</span>
-              </button>
-            )}
+            <button
+              onClick={() => setBrand(prev => ({ ...prev, logo: null, logoPreview: null }))}
+              className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <X className="w-2.5 h-2.5" />
+            </button>
           </div>
-        )}
-        <input ref={logoRef} type="file" accept="image/*,.svg" onChange={handleLogoUpload} className="hidden" />
-
-        {/* Gradient palette */}
-        <div className="space-y-3">
-          <BotBubble>Pick a color theme for your video.</BotBubble>
-          <div className="ml-[38px] flex gap-3">
-            {GRADIENTS.map(g => (
-              <button
-                key={g.id}
-                type="button"
-                onClick={() => setBrand(prev => ({ ...prev, gradient: g.id, useCustom: false }))}
-                className="flex flex-col items-center gap-2 group"
-              >
-                <div
-                  className={`w-[72px] h-[100px] rounded-xl transition-all duration-200 ${
-                    brand.gradient === g.id && !brand.useCustom
-                      ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-105'
-                      : 'hover:scale-105'
-                  }`}
-                  style={{ background: `linear-gradient(135deg, ${g.from}, ${g.to})` }}
-                >
-                  {brand.gradient === g.id && !brand.useCustom && (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Check className="w-5 h-5 text-white drop-shadow-md" />
-                    </div>
-                  )}
-                </div>
-                <span className={`text-xs transition-colors ${
-                  brand.gradient === g.id && !brand.useCustom ? 'text-foreground font-medium' : 'text-muted-foreground'
-                }`}>{g.label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Custom colors toggle */}
+        ) : (
           <button
-            type="button"
-            onClick={() => setBrand(prev => ({ ...prev, useCustom: !prev.useCustom }))}
-            className="ml-[38px] flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => logoRef.current?.click()}
+            className="h-10 px-3 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors flex items-center gap-1.5"
           >
-            <span>{brand.useCustom ? '▾' : '▸'}</span>
-            Pick your own colors
+            <FileImage className="w-3.5 h-3.5" /> Logo
           </button>
+        )}
+        <input ref={logoRef} type="file" accept="image/*" onChange={onLogoUpload} className="hidden" />
 
-          {brand.useCustom && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="ml-[38px] flex gap-4 overflow-hidden">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="color"
-                  value={brand.customPrimary}
-                  onChange={e => setBrand(prev => ({ ...prev, customPrimary: e.target.value }))}
-                  className="w-9 h-9 rounded-lg border border-border cursor-pointer bg-transparent"
-                />
-                <span className="text-xs text-muted-foreground">Primary</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="color"
-                  value={brand.customSecondary}
-                  onChange={e => setBrand(prev => ({ ...prev, customSecondary: e.target.value }))}
-                  className="w-9 h-9 rounded-lg border border-border cursor-pointer bg-transparent"
-                />
-                <span className="text-xs text-muted-foreground">Accent</span>
-              </label>
-            </motion.div>
-          )}
-        </div>
-
-        {/* Font */}
-        <div className="space-y-3">
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Font</span>
-          <div className="flex flex-wrap gap-2">
-            {FONTS.map(f => (
-              <button
-                key={f}
-                type="button"
-                onClick={() => setBrand(prev => ({ ...prev, font: f }))}
-                className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
-                  brand.font === f
-                    ? 'border-primary/40 bg-primary/15 text-primary'
-                    : 'border-border text-muted-foreground hover:text-foreground hover:bg-secondary'
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-        </div>
+        <select
+          value={brand.font}
+          onChange={e => setBrand(prev => ({ ...prev, font: e.target.value }))}
+          className="h-10 bg-secondary/60 border border-border rounded-lg px-3 text-xs text-foreground focus:outline-none focus:border-primary/40"
+        >
+          {FONTS.map(f => <option key={f} value={f}>{f}</option>)}
+        </select>
       </div>
     </div>
   );
 }
 
-/* ───────── Main Create Page ───────── */
-export default function Create() {
-  const navigate = useNavigate();
-  const [step, setStep] = useState<Step>('prompt');
-  const [loading, setLoading] = useState(false);
+function VariantSwitcher({ variant, setVariant }: { variant: Variant; setVariant: (v: Variant) => void }) {
+  return (
+    <div className="fixed top-4 right-4 z-50 flex gap-1 bg-card/90 backdrop-blur-md border border-border rounded-full p-1 shadow-xl">
+      {(['A', 'B', 'C', 'D'] as Variant[]).map(v => (
+        <button
+          key={v}
+          onClick={() => setVariant(v)}
+          className={`w-8 h-8 rounded-full text-xs font-bold transition-all ${
+            variant === v
+              ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
+              : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+          }`}
+        >
+          {v}
+        </button>
+      ))}
+    </div>
+  );
+}
 
-  // Step 1
-  const [vibe, setVibe] = useState('');
-  const [contentType, setContentType] = useState('');
-  const [prompt, setPrompt] = useState('');
-  const [url, setUrl] = useState('');
+/* ═══════════════════════════════════════════════
+   OPTION A — Prompt-First with Toolbar
+   ═══════════════════════════════════════════════ */
+function OptionA(props: ReturnType<typeof useCreateState>) {
+  const [openPanel, setOpenPanel] = useState<'files' | 'url' | 'brand' | null>(null);
 
-  // Step 2
-  const [mediaFiles, setMediaFiles] = useState<Record<string, MediaFile[]>>({});
+  const toggle = (panel: 'files' | 'url' | 'brand') =>
+    setOpenPanel(prev => prev === panel ? null : panel);
 
-  // Step 3
-  const [brand, setBrand] = useState<BrandConfig>({
-    gradient: 'brand',
-    customPrimary: '#E04F8A',
-    customSecondary: '#EC9A2C',
-    useCustom: false,
-    logo: null,
-    logoPreview: null,
-    logoDetected: null,
-    font: 'System Default',
-    scrapeUrl: '',
-  });
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
+      <div className="w-full max-w-2xl space-y-4">
+        <h1 className="text-2xl font-heading font-semibold text-center mb-6">
+          What video will you create?
+        </h1>
 
-  const currentIdx = STEPS.findIndex(s => s.id === step);
-  const isFirst = currentIdx === 0;
-  const isLast = currentIdx === STEPS.length - 1;
+        {/* Main prompt area */}
+        <div className="rounded-2xl border border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-xl shadow-black/20">
+          <textarea
+            value={props.prompt}
+            onChange={e => props.setPrompt(e.target.value)}
+            placeholder="Describe your video — a product launch, an explainer, a social clip…"
+            rows={4}
+            className="w-full bg-transparent px-5 pt-5 pb-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
+          />
 
-  const canProceed = step === 'prompt'
-    ? vibe && contentType && (contentType === 'describe' ? prompt.trim().length > 0 : true)
-    : true;
+          {/* Toolbar row */}
+          <div className="flex items-center gap-1 px-3 pb-3">
+            <button
+              onClick={() => { toggle('files'); props.fileRef.current?.click(); }}
+              className={`p-2.5 rounded-xl transition-colors ${openPanel === 'files' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'}`}
+              title="Attach files"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => toggle('url')}
+              className={`p-2.5 rounded-xl transition-colors ${openPanel === 'url' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'}`}
+              title="Add URL"
+            >
+              <LinkIcon className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => toggle('brand')}
+              className={`p-2.5 rounded-xl transition-colors ${openPanel === 'brand' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'}`}
+              title="Brand settings"
+            >
+              <Palette className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => {}}
+              className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
+              title="Settings"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
 
-  const handleNext = () => {
-    if (isLast) {
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        toast({ title: 'Video generation started', description: 'Your cinematic video is being created.' });
-        navigate('/editor');
-      }, 2500);
-      return;
-    }
-    setStep(STEPS[currentIdx + 1].id);
+            <div className="flex-1" />
+
+            <button
+              onClick={props.handleGenerate}
+              className="flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+            >
+              <Sparkles className="w-4 h-4" />
+              Create
+            </button>
+          </div>
+        </div>
+
+        {/* File thumbnails (shown when files exist) */}
+        {props.files.length > 0 && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="overflow-hidden">
+            <FileThumbnails files={props.files} onRemove={props.removeFile} />
+          </motion.div>
+        )}
+
+        {/* Expandable panels */}
+        <AnimatePresence>
+          {openPanel === 'url' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="flex items-center gap-2 bg-card/60 border border-border rounded-xl px-4 py-3">
+                <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+                <input
+                  value={props.url}
+                  onChange={e => props.setUrl(e.target.value)}
+                  placeholder="Paste a URL to use as content source…"
+                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
+                  autoFocus
+                />
+                {props.url && (
+                  <button onClick={() => props.setUrl('')} className="text-muted-foreground hover:text-foreground">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {openPanel === 'brand' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <BrandPanel brand={props.brand} setBrand={props.setBrand} logoRef={props.logoRef} onLogoUpload={props.handleLogoUpload} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <input
+          ref={props.fileRef}
+          type="file"
+          multiple
+          accept="image/*,video/*"
+          onChange={e => { if (e.target.files?.length) props.addFiles(e.target.files); e.target.value = ''; }}
+          className="hidden"
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   OPTION B — Shortcut Cards + Prompt
+   ═══════════════════════════════════════════════ */
+const SHORTCUTS = [
+  { id: 'url', icon: LinkIcon, label: 'URL to video', desc: 'Paste a link, we do the rest' },
+  { id: 'text', icon: Type, label: 'Text to video', desc: 'Write a script or description' },
+  { id: 'images', icon: Image, label: 'Images to video', desc: 'Upload screenshots or photos' },
+  { id: 'footage', icon: Video, label: 'Footage to video', desc: 'Bring your own clips' },
+];
+
+function OptionB(props: ReturnType<typeof useCreateState>) {
+  const [activeShortcut, setActiveShortcut] = useState<string | null>(null);
+
+  const handleShortcutClick = (id: string) => {
+    setActiveShortcut(prev => prev === id ? null : id);
+    if (id === 'images') props.fileRef.current?.click();
+    if (id === 'footage') props.fileRef.current?.click();
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
       <div className="w-full max-w-2xl space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="font-heading text-2xl md:text-3xl font-bold tracking-tight">
-            Create your <span className="gradient-vs-text">video</span>
-          </h1>
-        </div>
+        <h1 className="text-2xl font-heading font-semibold text-center">Get started</h1>
 
-        {/* Step indicator */}
-        <div className="flex justify-center">
-          <StepIndicator current={step} onNavigate={setStep} />
-        </div>
-
-        {/* Step content */}
-        <div className="bg-card border border-border rounded-2xl overflow-hidden">
-          <div className="p-6">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.25, ease: 'easeInOut' }}
-              >
-                {step === 'prompt' && (
-                  <PromptStep
-                    vibe={vibe} setVibe={setVibe}
-                    contentType={contentType} setContentType={setContentType}
-                    prompt={prompt} setPrompt={setPrompt}
-                    url={url} setUrl={setUrl}
-                  />
-                )}
-                {step === 'media' && (
-                  <MediaStep mediaFiles={mediaFiles} setMediaFiles={setMediaFiles} />
-                )}
-                {step === 'brand' && (
-                  <BrandStep brand={brand} setBrand={setBrand} />
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Navigation footer */}
-          <div className="flex items-center justify-between px-6 py-4 border-t border-border/60">
+        {/* Shortcut cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {SHORTCUTS.map(s => (
             <button
-              type="button"
-              onClick={() => !isFirst && setStep(STEPS[currentIdx - 1].id)}
-              disabled={isFirst}
-              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-0 disabled:pointer-events-none"
+              key={s.id}
+              onClick={() => handleShortcutClick(s.id)}
+              className={`group flex flex-col items-center gap-2.5 p-4 rounded-2xl border transition-all duration-200 text-center ${
+                activeShortcut === s.id
+                  ? 'border-primary/40 bg-primary/10 shadow-[0_0_24px_hsla(338,72%,59%,0.12)]'
+                  : 'border-border/60 bg-card/40 hover:border-border hover:bg-card/80'
+              }`}
             >
-              <ArrowLeft className="w-4 h-4" />
-              Back
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                activeShortcut === s.id ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground group-hover:text-foreground'
+              }`}>
+                <s.icon className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-sm font-medium">{s.label}</div>
+                <div className="text-[11px] text-muted-foreground mt-0.5">{s.desc}</div>
+              </div>
             </button>
+          ))}
+        </div>
 
-            {!isLast && (
-              <button
-                type="button"
-                onClick={() => setStep(STEPS[currentIdx + 1].id)}
-                className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
-              >
-                Skip
-              </button>
-            )}
+        {/* URL input if shortcut selected */}
+        <AnimatePresence>
+          {activeShortcut === 'url' && (
+            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+              <div className="flex items-center gap-2 bg-card/60 border border-border rounded-xl px-4 py-3">
+                <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+                <input
+                  value={props.url}
+                  onChange={e => props.setUrl(e.target.value)}
+                  placeholder="Paste your URL here…"
+                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
+                  autoFocus
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
+        {/* File thumbnails */}
+        {props.files.length > 0 && <FileThumbnails files={props.files} onRemove={props.removeFile} />}
+
+        {/* Divider */}
+        <div className="flex items-center gap-4">
+          <div className="flex-1 h-px bg-border/60" />
+          <span className="text-xs text-muted-foreground">or describe anything</span>
+          <div className="flex-1 h-px bg-border/60" />
+        </div>
+
+        {/* Prompt field */}
+        <div className="rounded-2xl border border-border bg-card/60 overflow-hidden">
+          <textarea
+            value={props.prompt}
+            onChange={e => props.setPrompt(e.target.value)}
+            placeholder="Describe your video…"
+            rows={3}
+            className="w-full bg-transparent px-5 pt-4 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
+          />
+          <div className="flex items-center gap-1 px-3 pb-3">
             <button
-              type="button"
-              onClick={handleNext}
-              disabled={!canProceed || loading}
-              className="flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-30"
+              onClick={() => props.fileRef.current?.click()}
+              className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
             >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : isLast ? (
-                <Sparkles className="w-4 h-4" />
-              ) : (
-                <ArrowRight className="w-4 h-4" />
-              )}
-              {isLast ? 'Generate' : 'Next'}
+              <Plus className="w-4 h-4" />
+            </button>
+            <button className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors">
+              <Palette className="w-4 h-4" />
+            </button>
+            <div className="flex-1" />
+            <button
+              onClick={props.handleGenerate}
+              className="flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+            >
+              <Sparkles className="w-4 h-4" />
+              Create
             </button>
           </div>
         </div>
+
+        <input
+          ref={props.fileRef}
+          type="file"
+          multiple
+          accept="image/*,video/*"
+          onChange={e => { if (e.target.files?.length) props.addFiles(e.target.files); e.target.value = ''; }}
+          className="hidden"
+        />
       </div>
     </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   OPTION C — Single Smart Field
+   ═══════════════════════════════════════════════ */
+function OptionC(props: ReturnType<typeof useCreateState>) {
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Detect URL in prompt
+  const urlMatch = props.prompt.match(/https?:\/\/[^\s]+/);
+  const hasDetectedUrl = !!urlMatch;
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer.files.length) props.addFiles(e.dataTransfer.files);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
+      <div className="w-full max-w-xl space-y-4">
+        <h1 className="text-2xl font-heading font-semibold text-center mb-6">
+          What should we make?
+        </h1>
+
+        {/* Smart field */}
+        <div
+          className="rounded-2xl border border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-xl shadow-black/20 transition-colors"
+          onDragOver={e => e.preventDefault()}
+          onDrop={handleDrop}
+        >
+          <textarea
+            value={props.prompt}
+            onChange={e => props.setPrompt(e.target.value)}
+            placeholder="Paste a URL, describe your video, or drop files here…"
+            rows={4}
+            className="w-full bg-transparent px-5 pt-5 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
+          />
+
+          {/* Detected chips */}
+          {(hasDetectedUrl || props.files.length > 0) && (
+            <div className="flex flex-wrap items-center gap-2 px-5 pb-2">
+              {hasDetectedUrl && (
+                <span className="flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-medium px-3 py-1.5 rounded-full">
+                  <LinkIcon className="w-3 h-3" />
+                  URL detected
+                  <button
+                    onClick={() => props.setPrompt(props.prompt.replace(urlMatch[0], '').trim())}
+                    className="ml-1 hover:text-primary/70"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {props.files.length > 0 && (
+                <span className="flex items-center gap-1.5 bg-accent/10 text-accent text-xs font-medium px-3 py-1.5 rounded-full">
+                  <Image className="w-3 h-3" />
+                  {props.files.length} file{props.files.length > 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Bottom bar */}
+          <div className="flex items-center gap-1 px-3 pb-3">
+            <button
+              onClick={() => props.fileRef.current?.click()}
+              className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
+              title="Attach files"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+            <div className="flex-1" />
+            <button
+              onClick={() => setSettingsOpen(!settingsOpen)}
+              className={`p-2.5 rounded-xl transition-colors ${settingsOpen ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'}`}
+              title="Brand & settings"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+            <button
+              onClick={props.handleGenerate}
+              className="flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 ml-1"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* File previews */}
+        {props.files.length > 0 && <FileThumbnails files={props.files} onRemove={props.removeFile} />}
+
+        {/* Settings panel */}
+        <AnimatePresence>
+          {settingsOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <BrandPanel brand={props.brand} setBrand={props.setBrand} logoRef={props.logoRef} onLogoUpload={props.handleLogoUpload} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <p className="text-xs text-muted-foreground/50 text-center">
+          Drop files anywhere • Paste a URL to auto-detect • Add brand settings with ⚙️
+        </p>
+
+        <input
+          ref={props.fileRef}
+          type="file"
+          multiple
+          accept="image/*,video/*"
+          onChange={e => { if (e.target.files?.length) props.addFiles(e.target.files); e.target.value = ''; }}
+          className="hidden"
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   OPTION D — Accordion Sections
+   ═══════════════════════════════════════════════ */
+function OptionD(props: ReturnType<typeof useCreateState>) {
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
+
+  const toggleSection = (id: string) => {
+    setOpenSections(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const sections = [
+    {
+      id: 'media',
+      icon: Image,
+      label: 'Add media',
+      summary: props.files.length > 0 ? `${props.files.length} file${props.files.length > 1 ? 's' : ''} added` : 'No files added',
+    },
+    {
+      id: 'brand',
+      icon: Palette,
+      label: 'Brand & style',
+      summary: props.brand.logoPreview ? 'Custom brand' : 'Default',
+    },
+    {
+      id: 'url',
+      icon: LinkIcon,
+      label: 'Source URL',
+      summary: props.url ? props.url : 'Optional',
+    },
+  ];
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
+      <div className="w-full max-w-2xl space-y-4">
+        <h1 className="text-2xl font-heading font-semibold text-center mb-6">
+          Create your video
+        </h1>
+
+        {/* Prompt */}
+        <div className="rounded-2xl border border-border bg-card/60 overflow-hidden shadow-xl shadow-black/20">
+          <textarea
+            value={props.prompt}
+            onChange={e => props.setPrompt(e.target.value)}
+            placeholder="Describe your video…"
+            rows={3}
+            className="w-full bg-transparent px-5 pt-5 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
+          />
+          <div className="flex items-center justify-end px-3 pb-3">
+            <button
+              onClick={props.handleGenerate}
+              className="flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+            >
+              <Sparkles className="w-4 h-4" />
+              Create
+            </button>
+          </div>
+        </div>
+
+        {/* Accordion sections */}
+        <div className="space-y-1">
+          {sections.map(section => {
+            const isOpen = openSections.has(section.id);
+            return (
+              <div key={section.id} className="rounded-xl border border-border/40 bg-card/30 overflow-hidden">
+                <button
+                  onClick={() => toggleSection(section.id)}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-secondary/30 transition-colors"
+                >
+                  <section.icon className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium flex-1 text-left">{section.label}</span>
+                  <span className="text-xs text-muted-foreground/60">{section.summary}</span>
+                  <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} />
+                </button>
+
+                <AnimatePresence>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-4 pb-4 pt-1">
+                        {section.id === 'media' && (
+                          <div className="space-y-3">
+                            {props.files.length > 0 && <FileThumbnails files={props.files} onRemove={props.removeFile} />}
+                            <button
+                              onClick={() => props.fileRef.current?.click()}
+                              className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border/60 p-4 hover:border-primary/40 hover:bg-primary/5 transition-all text-xs text-muted-foreground hover:text-foreground"
+                            >
+                              <Upload className="w-4 h-4" />
+                              Upload screenshots, images, or footage
+                            </button>
+                          </div>
+                        )}
+
+                        {section.id === 'brand' && (
+                          <BrandPanel brand={props.brand} setBrand={props.setBrand} logoRef={props.logoRef} onLogoUpload={props.handleLogoUpload} compact />
+                        )}
+
+                        {section.id === 'url' && (
+                          <div className="flex items-center gap-2 bg-secondary/40 rounded-xl px-4 py-3">
+                            <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+                            <input
+                              value={props.url}
+                              onChange={e => props.setUrl(e.target.value)}
+                              placeholder="https://yoursite.com/page"
+                              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+
+        <input
+          ref={props.fileRef}
+          type="file"
+          multiple
+          accept="image/*,video/*"
+          onChange={e => { if (e.target.files?.length) props.addFiles(e.target.files); e.target.value = ''; }}
+          className="hidden"
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   Main Create Page
+   ═══════════════════════════════════════════════ */
+export default function Create() {
+  const [variant, setVariant] = useState<Variant>('A');
+  const state = useCreateState();
+
+  return (
+    <>
+      <VariantSwitcher variant={variant} setVariant={setVariant} />
+      {variant === 'A' && <OptionA {...state} />}
+      {variant === 'B' && <OptionB {...state} />}
+      {variant === 'C' && <OptionC {...state} />}
+      {variant === 'D' && <OptionD {...state} />}
+    </>
   );
 }
