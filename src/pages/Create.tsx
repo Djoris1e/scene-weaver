@@ -3,19 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send, Link as LinkIcon, Upload, Image, Palette, Settings,
-  X, Sparkles, Loader2, ChevronDown, ChevronRight,
-  Plus, Globe, FileImage, Type, Music, Video,
+  X, Sparkles, ChevronRight,
+  Plus, Globe, FileImage, Type, Video,
+  Smartphone, Monitor, FileText, BookOpen, Newspaper,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 /* ─── Shared types & state ─── */
 type Variant = 'A' | 'B' | 'C' | 'D';
+type MediaBucket = 'mobile' | 'desktop' | 'background';
 
 interface MediaFile {
   id: string;
   file: File;
   preview: string;
   name: string;
+  bucket: MediaBucket;
 }
 
 interface BrandConfig {
@@ -28,10 +31,26 @@ interface BrandConfig {
 
 const FONTS = ['System Default', 'Inter', 'Raleway', 'Manrope', 'Space Grotesk'];
 
+const CONTENT_SOURCES = [
+  { id: 'blog', icon: BookOpen, label: 'Blog to video', desc: 'Paste a blog post URL' },
+  { id: 'release', icon: Newspaper, label: 'Release notes to video', desc: 'Changelog or release notes' },
+  { id: 'doc', icon: FileText, label: 'PDF / Doc to video', desc: 'Upload a document' },
+  { id: 'url', icon: LinkIcon, label: 'URL to video', desc: 'Any webpage' },
+  { id: 'text', icon: Type, label: 'Text to video', desc: 'Write or paste a script' },
+  { id: 'footage', icon: Video, label: 'Footage to video', desc: 'Bring your own clips' },
+];
+
+const MEDIA_BUCKETS: { id: MediaBucket; icon: typeof Smartphone; label: string; desc: string; accept: string }[] = [
+  { id: 'mobile', icon: Smartphone, label: 'Mobile Screenshots', desc: 'App or mobile web screens', accept: 'image/*' },
+  { id: 'desktop', icon: Monitor, label: 'Desktop Screenshots', desc: 'Desktop or dashboard screens', accept: 'image/*' },
+  { id: 'background', icon: Image, label: 'Background Media', desc: 'Video or images for backgrounds', accept: 'image/*,video/*' },
+];
+
 /* ─── Shared hooks ─── */
 function useCreateState() {
   const [prompt, setPrompt] = useState('');
   const [url, setUrl] = useState('');
+  const [contentSource, setContentSource] = useState<string | null>(null);
   const [files, setFiles] = useState<MediaFile[]>([]);
   const [brand, setBrand] = useState<BrandConfig>({
     primaryColor: '#E04F8A',
@@ -40,16 +59,19 @@ function useCreateState() {
     logoPreview: null,
     font: 'System Default',
   });
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [docFile, setDocFile] = useState<File | null>(null);
   const logoRef = useRef<HTMLInputElement>(null);
+  const docRef = useRef<HTMLInputElement>(null);
+  const bucketRefs = useRef<Record<MediaBucket, HTMLInputElement | null>>({ mobile: null, desktop: null, background: null });
   const navigate = useNavigate();
 
-  const addFiles = useCallback((fileList: FileList) => {
+  const addFiles = useCallback((bucket: MediaBucket, fileList: FileList) => {
     const newFiles: MediaFile[] = Array.from(fileList).map(f => ({
       id: crypto.randomUUID(),
       file: f,
       preview: URL.createObjectURL(f),
       name: f.name,
+      bucket,
     }));
     setFiles(prev => [...prev, ...newFiles]);
   }, []);
@@ -59,48 +81,103 @@ function useCreateState() {
   }, []);
 
   const handleGenerate = useCallback(() => {
-    if (!prompt.trim() && !url.trim()) {
-      toast({ title: 'Add a description or URL', description: 'We need something to work with.' });
+    if (!prompt.trim() && !url.trim() && !docFile && files.length === 0) {
+      toast({ title: 'Add a description, URL, or media', description: 'We need something to work with.' });
       return;
     }
     toast({ title: 'Generating…', description: 'Your video is being created.' });
     setTimeout(() => navigate('/editor'), 1500);
-  }, [prompt, url, navigate]);
+  }, [prompt, url, docFile, files, navigate]);
 
   const handleLogoUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setBrand(prev => ({ ...prev, logo: file, logoPreview: URL.createObjectURL(file) }));
-    }
+    if (file) setBrand(prev => ({ ...prev, logo: file, logoPreview: URL.createObjectURL(file) }));
+  }, []);
+
+  const handleDocUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setDocFile(file);
   }, []);
 
   return {
     prompt, setPrompt, url, setUrl,
-    files, addFiles, removeFile, fileRef,
+    contentSource, setContentSource,
+    files, addFiles, removeFile, bucketRefs,
     brand, setBrand, logoRef, handleLogoUpload,
+    docFile, setDocFile, docRef, handleDocUpload,
     handleGenerate,
   };
 }
 
+type CreateState = ReturnType<typeof useCreateState>;
+
 /* ─── Shared sub-components ─── */
 
-function FileThumbnails({ files, onRemove }: { files: MediaFile[]; onRemove: (id: string) => void }) {
-  if (files.length === 0) return null;
+function MediaBucketPanel({ files, bucketRefs, addFiles, removeFile }: {
+  files: MediaFile[];
+  bucketRefs: React.MutableRefObject<Record<MediaBucket, HTMLInputElement | null>>;
+  addFiles: (bucket: MediaBucket, fileList: FileList) => void;
+  removeFile: (id: string) => void;
+}) {
   return (
-    <div className="flex flex-wrap gap-2">
-      {files.map(f => (
-        <div key={f.id} className="relative group">
-          <div className="w-16 h-16 rounded-lg overflow-hidden border border-border bg-card">
-            <img src={f.preview} alt={f.name} className="w-full h-full object-cover" />
+    <div className="space-y-4">
+      {MEDIA_BUCKETS.map(bucket => {
+        const bucketFiles = files.filter(f => f.bucket === bucket.id);
+        return (
+          <div key={bucket.id} className="space-y-2">
+            <div className="flex items-center gap-2">
+              <bucket.icon className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium">{bucket.label}</span>
+              <span className="text-xs text-muted-foreground">— {bucket.desc}</span>
+            </div>
+
+            {bucketFiles.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {bucketFiles.map(f => (
+                  <div key={f.id} className="relative group">
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-border bg-card">
+                      <img src={f.preview} alt={f.name} className="w-full h-full object-cover" />
+                    </div>
+                    <button
+                      onClick={() => removeFile(f.id)}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={() => bucketRefs.current[bucket.id]?.click()}
+                  className="w-16 h-16 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-0.5 hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+              </div>
+            )}
+
+            {bucketFiles.length === 0 && (
+              <button
+                onClick={() => bucketRefs.current[bucket.id]?.click()}
+                className="w-full flex items-center gap-3 rounded-xl border-2 border-dashed border-border/50 p-3 hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
+              >
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-secondary shrink-0">
+                  <Upload className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <span className="text-xs text-muted-foreground">Click to upload</span>
+              </button>
+            )}
+
+            <input
+              ref={el => { bucketRefs.current[bucket.id] = el; }}
+              type="file"
+              multiple
+              accept={bucket.accept}
+              onChange={e => { if (e.target.files?.length) addFiles(bucket.id, e.target.files); e.target.value = ''; }}
+              className="hidden"
+            />
           </div>
-          <button
-            onClick={() => onRemove(f.id)}
-            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -178,6 +255,124 @@ function BrandPanel({
   );
 }
 
+function ContentSourceChips({ active, onSelect }: { active: string | null; onSelect: (id: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {CONTENT_SOURCES.map(s => (
+        <button
+          key={s.id}
+          onClick={() => onSelect(active === s.id ? '' : s.id)}
+          className={`group flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium transition-all duration-200 ${
+            active === s.id
+              ? 'bg-primary/15 text-primary border border-primary/30'
+              : 'bg-card/50 text-muted-foreground border border-border/40 hover:border-border hover:text-foreground'
+          }`}
+        >
+          <s.icon className={`w-3.5 h-3.5 ${active === s.id ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
+          {s.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ContentSourceInput({ source, state }: { source: string; state: CreateState }) {
+  if (source === 'blog' || source === 'release' || source === 'url') {
+    return (
+      <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
+        <div className="flex items-center gap-2 bg-card/60 border border-border rounded-xl px-4 py-3">
+          <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+          <input
+            value={state.url}
+            onChange={e => state.setUrl(e.target.value)}
+            placeholder={source === 'blog' ? 'Paste your blog post URL…' : source === 'release' ? 'Paste your changelog or release notes URL…' : 'Paste any URL…'}
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
+            autoFocus
+          />
+          {state.url && (
+            <button onClick={() => state.setUrl('')} className="text-muted-foreground hover:text-foreground">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      </motion.div>
+    );
+  }
+
+  if (source === 'doc') {
+    return (
+      <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
+        {state.docFile ? (
+          <div className="flex items-center gap-3 bg-card/60 border border-border rounded-xl px-4 py-3">
+            <FileText className="w-4 h-4 text-primary shrink-0" />
+            <span className="text-sm text-foreground flex-1 truncate">{state.docFile.name}</span>
+            <button onClick={() => state.setDocFile(null)} className="text-muted-foreground hover:text-foreground">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => state.docRef.current?.click()}
+            className="w-full flex items-center gap-3 rounded-xl border-2 border-dashed border-border/50 p-4 hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
+          >
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-secondary shrink-0">
+              <Upload className="w-4 h-4 text-muted-foreground" />
+            </div>
+            <div>
+              <span className="text-sm text-foreground font-medium">Upload PDF or document</span>
+              <span className="text-xs text-muted-foreground block">.pdf, .docx, .txt</span>
+            </div>
+          </button>
+        )}
+        <input
+          ref={state.docRef}
+          type="file"
+          accept=".pdf,.doc,.docx,.txt,.md"
+          onChange={state.handleDocUpload}
+          className="hidden"
+        />
+      </motion.div>
+    );
+  }
+
+  if (source === 'text') {
+    return (
+      <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
+        <textarea
+          value={state.prompt}
+          onChange={e => state.setPrompt(e.target.value)}
+          placeholder="Write or paste your script here…"
+          rows={4}
+          className="w-full bg-card/60 border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 resize-none leading-relaxed"
+          autoFocus
+        />
+      </motion.div>
+    );
+  }
+
+  // footage → trigger file upload for background bucket
+  if (source === 'footage') {
+    return (
+      <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
+        <button
+          onClick={() => state.bucketRefs.current.background?.click()}
+          className="w-full flex items-center gap-3 rounded-xl border-2 border-dashed border-border/50 p-4 hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
+        >
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-secondary shrink-0">
+            <Video className="w-4 h-4 text-muted-foreground" />
+          </div>
+          <div>
+            <span className="text-sm text-foreground font-medium">Upload video footage</span>
+            <span className="text-xs text-muted-foreground block">.mp4, .mov, .webm</span>
+          </div>
+        </button>
+      </motion.div>
+    );
+  }
+
+  return null;
+}
+
 function VariantSwitcher({ variant, setVariant }: { variant: Variant; setVariant: (v: Variant) => void }) {
   return (
     <div className="fixed top-4 right-4 z-50 flex gap-1 bg-card/90 backdrop-blur-md border border-border rounded-full p-1 shadow-xl">
@@ -198,47 +393,66 @@ function VariantSwitcher({ variant, setVariant }: { variant: Variant; setVariant
   );
 }
 
+function MediaFileCount({ files }: { files: MediaFile[] }) {
+  const counts = MEDIA_BUCKETS.map(b => ({ ...b, count: files.filter(f => f.bucket === b.id).length })).filter(b => b.count > 0);
+  if (counts.length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {counts.map(b => (
+        <span key={b.id} className="flex items-center gap-1 bg-accent/10 text-accent text-[11px] font-medium px-2.5 py-1 rounded-full">
+          <b.icon className="w-3 h-3" />
+          {b.count}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 /* ═══════════════════════════════════════════════
    OPTION A — Prompt-First with Toolbar
    ═══════════════════════════════════════════════ */
-function OptionA(props: ReturnType<typeof useCreateState>) {
-  const [openPanel, setOpenPanel] = useState<'files' | 'url' | 'brand' | null>(null);
-
-  const toggle = (panel: 'files' | 'url' | 'brand') =>
-    setOpenPanel(prev => prev === panel ? null : panel);
+function OptionA(state: CreateState) {
+  const [openPanel, setOpenPanel] = useState<'media' | 'url' | 'brand' | 'source' | null>(null);
+  const toggle = (panel: typeof openPanel) => setOpenPanel(prev => prev === panel ? null : panel);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
       <div className="w-full max-w-2xl space-y-4">
-        <h1 className="text-2xl font-heading font-semibold text-center mb-6">
+        <h1 className="text-2xl font-heading font-semibold text-center mb-2">
           What video will you create?
         </h1>
+        <p className="text-sm text-muted-foreground text-center mb-6">
+          Blog posts, release notes, docs — turn any content into video
+        </p>
+
+        {/* Content source chips */}
+        <ContentSourceChips active={state.contentSource} onSelect={id => { state.setContentSource(id || null); setOpenPanel(null); }} />
+
+        {/* Source-specific input */}
+        <AnimatePresence mode="wait">
+          {state.contentSource && <ContentSourceInput source={state.contentSource} state={state} />}
+        </AnimatePresence>
 
         {/* Main prompt area */}
         <div className="rounded-2xl border border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-xl shadow-black/20">
           <textarea
-            value={props.prompt}
-            onChange={e => props.setPrompt(e.target.value)}
-            placeholder="Describe your video — a product launch, an explainer, a social clip…"
-            rows={4}
-            className="w-full bg-transparent px-5 pt-5 pb-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
+            value={state.prompt}
+            onChange={e => state.setPrompt(e.target.value)}
+            placeholder="Add any extra instructions — tone, audience, key points…"
+            rows={3}
+            className="w-full bg-transparent px-5 pt-4 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
           />
+
+          <MediaFileCount files={state.files} />
 
           {/* Toolbar row */}
           <div className="flex items-center gap-1 px-3 pb-3">
             <button
-              onClick={() => { toggle('files'); props.fileRef.current?.click(); }}
-              className={`p-2.5 rounded-xl transition-colors ${openPanel === 'files' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'}`}
-              title="Attach files"
+              onClick={() => toggle('media')}
+              className={`p-2.5 rounded-xl transition-colors ${openPanel === 'media' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'}`}
+              title="Add screenshots & media"
             >
-              <Plus className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => toggle('url')}
-              className={`p-2.5 rounded-xl transition-colors ${openPanel === 'url' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'}`}
-              title="Add URL"
-            >
-              <LinkIcon className="w-4 h-4" />
+              <Image className="w-4 h-4" />
             </button>
             <button
               onClick={() => toggle('brand')}
@@ -247,18 +461,14 @@ function OptionA(props: ReturnType<typeof useCreateState>) {
             >
               <Palette className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => {}}
-              className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
-              title="Settings"
-            >
+            <button className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors" title="Settings">
               <Settings className="w-4 h-4" />
             </button>
 
             <div className="flex-1" />
 
             <button
-              onClick={props.handleGenerate}
+              onClick={state.handleGenerate}
               className="flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
             >
               <Sparkles className="w-4 h-4" />
@@ -267,56 +477,21 @@ function OptionA(props: ReturnType<typeof useCreateState>) {
           </div>
         </div>
 
-        {/* File thumbnails (shown when files exist) */}
-        {props.files.length > 0 && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="overflow-hidden">
-            <FileThumbnails files={props.files} onRemove={props.removeFile} />
-          </motion.div>
-        )}
-
         {/* Expandable panels */}
         <AnimatePresence>
-          {openPanel === 'url' && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="flex items-center gap-2 bg-card/60 border border-border rounded-xl px-4 py-3">
-                <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
-                <input
-                  value={props.url}
-                  onChange={e => props.setUrl(e.target.value)}
-                  placeholder="Paste a URL to use as content source…"
-                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
-                  autoFocus
-                />
-                {props.url && (
-                  <button onClick={() => props.setUrl('')} className="text-muted-foreground hover:text-foreground">
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
+          {openPanel === 'media' && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+              <div className="p-4 rounded-xl bg-card/60 border border-border/40">
+                <MediaBucketPanel files={state.files} bucketRefs={state.bucketRefs} addFiles={state.addFiles} removeFile={state.removeFile} />
               </div>
             </motion.div>
           )}
-
           {openPanel === 'brand' && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden"
-            >
-              <BrandPanel brand={props.brand} setBrand={props.setBrand} logoRef={props.logoRef} onLogoUpload={props.handleLogoUpload} />
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+              <BrandPanel brand={state.brand} setBrand={state.setBrand} logoRef={state.logoRef} onLogoUpload={state.handleLogoUpload} />
             </motion.div>
           )}
         </AnimatePresence>
-
-        <input
-          ref={props.fileRef}
-          type="file"
-          multiple
-          accept="image/*,video/*"
-          onChange={e => { if (e.target.files?.length) props.addFiles(e.target.files); e.target.value = ''; }}
-          className="hidden"
-        />
       </div>
     </div>
   );
@@ -325,21 +500,17 @@ function OptionA(props: ReturnType<typeof useCreateState>) {
 /* ═══════════════════════════════════════════════
    OPTION B — Shortcut Cards + Prompt
    ═══════════════════════════════════════════════ */
-const SHORTCUTS = [
-  { id: 'url', icon: LinkIcon, label: 'URL to video', desc: 'Paste a link, we do the rest' },
-  { id: 'text', icon: Type, label: 'Text to video', desc: 'Write a script or description' },
-  { id: 'images', icon: Image, label: 'Images to video', desc: 'Upload screenshots or photos' },
-  { id: 'footage', icon: Video, label: 'Footage to video', desc: 'Bring your own clips' },
+const SHORTCUT_CARDS = [
+  { id: 'blog', icon: BookOpen, label: 'Blog to video', desc: 'Turn any blog post into a video' },
+  { id: 'release', icon: Newspaper, label: 'Release notes', desc: 'Changelog or what\'s new' },
+  { id: 'doc', icon: FileText, label: 'PDF / Doc', desc: 'Upload a document' },
+  { id: 'url', icon: LinkIcon, label: 'URL to video', desc: 'Any webpage' },
+  { id: 'text', icon: Type, label: 'Describe it', desc: 'Write a script' },
+  { id: 'footage', icon: Video, label: 'Footage', desc: 'Your own clips' },
 ];
 
-function OptionB(props: ReturnType<typeof useCreateState>) {
-  const [activeShortcut, setActiveShortcut] = useState<string | null>(null);
-
-  const handleShortcutClick = (id: string) => {
-    setActiveShortcut(prev => prev === id ? null : id);
-    if (id === 'images') props.fileRef.current?.click();
-    if (id === 'footage') props.fileRef.current?.click();
-  };
+function OptionB(state: CreateState) {
+  const [openMedia, setOpenMedia] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
@@ -347,19 +518,19 @@ function OptionB(props: ReturnType<typeof useCreateState>) {
         <h1 className="text-2xl font-heading font-semibold text-center">Get started</h1>
 
         {/* Shortcut cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {SHORTCUTS.map(s => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {SHORTCUT_CARDS.map(s => (
             <button
               key={s.id}
-              onClick={() => handleShortcutClick(s.id)}
-              className={`group flex flex-col items-center gap-2.5 p-4 rounded-2xl border transition-all duration-200 text-center ${
-                activeShortcut === s.id
+              onClick={() => state.setContentSource(state.contentSource === s.id ? null : s.id)}
+              className={`group flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all duration-200 text-center ${
+                state.contentSource === s.id
                   ? 'border-primary/40 bg-primary/10 shadow-[0_0_24px_hsla(338,72%,59%,0.12)]'
-                  : 'border-border/60 bg-card/40 hover:border-border hover:bg-card/80'
+                  : 'border-border/50 bg-card/40 hover:border-border hover:bg-card/80'
               }`}
             >
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                activeShortcut === s.id ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground group-hover:text-foreground'
+                state.contentSource === s.id ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground group-hover:text-foreground'
               }`}>
                 <s.icon className="w-5 h-5" />
               </div>
@@ -371,56 +542,42 @@ function OptionB(props: ReturnType<typeof useCreateState>) {
           ))}
         </div>
 
-        {/* URL input if shortcut selected */}
-        <AnimatePresence>
-          {activeShortcut === 'url' && (
-            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
-              <div className="flex items-center gap-2 bg-card/60 border border-border rounded-xl px-4 py-3">
-                <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
-                <input
-                  value={props.url}
-                  onChange={e => props.setUrl(e.target.value)}
-                  placeholder="Paste your URL here…"
-                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
-                  autoFocus
-                />
-              </div>
-            </motion.div>
-          )}
+        {/* Source-specific input */}
+        <AnimatePresence mode="wait">
+          {state.contentSource && <ContentSourceInput source={state.contentSource} state={state} />}
         </AnimatePresence>
-
-        {/* File thumbnails */}
-        {props.files.length > 0 && <FileThumbnails files={props.files} onRemove={props.removeFile} />}
 
         {/* Divider */}
         <div className="flex items-center gap-4">
           <div className="flex-1 h-px bg-border/60" />
-          <span className="text-xs text-muted-foreground">or describe anything</span>
+          <span className="text-xs text-muted-foreground">add details & media</span>
           <div className="flex-1 h-px bg-border/60" />
         </div>
 
         {/* Prompt field */}
         <div className="rounded-2xl border border-border bg-card/60 overflow-hidden">
           <textarea
-            value={props.prompt}
-            onChange={e => props.setPrompt(e.target.value)}
-            placeholder="Describe your video…"
+            value={state.prompt}
+            onChange={e => state.setPrompt(e.target.value)}
+            placeholder="Extra instructions — tone, audience, key points…"
             rows={3}
             className="w-full bg-transparent px-5 pt-4 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
           />
           <div className="flex items-center gap-1 px-3 pb-3">
             <button
-              onClick={() => props.fileRef.current?.click()}
-              className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
+              onClick={() => setOpenMedia(!openMedia)}
+              className={`p-2.5 rounded-xl transition-colors ${openMedia ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'}`}
+              title="Add screenshots & media"
             >
-              <Plus className="w-4 h-4" />
+              <Image className="w-4 h-4" />
             </button>
             <button className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors">
               <Palette className="w-4 h-4" />
             </button>
+            <MediaFileCount files={state.files} />
             <div className="flex-1" />
             <button
-              onClick={props.handleGenerate}
+              onClick={state.handleGenerate}
               className="flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
             >
               <Sparkles className="w-4 h-4" />
@@ -429,14 +586,16 @@ function OptionB(props: ReturnType<typeof useCreateState>) {
           </div>
         </div>
 
-        <input
-          ref={props.fileRef}
-          type="file"
-          multiple
-          accept="image/*,video/*"
-          onChange={e => { if (e.target.files?.length) props.addFiles(e.target.files); e.target.value = ''; }}
-          className="hidden"
-        />
+        {/* Media panel */}
+        <AnimatePresence>
+          {openMedia && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+              <div className="p-4 rounded-xl bg-card/60 border border-border/40">
+                <MediaBucketPanel files={state.files} bucketRefs={state.bucketRefs} addFiles={state.addFiles} removeFile={state.removeFile} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -445,71 +604,81 @@ function OptionB(props: ReturnType<typeof useCreateState>) {
 /* ═══════════════════════════════════════════════
    OPTION C — Single Smart Field
    ═══════════════════════════════════════════════ */
-function OptionC(props: ReturnType<typeof useCreateState>) {
+function OptionC(state: CreateState) {
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [mediaOpen, setMediaOpen] = useState(false);
 
-  // Detect URL in prompt
-  const urlMatch = props.prompt.match(/https?:\/\/[^\s]+/);
-  const hasDetectedUrl = !!urlMatch;
+  const urlMatch = state.prompt.match(/https?:\/\/[^\s]+/);
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    if (e.dataTransfer.files.length) props.addFiles(e.dataTransfer.files);
+    if (e.dataTransfer.files.length) state.addFiles('background', e.dataTransfer.files);
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
       <div className="w-full max-w-xl space-y-4">
-        <h1 className="text-2xl font-heading font-semibold text-center mb-6">
+        <h1 className="text-2xl font-heading font-semibold text-center mb-2">
           What should we make?
         </h1>
+        <p className="text-xs text-muted-foreground text-center mb-4">
+          Paste a blog URL, release notes link, drop a PDF — or just describe it
+        </p>
 
         {/* Smart field */}
         <div
-          className="rounded-2xl border border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-xl shadow-black/20 transition-colors"
+          className="rounded-2xl border border-border bg-card/60 backdrop-blur-sm overflow-hidden shadow-xl shadow-black/20"
           onDragOver={e => e.preventDefault()}
           onDrop={handleDrop}
         >
           <textarea
-            value={props.prompt}
-            onChange={e => props.setPrompt(e.target.value)}
-            placeholder="Paste a URL, describe your video, or drop files here…"
+            value={state.prompt}
+            onChange={e => state.setPrompt(e.target.value)}
+            placeholder="Paste a blog URL, drop a PDF, or describe your video…"
             rows={4}
             className="w-full bg-transparent px-5 pt-5 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
           />
 
           {/* Detected chips */}
-          {(hasDetectedUrl || props.files.length > 0) && (
+          {(!!urlMatch || state.files.length > 0 || state.docFile) && (
             <div className="flex flex-wrap items-center gap-2 px-5 pb-2">
-              {hasDetectedUrl && (
+              {!!urlMatch && (
                 <span className="flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-medium px-3 py-1.5 rounded-full">
                   <LinkIcon className="w-3 h-3" />
                   URL detected
-                  <button
-                    onClick={() => props.setPrompt(props.prompt.replace(urlMatch[0], '').trim())}
-                    className="ml-1 hover:text-primary/70"
-                  >
+                  <button onClick={() => state.setPrompt(state.prompt.replace(urlMatch[0], '').trim())} className="ml-1 hover:text-primary/70">
                     <X className="w-3 h-3" />
                   </button>
                 </span>
               )}
-              {props.files.length > 0 && (
-                <span className="flex items-center gap-1.5 bg-accent/10 text-accent text-xs font-medium px-3 py-1.5 rounded-full">
-                  <Image className="w-3 h-3" />
-                  {props.files.length} file{props.files.length > 1 ? 's' : ''}
+              {state.docFile && (
+                <span className="flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-medium px-3 py-1.5 rounded-full">
+                  <FileText className="w-3 h-3" />
+                  {state.docFile.name}
+                  <button onClick={() => state.setDocFile(null)} className="ml-1 hover:text-primary/70">
+                    <X className="w-3 h-3" />
+                  </button>
                 </span>
               )}
+              <MediaFileCount files={state.files} />
             </div>
           )}
 
           {/* Bottom bar */}
           <div className="flex items-center gap-1 px-3 pb-3">
             <button
-              onClick={() => props.fileRef.current?.click()}
+              onClick={() => state.docRef.current?.click()}
               className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
-              title="Attach files"
+              title="Upload PDF / doc"
             >
-              <Plus className="w-4 h-4" />
+              <FileText className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setMediaOpen(!mediaOpen)}
+              className={`p-2.5 rounded-xl transition-colors ${mediaOpen ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'}`}
+              title="Screenshots & media"
+            >
+              <Image className="w-4 h-4" />
             </button>
             <div className="flex-1" />
             <button
@@ -520,7 +689,7 @@ function OptionC(props: ReturnType<typeof useCreateState>) {
               <Settings className="w-4 h-4" />
             </button>
             <button
-              onClick={props.handleGenerate}
+              onClick={state.handleGenerate}
               className="flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 ml-1"
             >
               <Send className="w-4 h-4" />
@@ -528,17 +697,26 @@ function OptionC(props: ReturnType<typeof useCreateState>) {
           </div>
         </div>
 
-        {/* File previews */}
-        {props.files.length > 0 && <FileThumbnails files={props.files} onRemove={props.removeFile} />}
+        <input
+          ref={state.docRef}
+          type="file"
+          accept=".pdf,.doc,.docx,.txt,.md"
+          onChange={state.handleDocUpload}
+          className="hidden"
+        />
 
-        {/* Settings panel */}
+        {/* Expandable panels */}
         <AnimatePresence>
+          {mediaOpen && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+              <div className="p-4 rounded-xl bg-card/60 border border-border/40">
+                <MediaBucketPanel files={state.files} bucketRefs={state.bucketRefs} addFiles={state.addFiles} removeFile={state.removeFile} />
+              </div>
+            </motion.div>
+          )}
           {settingsOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden"
-            >
-              <BrandPanel brand={props.brand} setBrand={props.setBrand} logoRef={props.logoRef} onLogoUpload={props.handleLogoUpload} />
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+              <BrandPanel brand={state.brand} setBrand={state.setBrand} logoRef={state.logoRef} onLogoUpload={state.handleLogoUpload} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -546,15 +724,6 @@ function OptionC(props: ReturnType<typeof useCreateState>) {
         <p className="text-xs text-muted-foreground/50 text-center">
           Drop files anywhere • Paste a URL to auto-detect • Add brand settings with ⚙️
         </p>
-
-        <input
-          ref={props.fileRef}
-          type="file"
-          multiple
-          accept="image/*,video/*"
-          onChange={e => { if (e.target.files?.length) props.addFiles(e.target.files); e.target.value = ''; }}
-          className="hidden"
-        />
       </div>
     </div>
   );
@@ -563,36 +732,36 @@ function OptionC(props: ReturnType<typeof useCreateState>) {
 /* ═══════════════════════════════════════════════
    OPTION D — Accordion Sections
    ═══════════════════════════════════════════════ */
-function OptionD(props: ReturnType<typeof useCreateState>) {
+function OptionD(state: CreateState) {
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
 
   const toggleSection = (id: string) => {
     setOpenSections(prev => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
   };
 
+  const mediaCount = state.files.length;
   const sections = [
+    {
+      id: 'source',
+      icon: BookOpen,
+      label: 'Content source',
+      summary: state.contentSource ? CONTENT_SOURCES.find(s => s.id === state.contentSource)?.label || 'Selected' : 'Blog, release notes, PDF, URL…',
+    },
     {
       id: 'media',
       icon: Image,
-      label: 'Add media',
-      summary: props.files.length > 0 ? `${props.files.length} file${props.files.length > 1 ? 's' : ''} added` : 'No files added',
+      label: 'Screenshots & media',
+      summary: mediaCount > 0 ? `${mediaCount} file${mediaCount > 1 ? 's' : ''} across ${new Set(state.files.map(f => f.bucket)).size} bucket${new Set(state.files.map(f => f.bucket)).size > 1 ? 's' : ''}` : 'Mobile, desktop, background',
     },
     {
       id: 'brand',
       icon: Palette,
       label: 'Brand & style',
-      summary: props.brand.logoPreview ? 'Custom brand' : 'Default',
-    },
-    {
-      id: 'url',
-      icon: LinkIcon,
-      label: 'Source URL',
-      summary: props.url ? props.url : 'Optional',
+      summary: state.brand.logoPreview ? 'Custom brand' : 'Colors, logo, font',
     },
   ];
 
@@ -606,15 +775,15 @@ function OptionD(props: ReturnType<typeof useCreateState>) {
         {/* Prompt */}
         <div className="rounded-2xl border border-border bg-card/60 overflow-hidden shadow-xl shadow-black/20">
           <textarea
-            value={props.prompt}
-            onChange={e => props.setPrompt(e.target.value)}
-            placeholder="Describe your video…"
+            value={state.prompt}
+            onChange={e => state.setPrompt(e.target.value)}
+            placeholder="Describe your video — what's the goal, audience, key message?"
             rows={3}
             className="w-full bg-transparent px-5 pt-5 pb-2 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none resize-none leading-relaxed"
           />
           <div className="flex items-center justify-end px-3 pb-3">
             <button
-              onClick={props.handleGenerate}
+              onClick={state.handleGenerate}
               className="flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
             >
               <Sparkles className="w-4 h-4" />
@@ -642,40 +811,23 @@ function OptionD(props: ReturnType<typeof useCreateState>) {
                 <AnimatePresence>
                   {isOpen && (
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
+                      initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }} className="overflow-hidden"
                     >
                       <div className="px-4 pb-4 pt-1">
-                        {section.id === 'media' && (
+                        {section.id === 'source' && (
                           <div className="space-y-3">
-                            {props.files.length > 0 && <FileThumbnails files={props.files} onRemove={props.removeFile} />}
-                            <button
-                              onClick={() => props.fileRef.current?.click()}
-                              className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border/60 p-4 hover:border-primary/40 hover:bg-primary/5 transition-all text-xs text-muted-foreground hover:text-foreground"
-                            >
-                              <Upload className="w-4 h-4" />
-                              Upload screenshots, images, or footage
-                            </button>
+                            <ContentSourceChips active={state.contentSource} onSelect={id => state.setContentSource(id || null)} />
+                            <AnimatePresence mode="wait">
+                              {state.contentSource && <ContentSourceInput source={state.contentSource} state={state} />}
+                            </AnimatePresence>
                           </div>
                         )}
-
+                        {section.id === 'media' && (
+                          <MediaBucketPanel files={state.files} bucketRefs={state.bucketRefs} addFiles={state.addFiles} removeFile={state.removeFile} />
+                        )}
                         {section.id === 'brand' && (
-                          <BrandPanel brand={props.brand} setBrand={props.setBrand} logoRef={props.logoRef} onLogoUpload={props.handleLogoUpload} compact />
-                        )}
-
-                        {section.id === 'url' && (
-                          <div className="flex items-center gap-2 bg-secondary/40 rounded-xl px-4 py-3">
-                            <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
-                            <input
-                              value={props.url}
-                              onChange={e => props.setUrl(e.target.value)}
-                              placeholder="https://yoursite.com/page"
-                              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
-                            />
-                          </div>
+                          <BrandPanel brand={state.brand} setBrand={state.setBrand} logoRef={state.logoRef} onLogoUpload={state.handleLogoUpload} compact />
                         )}
                       </div>
                     </motion.div>
@@ -685,15 +837,6 @@ function OptionD(props: ReturnType<typeof useCreateState>) {
             );
           })}
         </div>
-
-        <input
-          ref={props.fileRef}
-          type="file"
-          multiple
-          accept="image/*,video/*"
-          onChange={e => { if (e.target.files?.length) props.addFiles(e.target.files); e.target.value = ''; }}
-          className="hidden"
-        />
       </div>
     </div>
   );
