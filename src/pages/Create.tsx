@@ -312,8 +312,10 @@ function ContentSourceInput({ source, state }: { source: string; state: CreateSt
     return (
       <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
         {urlIsValid ? (
-          /* ── Confirmed URL chip ── */
-          <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-xl px-4 py-3">
+          <div
+            className="flex items-center gap-2 rounded-xl px-4 py-3"
+            style={{ background: 'hsla(240,36%,11%,0.8)', boxShadow: 'inset 0 0 0 1.5px hsla(142,72%,50%,0.5)' }}
+          >
             <Globe className="w-4 h-4 text-primary shrink-0" />
             <span className="flex-1 text-sm text-foreground truncate">{state.url}</span>
             <button onClick={() => state.setUrl('')} className="text-muted-foreground hover:text-foreground transition-colors">
@@ -321,9 +323,7 @@ function ContentSourceInput({ source, state }: { source: string; state: CreateSt
             </button>
           </div>
         ) : (
-          /* ── Empty / typing state ── */
-          <div className="flex items-center gap-2 bg-card/60 border border-border rounded-xl px-4 py-3 focus-within:border-primary/40 transition-colors">
-            <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+          <div className="flex w-full gap-2">
             <input
               value={state.url}
               onChange={e => state.setUrl(e.target.value)}
@@ -334,13 +334,14 @@ function ContentSourceInput({ source, state }: { source: string; state: CreateSt
                   state.setUrl(pasted);
                 }
               }}
-              placeholder={source === 'blog' ? 'Paste your blog post URL…' : source === 'release' ? 'Paste your changelog URL…' : 'Paste any URL…'}
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none"
+              placeholder={source === 'blog' ? 'https://your-blog-post...' : source === 'release' ? 'https://your-changelog...' : 'https://...'}
+              className="flex-1 rounded-xl border-0 px-4 py-2.5 text-base sm:text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30 disabled:opacity-50"
+              style={{ background: 'hsl(240,36%,9%)' }}
               autoFocus
             />
             {state.url && (
-              <button onClick={() => state.setUrl('')} className="text-muted-foreground hover:text-foreground transition-colors">
-                <X className="w-3.5 h-3.5" />
+              <button onClick={() => state.setUrl('')} className="shrink-0 p-2 text-muted-foreground hover:text-foreground transition-colors">
+                <X className="w-4 h-4" />
               </button>
             )}
           </div>
@@ -353,7 +354,10 @@ function ContentSourceInput({ source, state }: { source: string; state: CreateSt
     return (
       <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
         {state.docFile ? (
-          <div className="flex items-center gap-3 bg-card/60 border border-border rounded-xl px-4 py-3">
+          <div
+            className="flex items-center gap-3 rounded-xl px-4 py-3"
+            style={{ background: 'hsla(240,36%,11%,0.8)', boxShadow: 'inset 0 0 0 1.5px hsla(142,72%,50%,0.5)' }}
+          >
             <FileText className="w-4 h-4 text-primary shrink-0" />
             <span className="text-sm text-foreground flex-1 truncate">{state.docFile.name}</span>
             <button onClick={() => state.setDocFile(null)} className="text-muted-foreground hover:text-foreground">
@@ -361,18 +365,18 @@ function ContentSourceInput({ source, state }: { source: string; state: CreateSt
             </button>
           </div>
         ) : (
-          <button
+          <label
+            className="w-full flex cursor-pointer flex-col items-center gap-3 rounded-xl p-8 transition-all duration-200"
+            style={{ background: 'hsla(240,36%,11%,0.8)', boxShadow: 'inset 0 0 0 1px hsla(338,72%,59%,0.3)' }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = 'inset 0 0 0 1px hsla(338,72%,59%,0.6)'; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = 'inset 0 0 0 1px hsla(338,72%,59%,0.3)'; }}
             onClick={() => state.docRef.current?.click()}
-            className="w-full flex items-center gap-3 rounded-xl border-2 border-dashed border-border/50 p-4 hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
           >
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-secondary shrink-0">
-              <Upload className="w-4 h-4 text-muted-foreground" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
+              <Upload className="w-5 h-5 text-muted-foreground" />
             </div>
-            <div>
-              <span className="text-sm text-foreground font-medium">Upload PDF or document</span>
-              <span className="text-xs text-muted-foreground block">.pdf, .docx, .txt</span>
-            </div>
-          </button>
+            <span className="text-xs text-muted-foreground">Drop or click — PDF, Word, TXT, or Markdown</span>
+          </label>
         )}
         <input
           ref={state.docRef}
@@ -387,13 +391,14 @@ function ContentSourceInput({ source, state }: { source: string; state: CreateSt
 
   if (source === 'text') {
     return (
-      <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
+      <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="space-y-2.5">
+        <p className="text-xs text-muted-foreground">Tell us what you launched and why it matters</p>
         <textarea
           value={state.prompt}
           onChange={e => state.setPrompt(e.target.value)}
-          placeholder="Write or paste your script here…"
-          rows={4}
-          className="w-full bg-card/60 border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 resize-none leading-relaxed"
+          placeholder="Describe your video..."
+          rows={3}
+          className="w-full resize-none rounded-xl border border-border/80 bg-card/80 px-4 py-3 text-base sm:text-sm text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/40"
           autoFocus
         />
       </motion.div>
