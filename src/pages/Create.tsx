@@ -10,7 +10,7 @@ import {
 import { toast } from '@/hooks/use-toast';
 
 /* ─── Shared types & state ─── */
-type Variant = 'A' | 'B' | 'C' | 'D';
+type Variant = 'A' | 'B' | 'C' | 'D' | 'E';
 type MediaBucket = 'mobile' | 'desktop' | 'background';
 
 interface MediaFile {
@@ -359,7 +359,7 @@ function ContentSourceInput({ source, state }: { source: string; state: CreateSt
 function VariantSwitcher({ variant, setVariant }: { variant: Variant; setVariant: (v: Variant) => void }) {
   return (
     <div className="fixed top-4 right-4 z-50 flex gap-1 bg-card/90 backdrop-blur-md border border-border rounded-full p-1 shadow-xl">
-      {(['A', 'B', 'C', 'D'] as Variant[]).map(v => (
+      {(['A', 'B', 'C', 'D', 'E'] as Variant[]).map(v => (
         <button
           key={v}
           onClick={() => setVariant(v)}
@@ -838,6 +838,7 @@ export default function Create() {
       {variant === 'B' && <OptionB {...state} />}
       {variant === 'C' && <OptionC {...state} />}
       {variant === 'D' && <OptionD {...state} />}
+      {variant === 'E' && <OptionE {...state} />}
     </>
   );
 }
