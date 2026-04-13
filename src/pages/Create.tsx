@@ -730,7 +730,7 @@ function OptionD(state: CreateState) {
     {
       id: 'source',
       icon: BookOpen,
-      label: 'Describe & add sources',
+      label: 'Add sources',
       summary: state.contentSource ? CONTENT_SOURCES.find(s => s.id === state.contentSource)?.label || 'Selected' : 'Blog, release notes, PDF, URL…',
     },
     {
