@@ -4,9 +4,11 @@ interface PreviewProps {
   scene: Scene;
   sceneIndex: number;
   totalScenes: number;
+  aspect?: '9/16' | '16/9';
+  className?: string;
 }
 
-export default function Preview({ scene, sceneIndex, totalScenes }: PreviewProps) {
+export default function Preview({ scene, sceneIndex, totalScenes, aspect = '9/16', className }: PreviewProps) {
   const color = TEXT_COLOR_PAIRINGS.find(c => c.id === scene.textColorId) || TEXT_COLOR_PAIRINGS[0];
   const fontOpt = FONT_OPTIONS.find(f => f.id === scene.fontId) || FONT_OPTIONS[0];
   const gradientStyle = GRADIENT_STYLES.find(g => g.id === scene.gradient.style) || GRADIENT_STYLES[0];
@@ -28,10 +30,14 @@ export default function Preview({ scene, sceneIndex, totalScenes }: PreviewProps
     return <div className="absolute inset-0" style={{ background: gradientStyle.preview }} />;
   };
 
+  const frameStyle = aspect === '9/16'
+    ? { aspectRatio: '9/16', height: '100%', width: 'auto', maxWidth: '100%' }
+    : { aspectRatio: '16/9', width: '100%', height: 'auto', maxHeight: '100%' };
+
   return (
-    <div className="h-[55vh] shrink-0 relative" style={{ background: 'hsl(var(--stage))' }}>
-      <div className="absolute inset-0 flex items-center justify-center px-6 py-3">
-        <div className="relative rounded-2xl overflow-hidden shadow-2xl" style={{ aspectRatio: '9/16', height: '100%', width: 'auto' }}>
+    <div className={`relative w-full h-full ${className ?? ''}`} style={{ background: 'hsl(var(--stage))' }}>
+      <div className="absolute inset-0 flex items-center justify-center px-4 py-3">
+        <div className="relative rounded-2xl overflow-hidden shadow-2xl" style={frameStyle}>
           {renderBg()}
           {scene.text && scene.assetType !== 'counter' && (
             <div className={`absolute inset-0 flex flex-col ${positionClass} px-5 z-10`}>
