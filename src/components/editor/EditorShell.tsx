@@ -8,16 +8,17 @@ import PaneSegmented from './PaneSegmented';
 interface EditorShellProps {
   chat: React.ReactNode;
   preview: React.ReactNode;
+  aspect: '9/16' | '16/9';
+  onAspectChange: (a: '9/16' | '16/9') => void;
 }
 
-export default function EditorShell({ chat, preview }: EditorShellProps) {
+export default function EditorShell({ chat, preview, aspect, onAspectChange }: EditorShellProps) {
   const isMobile = useIsMobile();
-  const [aspect, setAspect] = useState<'9/16' | '16/9'>('9/16');
   const [mobilePane, setMobilePane] = useState<'chat' | 'preview'>('preview');
 
   return (
     <div className="h-screen w-full flex flex-col bg-background overflow-hidden">
-      <EditorHeader aspect={aspect} onAspectChange={setAspect} />
+      <EditorHeader aspect={aspect} onAspectChange={onAspectChange} />
 
       {isMobile ? (
         <>
@@ -54,9 +55,6 @@ export default function EditorShell({ chat, preview }: EditorShellProps) {
           </ResizablePanelGroup>
         </div>
       )}
-
-      {/* Re-expose aspect via context-free prop drilling: stash on data attr for the preview pane */}
-      <span className="hidden" data-aspect={aspect} />
     </div>
   );
 }
