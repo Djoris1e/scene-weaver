@@ -30,16 +30,16 @@ export default function ChatPane(props: ChatPaneProps) {
   const [editingScene, setEditingScene] = useState<number | null>(null);
 
   const items = [
-    { id: 'chat' as const, label: 'Chat', icon: <MessageSquare className="w-3.5 h-3.5" /> },
-    { id: 'scenes' as const, label: 'Scenes', icon: <Layers className="w-3.5 h-3.5" />, badge: props.scenes.length },
-    { id: 'audio' as const, label: 'Audio', icon: <Music className="w-3.5 h-3.5" /> },
+    { id: 'chat', label: 'Chat', icon: <MessageSquare className="w-3.5 h-3.5" /> },
+    { id: 'scenes', label: 'Scenes', icon: <Layers className="w-3.5 h-3.5" />, badge: props.scenes.length },
+    { id: 'audio', label: 'Audio', icon: <Music className="w-3.5 h-3.5" /> },
   ];
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-card/30">
       {/* Pane header */}
       <div className="shrink-0 px-3 py-2.5 border-b border-border/40 flex items-center justify-between gap-2">
-        <PaneSegmented items={items} active={tab} onChange={setTab} size="sm" />
+        <PaneSegmented items={items} active={tab} onChange={(id) => setTab(id as LeftTab)} size="sm" />
       </div>
 
       {/* Body */}

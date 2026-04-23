@@ -1,23 +1,23 @@
 import React from 'react';
 
-interface SegItem<T extends string> {
-  id: T;
+export interface SegItem {
+  id: string;
   label: string;
   icon?: React.ReactNode;
   badge?: string | number;
 }
 
-interface PaneSegmentedProps<T extends string> {
-  items: SegItem<T>[];
-  active: T;
-  onChange: (id: T) => void;
+interface PaneSegmentedProps {
+  items: SegItem[];
+  active: string;
+  onChange: (id: string) => void;
   size?: 'sm' | 'md';
   fullWidth?: boolean;
 }
 
-export default function PaneSegmented<T extends string>({
+export default function PaneSegmented({
   items, active, onChange, size = 'md', fullWidth = false,
-}: PaneSegmentedProps<T>) {
+}: PaneSegmentedProps) {
   const padY = size === 'sm' ? 'py-1' : 'py-1.5';
   const padX = size === 'sm' ? 'px-2.5' : 'px-3';
   const text = size === 'sm' ? 'text-[11px]' : 'text-xs';

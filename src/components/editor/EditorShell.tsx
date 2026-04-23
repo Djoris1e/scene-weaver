@@ -29,7 +29,7 @@ export default function EditorShell({ chat, preview }: EditorShellProps) {
                 { id: 'preview', label: 'Preview', icon: <Play className="w-3.5 h-3.5" /> },
               ]}
               active={mobilePane}
-              onChange={setMobilePane}
+              onChange={(id) => setMobilePane(id as 'chat' | 'preview')}
             />
           </div>
           <div className="flex-1 min-h-0">
